@@ -8,14 +8,11 @@ import android.graphics.ImageFormat
 import android.graphics.Point
 import android.hardware.camera2.*
 import android.media.ImageReader
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
+import android.os.*
 import android.util.Log
 import android.util.Size
 import android.view.SurfaceHolder
-import android.view.SurfaceView
+import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
@@ -25,11 +22,18 @@ private const val TAG = "CameraTAG"
 private const val PERMISSIONS_REQUEST_CODE = 10
 private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
 private val SIZE_1080P = SmartSize(1920, 1080)
+const val FLAGS_FULLSCREEN =
+        View.SYSTEM_UI_FLAG_LOW_PROFILE or
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
 class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
 
     private val cameraThread = HandlerThread("Camera Thread").apply { start() }
     private val cameraHandler = Handler(cameraThread.looper)
+//    private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
+//    private val imageReaderHandler = Handler(imageReaderThread.looper)
 
     private lateinit var camera: CameraDevice
     private lateinit var previewSize: Size
@@ -44,11 +48,19 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         checkForPermissionsAndInitViews()
     }
 
+    override fun onResume() {
+        super.onResume()
+        surfacePreview.postDelayed({
+            surfacePreview.systemUiVisibility = FLAGS_FULLSCREEN
+        }, 500)
+    }
+
     // region Tear down methods
     override fun onStop() {
         super.onStop()
         try {
             camera.close()
+            Log.d(TAG, "Camera closed")
         } catch (exc: Throwable) {
             Log.e(TAG, "Error while closing camera")
         }
@@ -56,7 +68,9 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
 
     override fun onDestroy() {
         super.onDestroy()
+//        imageReaderThread.quitSafely()
         cameraThread.quitSafely()
+        Log.d(TAG, "Camera thread closed")
     }
     // endregion
 
@@ -108,11 +122,10 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         Log.d(TAG, "Selected preview size: $previewSize")
         surfacePreview.holder.setFixedSize(previewSize.width, previewSize.height)
         surfacePreview.setAspectRatio(previewSize.width, previewSize.height)
-        openCamera(cameraId)
+        surfacePreview.post { openCamera(cameraId) }    // Very important - post
     }
 
     private fun initPreviewSession(cameraId: String) {
-        // set buffer size
         val size = cameraManager.getCameraCharacteristics(cameraId)
                 .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
                 .getOutputSizes(ImageFormat.JPEG).maxBy { it.height * it.width }!!
@@ -130,6 +143,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         camera.createCaptureSession(listOf(surfacePreview.holder.surface, imageReader.surface),
                 object : CameraCaptureSession.StateCallback() {
                     override fun onConfigured(session: CameraCaptureSession) {
+                        Log.d(TAG, "Session is configured")
                         session.setRepeatingRequest(captureRequestBuilder.build(), null, cameraHandler)
                     }
 
@@ -141,7 +155,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     }
 
     override fun onImageAvailable(reader: ImageReader?) {
-        Log.d(TAG, "image acquired " + reader?.imageFormat)
+        Log.d(TAG, "Image Reader: New image available")
     }
 
     // region Helper Methods
@@ -149,6 +163,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     private fun openCamera(cameraId: String) {
         cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
             override fun onOpened(camera: CameraDevice) {
+                Log.d(TAG, "Camera $cameraId is open")
                 this@MainActivity.camera = camera
                 initPreviewSession(cameraId)
             }
