@@ -111,19 +111,20 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         openCamera(cameraId)
     }
 
-    private fun initPreviewSession() {
+    private fun initPreviewSession(cameraId: String) {
         // set buffer size
-        val imageReader = ImageReader.newInstance(
-                previewSize.width, previewSize.height, ImageFormat.YUV_420_888, 2)
-                .apply {
-                    setOnImageAvailableListener(this@MainActivity, cameraHandler)
-                }
-        
+        val size = cameraManager.getCameraCharacteristics(cameraId)
+                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+                .getOutputSizes(ImageFormat.JPEG).maxBy { it.height * it.width }!!
+
+        val imageReader = ImageReader.newInstance(size.width, size.height, ImageFormat.JPEG, 3)
+
+
         val captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
             addTarget(surfacePreview.holder.surface)
-            addTarget(imageReader.surface)
-            set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)  // auto-focus
-            set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)       // flash
+//            addTarget(imageReader.surface)
+//            set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)  // auto-focus
+//            set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)       // flash
         }
 
         camera.createCaptureSession(listOf(surfacePreview.holder.surface, imageReader.surface),
@@ -149,7 +150,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
             override fun onOpened(camera: CameraDevice) {
                 this@MainActivity.camera = camera
-                initPreviewSession()
+                initPreviewSession(cameraId)
             }
 
             override fun onDisconnected(camera: CameraDevice) {
