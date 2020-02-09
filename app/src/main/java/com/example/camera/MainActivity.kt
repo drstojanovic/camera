@@ -22,18 +22,13 @@ private const val TAG = "CameraTAG"
 private const val PERMISSIONS_REQUEST_CODE = 10
 private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
 private val SIZE_1080P = SmartSize(1920, 1080)
-const val FLAGS_FULLSCREEN =
-        View.SYSTEM_UI_FLAG_LOW_PROFILE or
-                View.SYSTEM_UI_FLAG_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 
 class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
 
     private val cameraThread = HandlerThread("Camera Thread").apply { start() }
     private val cameraHandler = Handler(cameraThread.looper)
-//    private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
-//    private val imageReaderHandler = Handler(imageReaderThread.looper)
+    private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
+    private val imageReaderHandler = Handler(imageReaderThread.looper)
 
     private lateinit var camera: CameraDevice
     private lateinit var previewSize: Size
@@ -48,13 +43,6 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         checkForPermissionsAndInitViews()
     }
 
-    override fun onResume() {
-        super.onResume()
-        surfacePreview.postDelayed({
-            surfacePreview.systemUiVisibility = FLAGS_FULLSCREEN
-        }, 500)
-    }
-
     // region Tear down methods
     override fun onStop() {
         super.onStop()
@@ -62,13 +50,14 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
             camera.close()
             Log.d(TAG, "Camera closed")
         } catch (exc: Throwable) {
-            Log.e(TAG, "Error while closing camera")
+            Log.e(TAG, "Error while closing camera: " + exc.message)
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-//        imageReaderThread.quitSafely()
+        imageReaderThread.quitSafely()
+        Log.d(TAG, "ImageReader thread closed")
         cameraThread.quitSafely()
         Log.d(TAG, "Camera thread closed")
     }
@@ -125,17 +114,16 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         surfacePreview.post { openCamera(cameraId) }    // Very important - post
     }
 
-    private fun initPreviewSession(cameraId: String) {
-        val size = cameraManager.getCameraCharacteristics(cameraId)
-                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-                .getOutputSizes(ImageFormat.JPEG).maxBy { it.height * it.width }!!
-
-        val imageReader = ImageReader.newInstance(size.width, size.height, ImageFormat.JPEG, 3)
-
+    private fun initPreviewSession() {
+        val imageReader = ImageReader.newInstance(
+                previewSize.width, previewSize.height,
+                ImageFormat.YUV_420_888, 2).apply {
+            setOnImageAvailableListener(this@MainActivity, imageReaderHandler)
+        }
 
         val captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
             addTarget(surfacePreview.holder.surface)
-//            addTarget(imageReader.surface)
+            addTarget(imageReader.surface)
 //            set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)  // auto-focus
 //            set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)       // flash
         }
@@ -155,7 +143,9 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     }
 
     override fun onImageAvailable(reader: ImageReader?) {
-        Log.d(TAG, "Image Reader: New image available")
+//        Log.d(TAG, "Image Reader: New image available")
+        val image = reader?.acquireLatestImage()
+        image?.close()
     }
 
     // region Helper Methods
@@ -165,7 +155,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
             override fun onOpened(camera: CameraDevice) {
                 Log.d(TAG, "Camera $cameraId is open")
                 this@MainActivity.camera = camera
-                initPreviewSession(cameraId)
+                initPreviewSession()
             }
 
             override fun onDisconnected(camera: CameraDevice) {
@@ -197,10 +187,18 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         return cameraManager.getCameraCharacteristics(cameraId)
                 .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
                 .getOutputSizes(SurfaceHolder::class.java)
+                .also { logList(it) }
                 .sortedWith(compareBy { it.height * it.width })
                 .map { SmartSize(it.width, it.height) }
                 .reversed()
                 .first { it.long <= maxAllowedSize.long && it.short <= maxAllowedSize.short }.size
+    }
+
+    private fun logList(list: Array<Size>?) {
+        Log.i(TAG, "Output sizes:")
+        list?.forEach {
+            Log.i(TAG, "${it.width}x${it.height}")
+        }
     }
 
     private fun getDisplaySize() = Point().let {
