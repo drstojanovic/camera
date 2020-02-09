@@ -7,30 +7,42 @@ import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.graphics.Point
 import android.hardware.camera2.*
+import android.media.Image
 import android.media.ImageReader
 import android.os.*
+import android.text.TextUtils
 import android.util.Log
 import android.util.Size
 import android.view.SurfaceHolder
-import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import kotlin.math.max
+import kotlin.math.min
 
 private const val TAG = "CameraTAG"
 private const val PERMISSIONS_REQUEST_CODE = 10
 private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
 private val SIZE_1080P = SmartSize(1920, 1080)
+private val DESIRED_PREVIEW_SIZE = Size(640, 480)
+private const val MINIMAL_VALID_PREVIEW_SIZE = 320  // empiric value
+
 
 class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
 
-    private val cameraThread = HandlerThread("Camera Thread").apply { start() }
-    private val cameraHandler = Handler(cameraThread.looper)
-    private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
-    private val imageReaderHandler = Handler(imageReaderThread.looper)
+    class CameraHandler(looper: Looper) : Handler(looper)
+    class CameraThread(name: String) : HandlerThread(name)
+    class ImageReaderHandler(looper: Looper) : Handler(looper)
+    class ImageReaderThread(name: String) : HandlerThread(name)
+
+    private val cameraThread = CameraThread("Camera Thread").apply { start() }
+    private val cameraHandler = CameraHandler(cameraThread.looper)
+    private val imageReaderThread = ImageReaderThread("ImageReader Thread").apply { start() }
+    private val imageReaderHandler = ImageReaderHandler(imageReaderThread.looper)
 
     private lateinit var camera: CameraDevice
+    private lateinit var imageReader: ImageReader       // IMPORTANT: imageReader as class field due to exceptions thrown in middle of preview
     private lateinit var previewSize: Size
     private lateinit var surfacePreview: AutoFitSurfaceView
     private val cameraManager: CameraManager by lazy {
@@ -106,16 +118,17 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
             return
         }
 
-        previewSize = getPreviewOutputSize(cameraId)
+        previewSize = getSmallestValidOutputSize(cameraId)
         Log.d(TAG, "Surface View preview size: ${surfacePreview.width} x ${surfacePreview.height}")
         Log.d(TAG, "Selected preview size: $previewSize")
         surfacePreview.holder.setFixedSize(previewSize.width, previewSize.height)
         surfacePreview.setAspectRatio(previewSize.width, previewSize.height)
-        surfacePreview.post { openCamera(cameraId) }    // Very important - post
+        Log.d(TAG, "Surface View preview size after applying values: ${surfacePreview.width} x ${surfacePreview.height}")
+        surfacePreview.post { openCamera(cameraId) }    // IMPORTANT - post (make sure that size is set first and then executed rest of code)
     }
 
     private fun initPreviewSession() {
-        val imageReader = ImageReader.newInstance(
+        imageReader = ImageReader.newInstance(
                 previewSize.width, previewSize.height,
                 ImageFormat.YUV_420_888, 2).apply {
             setOnImageAvailableListener(this@MainActivity, imageReaderHandler)
@@ -144,8 +157,14 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
 
     override fun onImageAvailable(reader: ImageReader?) {
 //        Log.d(TAG, "Image Reader: New image available")
-        val image = reader?.acquireLatestImage()
-        image?.close()
+        var image: Image? = null
+        try {
+            image = reader?.acquireLatestImage()
+        } catch (ex: Exception) {
+            Log.d(TAG, "Exception while acquiring image. Skipped.")
+        } finally {
+            image?.close()
+        }
     }
 
     // region Helper Methods
@@ -179,7 +198,21 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         }, cameraHandler)
     }
 
-    private fun getPreviewOutputSize(cameraId: String): Size {
+    private fun getSmallestValidOutputSize(cameraId: String): Size {
+        val minSize = max(
+                min(DESIRED_PREVIEW_SIZE.width, DESIRED_PREVIEW_SIZE.height),
+                MINIMAL_VALID_PREVIEW_SIZE)
+
+        return cameraManager.getCameraCharacteristics(cameraId)
+                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+                .getOutputSizes(SurfaceHolder::class.java)
+                .filter { it.width >= minSize && it.height >= minSize }
+                .sortedBy { it.width * it.height }
+                .also { Log.i(TAG, TextUtils.join("\n", it)) }
+                .first()
+    }
+
+    private fun getHDPreviewOutputSize(cameraId: String): Size {
         val screenSize = getDisplaySize()
         val hdScreen = screenSize.long >= SIZE_1080P.long || screenSize.short >= SIZE_1080P.short
         val maxAllowedSize = if (hdScreen) SIZE_1080P else screenSize
@@ -187,18 +220,11 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         return cameraManager.getCameraCharacteristics(cameraId)
                 .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
                 .getOutputSizes(SurfaceHolder::class.java)
-                .also { logList(it) }
+                .also { Log.i(TAG, TextUtils.join("\n", it)) }
                 .sortedWith(compareBy { it.height * it.width })
                 .map { SmartSize(it.width, it.height) }
                 .reversed()
                 .first { it.long <= maxAllowedSize.long && it.short <= maxAllowedSize.short }.size
-    }
-
-    private fun logList(list: Array<Size>?) {
-        Log.i(TAG, "Output sizes:")
-        list?.forEach {
-            Log.i(TAG, "${it.width}x${it.height}")
-        }
     }
 
     private fun getDisplaySize() = Point().let {

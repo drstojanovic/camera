@@ -1,0 +1,21 @@
+Problems and fixes:
+
+- Black screen on starting camera (sometimes)
+    In about 50% cases, after opening camera, surface view was black, but in Logcat I could see that
+    camera was receiving bytes. Problem was that surface view fixed size and aspect ratio were not set
+    correctly before opening camera (even call was after that, but obviously on other thread (Camera thread).
+    This was resolved by POSTING rest of code on SURFACE VIEW thread. That way we are sure that all operations
+    will be executed AFTER proper size is set. This was found in official Camera2Basic google example.
+
+- Freezing camera after a while on preview mode
+    Actually, exception was thrown in "cameraManager.open" method and its code was "1" which means that
+    camera was in use. Beside this error, in log were also found these:
+        - E/Legacy-CameraDevice-JNI: getNativeWindow: Surface had no valid native window.
+        - E/Legacy-CameraDevice-JNI: LegacyCameraDevice_nativeDetectSurfaceType: Could not retrieve native window from surface
+        - E/CameraDeviceGLThread-0: Received exception on GL render thread:
+              java.lang.IllegalArgumentException: Surface had no valid native Surface.
+    What was actually happening is that GarbageCollector was destroying ImageReader instance which was
+    created in method.
+    Problem was resolved by adding ImageReader as class field.
+    Solution: https://stackoverflow.com/a/33468855/8177021
+
