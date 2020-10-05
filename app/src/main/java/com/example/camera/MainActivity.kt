@@ -84,7 +84,11 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -103,7 +107,13 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     private fun initViews() {
         surfacePreview = findViewById(R.id.surface_preview)
         surfacePreview.holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) = Unit
+            override fun surfaceChanged(
+                holder: SurfaceHolder?,
+                format: Int,
+                width: Int,
+                height: Int
+            ) = Unit
+
             override fun surfaceDestroyed(holder: SurfaceHolder?) = Unit
             override fun surfaceCreated(holder: SurfaceHolder?) {
                 setupCamera()
@@ -123,36 +133,43 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         Log.d(TAG, "Selected preview size: $previewSize")
         surfacePreview.holder.setFixedSize(previewSize.width, previewSize.height)
         surfacePreview.setAspectRatio(previewSize.width, previewSize.height)
-        Log.d(TAG, "Surface View preview size after applying values: ${surfacePreview.width} x ${surfacePreview.height}")
+        Log.d(
+            TAG,
+            "Surface View preview size after applying values: ${surfacePreview.width} x ${surfacePreview.height}"
+        )
         surfacePreview.post { openCamera(cameraId) }    // IMPORTANT - post (make sure that size is set first and then executed rest of code)
     }
 
     private fun initPreviewSession() {
         imageReader = ImageReader.newInstance(
-                previewSize.width, previewSize.height,
-                ImageFormat.YUV_420_888, 2).apply {
+            previewSize.width, previewSize.height,
+            ImageFormat.YUV_420_888, 2
+        ).apply {
             setOnImageAvailableListener(this@MainActivity, imageReaderHandler)
         }
 
-        val captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
-            addTarget(surfacePreview.holder.surface)
-            addTarget(imageReader.surface)
+        val captureRequestBuilder =
+            camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
+                addTarget(surfacePreview.holder.surface)
+                addTarget(imageReader.surface)
 //            set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)  // auto-focus
 //            set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)       // flash
-        }
+            }
 
-        camera.createCaptureSession(listOf(surfacePreview.holder.surface, imageReader.surface),
-                object : CameraCaptureSession.StateCallback() {
-                    override fun onConfigured(session: CameraCaptureSession) {
-                        Log.d(TAG, "Session is configured")
-                        session.setRepeatingRequest(captureRequestBuilder.build(), null, cameraHandler)
-                    }
+        camera.createCaptureSession(
+            listOf(surfacePreview.holder.surface, imageReader.surface),
+            object : CameraCaptureSession.StateCallback() {
+                override fun onConfigured(session: CameraCaptureSession) {
+                    Log.d(TAG, "Session is configured")
+                    session.setRepeatingRequest(captureRequestBuilder.build(), null, cameraHandler)
+                }
 
-                    override fun onConfigureFailed(session: CameraCaptureSession) {
-                        val exc = RuntimeException("Camera ${camera.id} session configuration failed")
-                        Log.e(TAG, exc.message, exc)
-                    }
-                }, cameraHandler)
+                override fun onConfigureFailed(session: CameraCaptureSession) {
+                    val exc = RuntimeException("Camera ${camera.id} session configuration failed")
+                    Log.e(TAG, exc.message, exc)
+                }
+            }, cameraHandler
+        )
     }
 
     override fun onImageAvailable(reader: ImageReader?) {
@@ -200,16 +217,17 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
 
     private fun getSmallestValidOutputSize(cameraId: String): Size {
         val minSize = max(
-                min(DESIRED_PREVIEW_SIZE.width, DESIRED_PREVIEW_SIZE.height),
-                MINIMAL_VALID_PREVIEW_SIZE)
+            min(DESIRED_PREVIEW_SIZE.width, DESIRED_PREVIEW_SIZE.height),
+            MINIMAL_VALID_PREVIEW_SIZE
+        )
 
         return cameraManager.getCameraCharacteristics(cameraId)
-                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-                .getOutputSizes(SurfaceHolder::class.java)
-                .filter { it.width >= minSize && it.height >= minSize }
-                .sortedBy { it.width * it.height }
-                .also { Log.i(TAG, TextUtils.join("\n", it)) }
-                .first()
+            .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+            .getOutputSizes(SurfaceHolder::class.java)
+            .filter { it.width >= minSize && it.height >= minSize }
+            .sortedBy { it.width * it.height }
+            .also { Log.i(TAG, TextUtils.join("\n", it)) }
+            .first()
     }
 
     private fun getHDPreviewOutputSize(cameraId: String): Size {
@@ -218,13 +236,13 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         val maxAllowedSize = if (hdScreen) SIZE_1080P else screenSize
 
         return cameraManager.getCameraCharacteristics(cameraId)
-                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-                .getOutputSizes(SurfaceHolder::class.java)
-                .also { Log.i(TAG, TextUtils.join("\n", it)) }
-                .sortedWith(compareBy { it.height * it.width })
-                .map { SmartSize(it.width, it.height) }
-                .reversed()
-                .first { it.long <= maxAllowedSize.long && it.short <= maxAllowedSize.short }.size
+            .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+            .getOutputSizes(SurfaceHolder::class.java)
+            .also { Log.i(TAG, TextUtils.join("\n", it)) }
+            .sortedWith(compareBy { it.height * it.width })
+            .map { SmartSize(it.width, it.height) }
+            .reversed()
+            .first { it.long <= maxAllowedSize.long && it.short <= maxAllowedSize.short }.size
     }
 
     private fun getDisplaySize() = Point().let {
@@ -235,11 +253,12 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     private fun getCameraId(): String? = cameraManager.run {
         cameraIdList.firstOrNull { id ->
             val characteristics = getCameraCharacteristics(id)
-            val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
+            val capabilities =
+                characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
 
             characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK &&
                     (capabilities?.contains(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE)
-                            ?: false)
+                        ?: false)
 
         }
     }
