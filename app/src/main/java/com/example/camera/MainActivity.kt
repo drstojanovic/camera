@@ -107,17 +107,9 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     private fun initViews() {
         surfacePreview = findViewById(R.id.surface_preview)
         surfacePreview.holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceChanged(
-                holder: SurfaceHolder?,
-                format: Int,
-                width: Int,
-                height: Int
-            ) = Unit
-
+            override fun surfaceChanged(holder: SurfaceHolder?, format: Int, w: Int, h: Int) = Unit
             override fun surfaceDestroyed(holder: SurfaceHolder?) = Unit
-            override fun surfaceCreated(holder: SurfaceHolder?) {
-                setupCamera()
-            }
+            override fun surfaceCreated(holder: SurfaceHolder?) = setupCamera()
         })
     }
 
@@ -142,11 +134,8 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
 
     private fun initPreviewSession() {
         imageReader = ImageReader.newInstance(
-            previewSize.width, previewSize.height,
-            ImageFormat.YUV_420_888, 2
-        ).apply {
-            setOnImageAvailableListener(this@MainActivity, imageReaderHandler)
-        }
+            previewSize.width, previewSize.height, ImageFormat.YUV_420_888, 2
+        ).apply { setOnImageAvailableListener(this@MainActivity, imageReaderHandler) }
 
         val captureRequestBuilder =
             camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
@@ -165,8 +154,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
                 }
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
-                    val exc = RuntimeException("Camera ${camera.id} session configuration failed")
-                    Log.e(TAG, exc.message, exc)
+                    Log.e(TAG, "Camera ${camera.id} session configuration failed")
                 }
             }, cameraHandler
         )
@@ -188,9 +176,9 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     @SuppressLint("MissingPermission")
     private fun openCamera(cameraId: String) {
         cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
-            override fun onOpened(camera: CameraDevice) {
+            override fun onOpened(cameraDevice: CameraDevice) {
                 Log.d(TAG, "Camera $cameraId is open")
-                this@MainActivity.camera = camera
+                camera = cameraDevice
                 initPreviewSession()
             }
 
@@ -210,7 +198,6 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
                 }
                 val exc = RuntimeException("Camera $cameraId error: ($error) $msg")
                 Log.e(TAG, exc.message, exc)
-
             }
         }, cameraHandler)
     }
@@ -251,7 +238,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     }
 
     private fun getCameraId(): String? = cameraManager.run {
-        cameraIdList.firstOrNull { id ->
+        cameraIdList.firstOrNull { id: String ->
             val characteristics = getCameraCharacteristics(id)
             val capabilities =
                 characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)

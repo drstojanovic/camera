@@ -19,3 +19,14 @@ Problems and fixes:
     Problem was resolved by adding ImageReader as class field.
     Solution: https://stackoverflow.com/a/33468855/8177021
 
+
+
+Flow
+- set callback on SurfacePreview; when surface is created, setup camera
+- get camera id by matching conditions (lens, orientation..)
+- get output size (regarding selected camera and desired resolution)
+- set size and aspect ratio to surface view
+
+- open camera using camera handler
+- setup image reader
+- create capture session with two surface destinations (preview and image reader) with repeating request
