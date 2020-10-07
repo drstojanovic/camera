@@ -18,6 +18,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.camera.utils.convertYUVImageToARGB
 import kotlin.math.max
 import kotlin.math.min
 
@@ -160,11 +161,20 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         )
     }
 
+    private var isProcessing = false
     override fun onImageAvailable(reader: ImageReader?) {
-//        Log.d(TAG, "Image Reader: New image available")
         var image: Image? = null
         try {
             image = reader?.acquireLatestImage()
+            image ?: return
+            if (isProcessing) {
+                image.close()
+                return
+            }
+            isProcessing = true
+            val rgbBytes = convertYUVImageToARGB(image, previewSize.width, previewSize.height)
+
+            isProcessing = false
         } catch (ex: Exception) {
             Log.d(TAG, "Exception while acquiring image. Skipped.")
         } finally {
