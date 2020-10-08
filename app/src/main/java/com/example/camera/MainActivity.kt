@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import android.graphics.Point
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.media.Image
 import android.media.ImageReader
@@ -14,7 +15,9 @@ import android.os.*
 import android.text.TextUtils
 import android.util.Log
 import android.util.Size
+import android.view.Surface
 import android.view.SurfaceHolder
+import android.view.TextureView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
@@ -46,10 +49,14 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     private lateinit var camera: CameraDevice
     private lateinit var imageReader: ImageReader       // IMPORTANT: imageReader as class field due to exceptions thrown in middle of preview
     private lateinit var previewSize: Size
-    private lateinit var surfacePreview: AutoFitSurfaceView
+    private lateinit var textureView: TextureView
+    private lateinit var session: CameraCaptureSession
+    private lateinit var captureRequestBuilder: CaptureRequest.Builder
     private val cameraManager: CameraManager by lazy {
         applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
+
+    private lateinit var imageDimension: Size
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,12 +114,13 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     // endregion
 
     private fun initViews() {
-        surfacePreview = findViewById(R.id.surface_preview)
-        surfacePreview.holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceChanged(holder: SurfaceHolder?, format: Int, w: Int, h: Int) = Unit
-            override fun surfaceDestroyed(holder: SurfaceHolder?) = Unit
-            override fun surfaceCreated(holder: SurfaceHolder?) = setupCamera()
-        })
+        textureView = findViewById(R.id.texture_view)
+        textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+            override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) = setupCamera()
+            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, width: Int, height: Int) = Unit
+            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture?) = false
+            override fun onSurfaceTextureUpdated(surface: SurfaceTexture?) = Unit
+        }
     }
 
     private fun setupCamera() {
@@ -121,38 +129,32 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
             Toast.makeText(this, "No cameras available!", LENGTH_SHORT).show()
             return
         }
-
-        previewSize = getSmallestValidOutputSize(cameraId)
-        Log.d(TAG, "Surface View preview size: ${surfacePreview.width} x ${surfacePreview.height}")
-        Log.d(TAG, "Selected preview size: $previewSize")
-        surfacePreview.holder.setFixedSize(previewSize.width, previewSize.height)
-        surfacePreview.setAspectRatio(previewSize.width, previewSize.height)
-        Log.d(
-            TAG,
-            "Surface View preview size after applying values: ${surfacePreview.width} x ${surfacePreview.height}"
-        )
-        surfacePreview.post { openCamera(cameraId) }    // IMPORTANT - post (make sure that size is set first and then executed rest of code)
+        imageDimension = cameraManager.getCameraCharacteristics(cameraId)
+            .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+            .getOutputSizes(SurfaceTexture::class.java)[0]
+        openCamera(cameraId)
     }
 
     private fun initPreviewSession() {
         imageReader = ImageReader.newInstance(
-            previewSize.width, previewSize.height, ImageFormat.YUV_420_888, 2
+            imageDimension.width, imageDimension.height, ImageFormat.YUV_420_888, 2
         ).apply { setOnImageAvailableListener(this@MainActivity, imageReaderHandler) }
 
-        val captureRequestBuilder =
-            camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
-                addTarget(surfacePreview.holder.surface)
-                addTarget(imageReader.surface)
-//            set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)  // auto-focus
-//            set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)       // flash
-            }
+        val texture = textureView.surfaceTexture!!
+        texture.setDefaultBufferSize(imageDimension.width, imageDimension.height)
+        val surface = Surface(texture)
+
+        captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+        captureRequestBuilder.addTarget(surface)
+        captureRequestBuilder.addTarget(imageReader.surface)
 
         camera.createCaptureSession(
-            listOf(surfacePreview.holder.surface, imageReader.surface),
+            listOf(surface, imageReader.surface),
             object : CameraCaptureSession.StateCallback() {
                 override fun onConfigured(session: CameraCaptureSession) {
                     Log.d(TAG, "Session is configured")
-                    session.setRepeatingRequest(captureRequestBuilder.build(), null, cameraHandler)
+                    this@MainActivity.session = session
+                    updatePreview()
                 }
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
@@ -160,6 +162,15 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
                 }
             }, cameraHandler
         )
+    }
+
+    protected fun updatePreview() {
+        captureRequestBuilder.set<Int>(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+        try {
+            session.setRepeatingRequest(captureRequestBuilder.build(), null, cameraHandler)
+        } catch (e: CameraAccessException) {
+            e.printStackTrace()
+        }
     }
 
     private var isProcessing = false
@@ -246,7 +257,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     }
 
     private fun getDisplaySize() = Point().let {
-        surfacePreview.display.getRealSize(it)
+        textureView.display.getRealSize(it)
         SmartSize(it.x, it.y)
     }
 
