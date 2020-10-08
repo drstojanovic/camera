@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import android.graphics.Point
 import android.hardware.camera2.*
@@ -162,6 +163,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     }
 
     private var isProcessing = false
+    var bitmap: Bitmap? = null
     override fun onImageAvailable(reader: ImageReader?) {
         var image: Image? = null
         try {
@@ -173,6 +175,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
             }
             isProcessing = true
             val rgbBytes = convertYUVImageToARGB(image, previewSize.width, previewSize.height)
+            bitmap = Bitmap.createBitmap(rgbBytes, previewSize.width, previewSize.height, Bitmap.Config.ARGB_8888)
 
             isProcessing = false
         } catch (ex: Exception) {

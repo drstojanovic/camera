@@ -1,6 +1,10 @@
 package com.example.camera.utils
 
+import android.graphics.Bitmap
 import android.media.Image
+import android.os.Environment
+import java.io.File
+import java.io.FileOutputStream
 import kotlin.math.max
 
 // This value is 2 ^ 18 - 1, and is used to clamp the RGB values before their ranges
@@ -84,4 +88,16 @@ private fun yuv2rgb(yIn: Int, uIn: Int, vIn: Int): Int {
     g = if (g > K_MAX_CHANNEL_VALUE) K_MAX_CHANNEL_VALUE else if (g < 0) 0 else g
     b = if (b > K_MAX_CHANNEL_VALUE) K_MAX_CHANNEL_VALUE else if (b < 0) 0 else b
     return -0x1000000 or (r shl 6 and 0xff0000) or (g shr 2 and 0xff00) or (b shr 10 and 0xff)
+}
+
+fun saveBitmap(bitmap: Bitmap, filename: String="test.png") {
+    val file = File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "test.png")
+    try {
+        val out = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 99, out)
+        out.flush()
+        out.close()
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
