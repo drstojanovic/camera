@@ -24,7 +24,6 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.example.camera.tflite.Classifier
 import com.example.camera.utils.AutoFitTextureView
 import com.example.camera.utils.convertYUVImageToARGB
 import com.example.camera.utils.saveBitmap
@@ -191,7 +190,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
                 return
             }
             isProcessing = true
-            val rgbBytes = convertYUVImageToARGB(image, previewSize.width, previewSize.height)
+            val rgbBytes = convertYUVImageToARGB(image)
             bitmap = Bitmap.createBitmap(rgbBytes, previewSize.width, previewSize.height, Bitmap.Config.ARGB_8888)
             processImage(bitmap)
         } catch (ex: Exception) {

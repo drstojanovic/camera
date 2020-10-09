@@ -17,8 +17,7 @@ import kotlin.math.max
 // are normalized to eight bits.
 const val K_MAX_CHANNEL_VALUE = 262143
 
-//todo: check if image.width == width and if so remove parameters
-fun convertYUVImageToARGB(image: Image, width: Int, height: Int): IntArray {
+fun convertYUVImageToARGB(image: Image): IntArray {
     getYUVBytes(image).let { yuvBytes ->
         val yRowStride = image.planes[0].rowStride
         val uvRowStride = image.planes[1].rowStride
@@ -26,7 +25,7 @@ fun convertYUVImageToARGB(image: Image, width: Int, height: Int): IntArray {
 
         return convertYUV420ToARGB8888(
             yuvBytes[0], yuvBytes[1], yuvBytes[2],
-            width, height, yRowStride, uvRowStride, uvPixelStride
+            image.width, image.height, yRowStride, uvRowStride, uvPixelStride
         )
     }
 }
