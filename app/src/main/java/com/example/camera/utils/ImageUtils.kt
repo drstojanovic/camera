@@ -3,6 +3,7 @@ package com.example.camera.utils
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.media.Image
 import android.os.Build
 import android.os.Environment
@@ -95,7 +96,7 @@ private fun yuv2rgb(yIn: Int, uIn: Int, vIn: Int): Int {
     return -0x1000000 or (r shl 6 and 0xff0000) or (g shr 2 and 0xff00) or (b shr 10 and 0xff)
 }
 
-fun saveBitmap(context: Context, bitmap: Bitmap?, filename: String = "test.png") {
+fun saveBitmap(context: Context, bitmap: Bitmap?, rotation: Int, filename: String = "test.png") {
     bitmap ?: return
     var outputStream: OutputStream? = null
 
@@ -116,7 +117,12 @@ fun saveBitmap(context: Context, bitmap: Bitmap?, filename: String = "test.png")
 
     try {
         outputStream?.run {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, this)
+            Bitmap
+                .createBitmap(
+                    bitmap, 0, 0, bitmap.width, bitmap.height,
+                    Matrix().apply { postRotate(rotation.toFloat()) }, true
+                )
+                .compress(Bitmap.CompressFormat.PNG, 100, this)
             flush()
             close()
         }

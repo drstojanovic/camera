@@ -19,11 +19,12 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.TextureView
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
+import com.example.camera.tflite.Classifier
 import com.example.camera.utils.AutoFitTextureView
 import com.example.camera.utils.convertYUVImageToARGB
 import com.example.camera.utils.saveBitmap
@@ -37,7 +38,7 @@ private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
 private val SIZE_1080P = SmartSize(1920, 1080)
 private val DESIRED_PREVIEW_SIZE = Size(640, 480)
 private const val MINIMAL_VALID_PREVIEW_SIZE = 320  // empiric value
-
+private const val RESULT_FORMAT = "%s %.2f"
 
 class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
 
@@ -52,13 +53,15 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     private val imageReaderHandler = ImageReaderHandler(imageReaderThread.looper)
     private val imageProcessor by lazy { ImageProcessor(this) }
     private val compositeDisposable = CompositeDisposable()
-    private val resultAdapter = ClassificationResultAdapter()
 
     private var orientation: Int = 270
     private lateinit var camera: CameraDevice
     private lateinit var imageReader: ImageReader       // IMPORTANT: imageReader as class field due to exceptions thrown in middle of preview
     private lateinit var previewSize: Size
     private lateinit var textureView: AutoFitTextureView
+    private lateinit var txtResult1: TextView
+    private lateinit var txtResult2: TextView
+    private lateinit var txtResult3: TextView
     private val cameraManager: CameraManager by lazy {
         applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
@@ -67,7 +70,9 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         checkForPermissionsAndInitViews()
-        findViewById<RecyclerView>(R.id.recycler_result).adapter = resultAdapter
+        txtResult1 = findViewById(R.id.txt_result_1)
+        txtResult2 = findViewById(R.id.txt_result_2)
+        txtResult3 = findViewById(R.id.txt_result_3)
     }
 
     // region Tear down methods
@@ -203,7 +208,9 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
             imageProcessor.processImage(image, orientation)
                 .subscribe(
                     { result ->
-                        resultAdapter.items = result
+                        txtResult1.text = RESULT_FORMAT.format(result[0].title, result[0].confidence * 100)
+                        txtResult2.text = RESULT_FORMAT.format(result[1].title, result[1].confidence * 100)
+                        txtResult3.text = RESULT_FORMAT.format(result[2].title, result[2].confidence * 100)
                         isProcessing = false
                     },
                     { throwable ->
@@ -293,7 +300,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     }
 
     fun saveImage(view: View) {
-        saveBitmap(this, bitmap)
+        saveBitmap(this, bitmap, -orientation)
         Toast.makeText(this, "Image Saved", LENGTH_SHORT).show()
     }
 
