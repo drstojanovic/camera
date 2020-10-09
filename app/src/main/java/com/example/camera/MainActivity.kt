@@ -22,6 +22,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.camera.utils.AutoFitTextureView
 import com.example.camera.utils.convertYUVImageToARGB
 import kotlin.math.max
 import kotlin.math.min
@@ -48,8 +49,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
 
     private lateinit var camera: CameraDevice
     private lateinit var imageReader: ImageReader       // IMPORTANT: imageReader as class field due to exceptions thrown in middle of preview
-    private lateinit var previewSize: Size
-    private lateinit var textureView: TextureView
+    private lateinit var textureView: AutoFitTextureView
     private lateinit var session: CameraCaptureSession
     private lateinit var captureRequestBuilder: CaptureRequest.Builder
     private val cameraManager: CameraManager by lazy {
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     // endregion
 
     private fun initViews() {
-        textureView = findViewById(R.id.texture_view)
+        textureView = findViewById(R.id.texture)
         textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) = setupCamera()
             override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, width: Int, height: Int) = Unit
@@ -132,24 +132,21 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         imageDimension = cameraManager.getCameraCharacteristics(cameraId)
             .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
             .getOutputSizes(SurfaceTexture::class.java)[0]
+        textureView.setAspectRatio(imageDimension.height, imageDimension.width)
+
         openCamera(cameraId)
     }
 
     private fun initPreviewSession() {
-        imageReader = ImageReader.newInstance(
-            imageDimension.width, imageDimension.height, ImageFormat.YUV_420_888, 2
-        ).apply { setOnImageAvailableListener(this@MainActivity, imageReaderHandler) }
-
         val texture = textureView.surfaceTexture!!
         texture.setDefaultBufferSize(imageDimension.width, imageDimension.height)
         val surface = Surface(texture)
 
         captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
         captureRequestBuilder.addTarget(surface)
-        captureRequestBuilder.addTarget(imageReader.surface)
 
         camera.createCaptureSession(
-            listOf(surface, imageReader.surface),
+            listOf(surface),
             object : CameraCaptureSession.StateCallback() {
                 override fun onConfigured(session: CameraCaptureSession) {
                     Log.d(TAG, "Session is configured")
@@ -165,7 +162,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     }
 
     protected fun updatePreview() {
-        captureRequestBuilder.set<Int>(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+        captureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
         try {
             session.setRepeatingRequest(captureRequestBuilder.build(), null, cameraHandler)
         } catch (e: CameraAccessException) {
@@ -185,8 +182,8 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
                 return
             }
             isProcessing = true
-            val rgbBytes = convertYUVImageToARGB(image, previewSize.width, previewSize.height)
-            bitmap = Bitmap.createBitmap(rgbBytes, previewSize.width, previewSize.height, Bitmap.Config.ARGB_8888)
+            val rgbBytes = convertYUVImageToARGB(image, imageDimension.width, imageDimension.height)
+            bitmap = Bitmap.createBitmap(rgbBytes, imageDimension.width, imageDimension.height, Bitmap.Config.ARGB_8888)
 
             isProcessing = false
         } catch (ex: Exception) {
@@ -224,41 +221,6 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
                 Log.e(TAG, exc.message, exc)
             }
         }, cameraHandler)
-    }
-
-    private fun getSmallestValidOutputSize(cameraId: String): Size {
-        val minSize = max(
-            min(DESIRED_PREVIEW_SIZE.width, DESIRED_PREVIEW_SIZE.height),
-            MINIMAL_VALID_PREVIEW_SIZE
-        )
-
-        return cameraManager.getCameraCharacteristics(cameraId)
-            .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-            .getOutputSizes(SurfaceHolder::class.java)
-            .filter { it.width >= minSize && it.height >= minSize }
-            .sortedBy { it.width * it.height }
-            .also { Log.i(TAG, TextUtils.join("\n", it)) }
-            .first()
-    }
-
-    private fun getHDPreviewOutputSize(cameraId: String): Size {
-        val screenSize = getDisplaySize()
-        val hdScreen = screenSize.long >= SIZE_1080P.long || screenSize.short >= SIZE_1080P.short
-        val maxAllowedSize = if (hdScreen) SIZE_1080P else screenSize
-
-        return cameraManager.getCameraCharacteristics(cameraId)
-            .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-            .getOutputSizes(SurfaceHolder::class.java)
-            .also { Log.i(TAG, TextUtils.join("\n", it)) }
-            .sortedWith(compareBy { it.height * it.width })
-            .map { SmartSize(it.width, it.height) }
-            .reversed()
-            .first { it.long <= maxAllowedSize.long && it.short <= maxAllowedSize.short }.size
-    }
-
-    private fun getDisplaySize() = Point().let {
-        textureView.display.getRealSize(it)
-        SmartSize(it.x, it.y)
     }
 
     private fun getCameraId(): String? = cameraManager.run {
