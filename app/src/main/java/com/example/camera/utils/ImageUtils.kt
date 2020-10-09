@@ -1,10 +1,15 @@
 package com.example.camera.utils
 
+import android.content.ContentValues
+import android.content.Context
 import android.graphics.Bitmap
 import android.media.Image
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 import kotlin.math.max
 
 // This value is 2 ^ 18 - 1, and is used to clamp the RGB values before their ranges
@@ -90,13 +95,31 @@ private fun yuv2rgb(yIn: Int, uIn: Int, vIn: Int): Int {
     return -0x1000000 or (r shl 6 and 0xff0000) or (g shr 2 and 0xff00) or (b shr 10 and 0xff)
 }
 
-fun saveBitmap(bitmap: Bitmap, filename: String="test.png") {
-    val file = File (Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "test.png")
+fun saveBitmap(context: Context, bitmap: Bitmap?, filename: String = "test.png") {
+    bitmap ?: return
+    var outputStream: OutputStream? = null
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+        }.let { contentValues ->
+            context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        }?.let { imageUri ->
+            outputStream = context.contentResolver.openOutputStream(imageUri)
+        }
+    } else {
+        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), filename)
+        outputStream = FileOutputStream(file)
+    }
+
     try {
-        val out = FileOutputStream(file)
-        bitmap.compress(Bitmap.CompressFormat.PNG, 99, out)
-        out.flush()
-        out.close()
+        outputStream?.run {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, this)
+            flush()
+            close()
+        }
     } catch (e: Exception) {
         e.printStackTrace()
     }

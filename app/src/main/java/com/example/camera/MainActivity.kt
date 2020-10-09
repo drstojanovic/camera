@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import android.graphics.Point
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.media.Image
 import android.media.ImageReader
@@ -14,12 +15,17 @@ import android.os.*
 import android.text.TextUtils
 import android.util.Log
 import android.util.Size
+import android.view.Surface
 import android.view.SurfaceHolder
+import android.view.TextureView
+import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.camera.utils.AutoFitTextureView
 import com.example.camera.utils.convertYUVImageToARGB
+import com.example.camera.utils.saveBitmap
 import kotlin.math.max
 import kotlin.math.min
 
@@ -46,7 +52,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     private lateinit var camera: CameraDevice
     private lateinit var imageReader: ImageReader       // IMPORTANT: imageReader as class field due to exceptions thrown in middle of preview
     private lateinit var previewSize: Size
-    private lateinit var surfacePreview: AutoFitSurfaceView
+    private lateinit var textureView: AutoFitTextureView
     private val cameraManager: CameraManager by lazy {
         applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
@@ -86,11 +92,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -107,12 +109,13 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     // endregion
 
     private fun initViews() {
-        surfacePreview = findViewById(R.id.surface_preview)
-        surfacePreview.holder.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceChanged(holder: SurfaceHolder?, format: Int, w: Int, h: Int) = Unit
-            override fun surfaceDestroyed(holder: SurfaceHolder?) = Unit
-            override fun surfaceCreated(holder: SurfaceHolder?) = setupCamera()
-        })
+        textureView = findViewById(R.id.texture_view)
+        textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+            override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) = setupCamera()
+            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, width: Int, height: Int) = Unit
+            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture?) = false
+            override fun onSurfaceTextureUpdated(surface: SurfaceTexture?) = Unit
+        }
     }
 
     private fun setupCamera() {
@@ -123,15 +126,11 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         }
 
         previewSize = getSmallestValidOutputSize(cameraId)
-        Log.d(TAG, "Surface View preview size: ${surfacePreview.width} x ${surfacePreview.height}")
+        Log.d(TAG, "Surface View preview size: ${textureView.width} x ${textureView.height}")
         Log.d(TAG, "Selected preview size: $previewSize")
-        surfacePreview.holder.setFixedSize(previewSize.width, previewSize.height)
-        surfacePreview.setAspectRatio(previewSize.width, previewSize.height)
-        Log.d(
-            TAG,
-            "Surface View preview size after applying values: ${surfacePreview.width} x ${surfacePreview.height}"
-        )
-        surfacePreview.post { openCamera(cameraId) }    // IMPORTANT - post (make sure that size is set first and then executed rest of code)
+        textureView.setAspectRatio(previewSize.height, previewSize.width)
+        Log.d(TAG, "Surface View preview size after applying values: ${textureView.width} x ${textureView.height}")
+        textureView.post { openCamera(cameraId) }    // IMPORTANT - post (make sure that size is set first and then executed rest of code)
     }
 
     private fun initPreviewSession() {
@@ -139,16 +138,18 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
             previewSize.width, previewSize.height, ImageFormat.YUV_420_888, 2
         ).apply { setOnImageAvailableListener(this@MainActivity, imageReaderHandler) }
 
+        textureView.surfaceTexture.setDefaultBufferSize(previewSize.width, previewSize.height)
+        val surface = Surface(textureView.surfaceTexture)
         val captureRequestBuilder =
             camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
-                addTarget(surfacePreview.holder.surface)
+                addTarget(surface)
                 addTarget(imageReader.surface)
 //            set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)  // auto-focus
 //            set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)       // flash
             }
 
         camera.createCaptureSession(
-            listOf(surfacePreview.holder.surface, imageReader.surface),
+            listOf(surface, imageReader.surface),
             object : CameraCaptureSession.StateCallback() {
                 override fun onConfigured(session: CameraCaptureSession) {
                     Log.d(TAG, "Session is configured")
@@ -246,7 +247,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     }
 
     private fun getDisplaySize() = Point().let {
-        surfacePreview.display.getRealSize(it)
+        textureView.display.getRealSize(it)
         SmartSize(it.x, it.y)
     }
 
@@ -261,6 +262,11 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
                         ?: false)
 
         }
+    }
+
+    fun saveImage(view: View) {
+        saveBitmap(this, bitmap)
+        Toast.makeText(this, "Image Saved", LENGTH_SHORT).show()
     }
 
     // endregion

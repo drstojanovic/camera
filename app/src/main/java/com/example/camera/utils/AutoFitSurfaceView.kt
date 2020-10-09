@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.camera
+package com.example.camera.utils
 
 import android.content.Context
 import android.util.AttributeSet
