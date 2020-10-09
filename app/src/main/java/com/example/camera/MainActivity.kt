@@ -23,9 +23,11 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.example.camera.utils.AutoFitTextureView
 import com.example.camera.utils.convertYUVImageToARGB
 import com.example.camera.utils.saveBitmap
+import io.reactivex.disposables.CompositeDisposable
 import kotlin.math.max
 import kotlin.math.min
 
@@ -48,7 +50,11 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     private val cameraHandler = CameraHandler(cameraThread.looper)
     private val imageReaderThread = ImageReaderThread("ImageReader Thread").apply { start() }
     private val imageReaderHandler = ImageReaderHandler(imageReaderThread.looper)
+    private val imageProcessor by lazy { ImageProcessor(this) }
+    private val compositeDisposable = CompositeDisposable()
+    private val resultAdapter = ClassificationResultAdapter()
 
+    private var orientation: Int = 270
     private lateinit var camera: CameraDevice
     private lateinit var imageReader: ImageReader       // IMPORTANT: imageReader as class field due to exceptions thrown in middle of preview
     private lateinit var previewSize: Size
@@ -61,6 +67,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         checkForPermissionsAndInitViews()
+        findViewById<RecyclerView>(R.id.recycler_result).adapter = resultAdapter
     }
 
     // region Tear down methods
@@ -80,6 +87,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         Log.d(TAG, "ImageReader thread closed")
         cameraThread.quitSafely()
         Log.d(TAG, "Camera thread closed")
+        compositeDisposable.dispose()
     }
     // endregion
 
@@ -108,6 +116,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     }
     // endregion
 
+    // region Camera Initialization
     private fun initViews() {
         textureView = findViewById(R.id.texture_view)
         textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
@@ -125,6 +134,9 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
             return
         }
 
+        orientation = windowManager.defaultDisplay.rotation -
+                cameraManager.getCameraCharacteristics(cameraId).get(CameraCharacteristics.SENSOR_ORIENTATION)!!
+        Log.d(TAG, "Orientation: $orientation")
         previewSize = getSmallestValidOutputSize(cameraId)
         Log.d(TAG, "Surface View preview size: ${textureView.width} x ${textureView.height}")
         Log.d(TAG, "Selected preview size: $previewSize")
@@ -144,15 +156,12 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
             camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
                 addTarget(surface)
                 addTarget(imageReader.surface)
-//            set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)  // auto-focus
-//            set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)       // flash
             }
 
         camera.createCaptureSession(
             listOf(surface, imageReader.surface),
             object : CameraCaptureSession.StateCallback() {
                 override fun onConfigured(session: CameraCaptureSession) {
-                    Log.d(TAG, "Session is configured")
                     session.setRepeatingRequest(captureRequestBuilder.build(), null, cameraHandler)
                 }
 
@@ -163,8 +172,10 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         )
     }
 
+    //endregion
+
     private var isProcessing = false
-    var bitmap: Bitmap? = null
+    private var bitmap: Bitmap? = null
     override fun onImageAvailable(reader: ImageReader?) {
         var image: Image? = null
         try {
@@ -177,13 +188,30 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
             isProcessing = true
             val rgbBytes = convertYUVImageToARGB(image, previewSize.width, previewSize.height)
             bitmap = Bitmap.createBitmap(rgbBytes, previewSize.width, previewSize.height, Bitmap.Config.ARGB_8888)
-
-            isProcessing = false
+            processImage(bitmap)
         } catch (ex: Exception) {
-            Log.d(TAG, "Exception while acquiring image. Skipped.")
+            Log.e(TAG, "Exception while acquiring image. Skipped.")
+            ex.printStackTrace()
         } finally {
             image?.close()
         }
+    }
+
+    private fun processImage(image: Bitmap?) {
+        image ?: return
+        compositeDisposable.add(
+            imageProcessor.processImage(image, orientation)
+                .subscribe(
+                    { result ->
+                        resultAdapter.items = result
+                        isProcessing = false
+                    },
+                    { throwable ->
+                        Log.e(TAG, throwable.stackTraceToString())
+                        isProcessing = false
+                    }
+                )
+        )
     }
 
     // region Helper Methods

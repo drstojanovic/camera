@@ -15,7 +15,7 @@ limitations under the License.
 
 package com.example.camera.tflite;
 
-import android.app.Activity;
+import android.content.Context;
 
 import org.tensorflow.lite.support.common.TensorOperator;
 import org.tensorflow.lite.support.common.ops.NormalizeOp;
@@ -41,18 +41,15 @@ public class ClassifierFloatMobileNet extends Classifier {
   /**
    * Initializes a {@code ClassifierFloatMobileNet}.
    *
-   * @param activity
+   * @param context
    */
-  public ClassifierFloatMobileNet(Activity activity, Device device, int numThreads)
+  public ClassifierFloatMobileNet(Context context, Device device, int numThreads)
       throws IOException {
-    super(activity, device, numThreads);
+    super(context, device, numThreads);
   }
 
   @Override
   protected String getModelPath() {
-    // you can download this file from
-    // see build.gradle for where to obtain this file. It should be auto
-    // downloaded into assets.
     return "mobilenet_v1_1.0_224.tflite";
   }
 

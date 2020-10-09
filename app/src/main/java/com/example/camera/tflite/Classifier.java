@@ -16,6 +16,7 @@ limitations under the License.
 package com.example.camera.tflite;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.SystemClock;
@@ -197,8 +198,8 @@ public abstract class Classifier {
   }
 
   /** Initializes a {@code Classifier}. */
-  protected Classifier(Activity activity, Device device, int numThreads) throws IOException {
-    MappedByteBuffer tfliteModel = FileUtil.loadMappedFile(activity, getModelPath());
+  protected Classifier(Context context, Device device, int numThreads) throws IOException {
+    MappedByteBuffer tfliteModel = FileUtil.loadMappedFile(context, getModelPath());
     switch (device) {
       case NNAPI:
         nnApiDelegate = new NnApiDelegate();
@@ -215,7 +216,7 @@ public abstract class Classifier {
     tflite = new Interpreter(tfliteModel, tfliteOptions);
 
     // Loads labels out from the label file.
-    labels = FileUtil.loadLabels(activity, getLabelPath());
+    labels = FileUtil.loadLabels(context, getLabelPath());
 
     // Reads type and shape of input and output tensors, respectively.
     int imageTensorIndex = 0;

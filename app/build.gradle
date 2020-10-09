@@ -24,6 +24,9 @@ android {
     buildFeatures {
         dataBinding true
     }
+    aaptOptions {
+        noCompress "tflite"
+    }
 }
 
 dependencies {
