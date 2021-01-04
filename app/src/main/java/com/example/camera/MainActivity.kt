@@ -23,38 +23,17 @@ private const val PERMISSIONS_REQUEST_CODE = 10
 private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
 private const val RESULT_FORMAT = "%s %.2f"
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CameraUtils.EventListener {
 
     private lateinit var binding: ActivityMainBinding
     private val cameraThread = HandlerThread("Camera Thread").apply { start() }
     private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
     private val cameraUtils by lazy {
         CameraUtils(
-            applicationContext = this.applicationContext,
+            applicationContext = applicationContext,
             cameraHandler = Handler(cameraThread.looper),
             imageReaderHandler = Handler(imageReaderThread.looper),
-            eventListener = object : CameraUtils.EventListener {
-                override fun onError(text: String) =
-                    Toast.makeText(this@MainActivity, text, LENGTH_SHORT).show()
-
-                override fun provideTextureViewSurface() =
-                    Surface(binding.textureView.surfaceTexture)
-
-                override fun onProcessingResult(result: MutableList<Classifier.Recognition>) {
-                    binding.txtResult1.text = RESULT_FORMAT.format(result[0].title, result[0].confidence * 100)
-                    binding.txtResult2.text = RESULT_FORMAT.format(result[1].title, result[1].confidence * 100)
-                    binding.txtResult3.text = RESULT_FORMAT.format(result[2].title, result[2].confidence * 100)
-                }
-
-                override fun onPreviewSizeSelected(size: Size) {
-                    binding.textureView.setAspectRatio(size.height, size.width)
-                    binding.textureView.surfaceTexture.setDefaultBufferSize(size.width, size.height)
-                    Log.d(
-                        TAG, "Texture View preview size after applying values: " +
-                                "${binding.textureView.width} x ${binding.textureView.height}"
-                    )
-                }
-            }
+            eventListener = this
         )
     }
 
@@ -62,18 +41,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        checkForPermissionsAndInitViews()
+        setSurfaceListener()
     }
 
-
-    private fun initViews() {
+    private fun setSurfaceListener() {
         binding.textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-            override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) =
-                cameraUtils.onTextureViewAvailable(windowManager.defaultDisplay.rotation)
-
             override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, width: Int, height: Int) = Unit
             override fun onSurfaceTextureDestroyed(surface: SurfaceTexture?) = false
             override fun onSurfaceTextureUpdated(surface: SurfaceTexture?) = Unit
+            override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) =
+                checkPermissionsAndInit()
         }
     }
 
@@ -93,9 +70,9 @@ class MainActivity : AppCompatActivity() {
         cameraUtils.tearDown()
     }
 
-    private fun checkForPermissionsAndInitViews() {
+    private fun checkPermissionsAndInit() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || hasRequiredPermissions()) {
-            initViews()
+            cameraUtils.setup(windowManager.defaultDisplay.rotation)
         } else {
             requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
         }
@@ -109,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                initViews()
+                cameraUtils.setup(windowManager.defaultDisplay.rotation)
             } else {
                 Toast.makeText(this, "Permission request denied!", Toast.LENGTH_LONG).show()
             }
@@ -118,7 +95,27 @@ class MainActivity : AppCompatActivity() {
 
     fun saveImage(view: View) {
         cameraUtils.saveImage()
-        Toast.makeText(this, "Image saved.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Image saved.", LENGTH_SHORT).show()
+    }
+
+    override fun onError(text: String) =
+        Toast.makeText(this@MainActivity, text, LENGTH_SHORT).show()
+
+    override fun provideTextureViewSurface() =
+        Surface(binding.textureView.surfaceTexture)
+
+    override fun onProcessingResult(result: MutableList<Classifier.Recognition>) {
+        binding.txtResult1.text = RESULT_FORMAT.format(result[0].title, result[0].confidence * 100)
+        binding.txtResult2.text = RESULT_FORMAT.format(result[1].title, result[1].confidence * 100)
+        binding.txtResult3.text = RESULT_FORMAT.format(result[2].title, result[2].confidence * 100)
+    }
+
+    override fun onPreviewSizeSelected(size: Size) {
+        with(binding.textureView) {
+            setAspectRatio(size.height, size.width)
+            surfaceTexture.setDefaultBufferSize(size.width, size.height)
+            Log.d(TAG, "Texture View preview size after applying values: $width x $height")
+        }
     }
 
 }

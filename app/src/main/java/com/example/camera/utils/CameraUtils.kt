@@ -14,14 +14,11 @@ import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import com.example.camera.ImageProcessor
-import com.example.camera.SmartSize
 import com.example.camera.tflite.Classifier
 import io.reactivex.disposables.CompositeDisposable
 import kotlin.math.max
 import kotlin.math.min
 
-
-private val SIZE_1080P = SmartSize(1920, 1080)
 private val DESIRED_PREVIEW_SIZE = Size(640, 480)
 private const val MINIMAL_VALID_PREVIEW_SIZE = 320  // empiric value
 
@@ -29,25 +26,26 @@ class CameraUtils(
     private val applicationContext: Context,
     private val cameraHandler: Handler,
     private val imageReaderHandler: Handler,
-    private val eventListener: EventListener,
+    private val eventListener: EventListener
 ) : ImageReader.OnImageAvailableListener {
 
     private val imageProcessor by lazy { ImageProcessor(applicationContext) }
     private val compositeDisposable = CompositeDisposable()
 
     private var orientation: Int = 270
+    private lateinit var previewSize: Size
     private lateinit var camera: CameraDevice
     private lateinit var imageReader: ImageReader
-    private lateinit var previewSize: Size
-    private val cameraManager: CameraManager by lazy {
-        applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-    }
+    private val cameraManager: CameraManager
+            by lazy { applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager }
 
-    fun onTextureViewAvailable(defaultDisplayOrientation: Int) {
+    fun setup(defaultDisplayOrientation: Int) {
         setupCamera(defaultDisplayOrientation)
     }
 
     fun stopPreview() {
+        cameraHandler.removeCallbacksAndMessages(null)
+        imageReaderHandler.removeCallbacksAndMessages(null)
         camera.close()
     }
 
