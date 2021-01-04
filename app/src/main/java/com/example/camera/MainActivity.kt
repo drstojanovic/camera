@@ -2,6 +2,7 @@ package com.example.camera
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.os.*
@@ -15,9 +16,9 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.camera.databinding.ActivityMainBinding
-import com.example.camera.tflite.Classifier
 import com.example.camera.utils.CameraUtils
 import com.example.camera.utils.TAG
+import io.reactivex.disposables.CompositeDisposable
 
 private const val PERMISSIONS_REQUEST_CODE = 10
 private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
@@ -26,6 +27,8 @@ private const val RESULT_FORMAT = "%s %.2f"
 class MainActivity : AppCompatActivity(), CameraUtils.EventListener {
 
     private lateinit var binding: ActivityMainBinding
+    private val imageProcessor by lazy { ImageProcessor(applicationContext) }
+    private val compositeDisposable = CompositeDisposable()
     private val cameraThread = HandlerThread("Camera Thread").apply { start() }
     private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
     private val cameraUtils by lazy {
@@ -33,7 +36,7 @@ class MainActivity : AppCompatActivity(), CameraUtils.EventListener {
             applicationContext = applicationContext,
             cameraHandler = Handler(cameraThread.looper),
             imageReaderHandler = Handler(imageReaderThread.looper),
-            eventListener = this
+            cameraHost = this
         )
     }
 
@@ -67,7 +70,7 @@ class MainActivity : AppCompatActivity(), CameraUtils.EventListener {
         super.onDestroy()
         imageReaderThread.quitSafely()
         cameraThread.quitSafely()
-        cameraUtils.tearDown()
+        compositeDisposable.dispose()
     }
 
     private fun checkPermissionsAndInit() {
@@ -104,18 +107,30 @@ class MainActivity : AppCompatActivity(), CameraUtils.EventListener {
     override fun provideTextureViewSurface() =
         Surface(binding.textureView.surfaceTexture)
 
-    override fun onProcessingResult(result: MutableList<Classifier.Recognition>) {
-        binding.txtResult1.text = RESULT_FORMAT.format(result[0].title, result[0].confidence * 100)
-        binding.txtResult2.text = RESULT_FORMAT.format(result[1].title, result[1].confidence * 100)
-        binding.txtResult3.text = RESULT_FORMAT.format(result[2].title, result[2].confidence * 100)
-    }
-
     override fun onPreviewSizeSelected(size: Size) {
         with(binding.textureView) {
             setAspectRatio(size.height, size.width)
             surfaceTexture.setDefaultBufferSize(size.width, size.height)
             Log.d(TAG, "Texture View preview size after applying values: $width x $height")
         }
+    }
+
+    override fun onImageAvailable(bitmap: Bitmap, orientation: Int) {
+        compositeDisposable.add(
+            imageProcessor.processImage(bitmap, orientation)
+                .subscribe(
+                    { result ->
+                        binding.txtResult1.text = RESULT_FORMAT.format(result[0].title, result[0].confidence * 100)
+                        binding.txtResult2.text = RESULT_FORMAT.format(result[1].title, result[1].confidence * 100)
+                        binding.txtResult3.text = RESULT_FORMAT.format(result[2].title, result[2].confidence * 100)
+                        cameraUtils.onImageProcessed()
+                    },
+                    { throwable ->
+                        Log.e(TAG, throwable.stackTraceToString())
+                        cameraUtils.onImageProcessed()
+                    }
+                )
+        )
     }
 
 }

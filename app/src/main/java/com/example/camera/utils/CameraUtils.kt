@@ -13,9 +13,6 @@ import android.util.Log
 import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
-import com.example.camera.ImageProcessor
-import com.example.camera.tflite.Classifier
-import io.reactivex.disposables.CompositeDisposable
 import kotlin.math.max
 import kotlin.math.min
 
@@ -26,11 +23,8 @@ class CameraUtils(
     private val applicationContext: Context,
     private val cameraHandler: Handler,
     private val imageReaderHandler: Handler,
-    private val eventListener: EventListener
+    private val cameraHost: EventListener
 ) : ImageReader.OnImageAvailableListener {
-
-    private val imageProcessor by lazy { ImageProcessor(applicationContext) }
-    private val compositeDisposable = CompositeDisposable()
 
     private var orientation: Int = 270
     private lateinit var previewSize: Size
@@ -38,10 +32,6 @@ class CameraUtils(
     private lateinit var imageReader: ImageReader
     private val cameraManager: CameraManager
             by lazy { applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager }
-
-    fun setup(defaultDisplayOrientation: Int) {
-        setupCamera(defaultDisplayOrientation)
-    }
 
     fun stopPreview() {
         cameraHandler.removeCallbacksAndMessages(null)
@@ -53,14 +43,17 @@ class CameraUtils(
         ImageUtils.saveBitmap(applicationContext, bitmap, -orientation)
     }
 
-    fun tearDown() {
-        compositeDisposable.dispose()
+    fun onImageProcessed() {
+        isProcessing = false
     }
+
+    fun setup(defaultDisplayOrientation: Int) =
+        setupCamera(defaultDisplayOrientation)
 
     private fun setupCamera(defaultDisplayOrientation: Int) {
         val cameraId = getCameraId()
         if (cameraId == null) {
-            eventListener.onError("No appropriate camera available!")
+            cameraHost.onError("No appropriate camera available!")
             return
         }
 
@@ -68,12 +61,12 @@ class CameraUtils(
         Log.d(TAG, "Orientation: $orientation")
         previewSize = getSmallestValidOutputSize(cameraId)
         Log.d(TAG, "Selected preview size: $previewSize")
-        eventListener.onPreviewSizeSelected(previewSize)
-        openCamera(cameraId) // todo: post removed
+        cameraHost.onPreviewSizeSelected(previewSize)
+        openCamera(cameraId)
     }
 
     @SuppressLint("MissingPermission")
-    fun openCamera(cameraId: String) {
+    private fun openCamera(cameraId: String) {
         cameraManager.openCamera(cameraId, object : CameraDevice.StateCallback() {
             override fun onOpened(cameraDevice: CameraDevice) {
                 Log.d(TAG, "Camera $cameraId is open")
@@ -96,18 +89,18 @@ class CameraUtils(
                 }
                 "Camera $cameraId error: ($error) $msg".let { message ->
                     Log.e(TAG, message, RuntimeException(message))
-                    eventListener.onError(message)
+                    cameraHost.onError(message)
                 }
             }
         }, cameraHandler)
     }
 
-    fun initPreviewSession() {
+    private fun initPreviewSession() {
         imageReader = ImageReader
             .newInstance(previewSize.width, previewSize.height, ImageFormat.YUV_420_888, 2)
             .apply { setOnImageAvailableListener(this@CameraUtils, imageReaderHandler) }
 
-        val surface = eventListener.provideTextureViewSurface()
+        val surface = cameraHost.provideTextureViewSurface()
         val captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             .apply {
                 addTarget(surface)
@@ -141,8 +134,10 @@ class CameraUtils(
             }
             isProcessing = true
             val rgbBytes = ImageUtils.convertYUVImageToARGB(image)
-            bitmap = Bitmap.createBitmap(rgbBytes, previewSize.width, previewSize.height, Bitmap.Config.ARGB_8888)
-            processImage(bitmap)
+            Bitmap.createBitmap(rgbBytes, previewSize.width, previewSize.height, Bitmap.Config.ARGB_8888).let {
+                bitmap = it
+                cameraHost.onImageAvailable(it, orientation)
+            }
         } catch (ex: Exception) {
             Log.e(TAG, "Exception while acquiring image. Skipped.")
             ex.printStackTrace()
@@ -151,22 +146,6 @@ class CameraUtils(
         }
     }
 
-    private fun processImage(image: Bitmap?) {
-        image ?: return
-        compositeDisposable.add(
-            imageProcessor.processImage(image, orientation)
-                .subscribe(
-                    { result ->
-                        eventListener.onProcessingResult(result)
-                        isProcessing = false
-                    },
-                    { throwable ->
-                        Log.e(TAG, throwable.stackTraceToString())
-                        isProcessing = false
-                    }
-                )
-        )
-    }
 
     private fun getSensorOrientation(cameraId: String) =
         cameraManager.getCameraCharacteristics(cameraId).get(CameraCharacteristics.SENSOR_ORIENTATION)!!
@@ -199,8 +178,8 @@ class CameraUtils(
     interface EventListener {
         fun onPreviewSizeSelected(size: Size)
         fun onError(text: String)
+        fun onImageAvailable(bitmap: Bitmap, orientation: Int)
         fun provideTextureViewSurface(): Surface
-        fun onProcessingResult(result: MutableList<Classifier.Recognition>)
     }
 
 }
