@@ -25,8 +25,7 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.camera.utils.AutoFitTextureView
-import com.example.camera.utils.convertYUVImageToARGB
-import com.example.camera.utils.saveBitmap
+import com.example.camera.utils.ImageUtils
 import io.reactivex.disposables.CompositeDisposable
 import kotlin.math.max
 import kotlin.math.min
@@ -55,7 +54,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
 
     private var orientation: Int = 270
     private lateinit var camera: CameraDevice
-    private lateinit var imageReader: ImageReader       // IMPORTANT: imageReader as class field due to exceptions thrown in middle of preview
+    private lateinit var imageReader: ImageReader
     private lateinit var previewSize: Size
     private lateinit var textureView: AutoFitTextureView
     private lateinit var txtResult1: TextView
@@ -104,6 +103,10 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
         }
     }
 
+    private fun hasRequiredPermissions() = PERMISSIONS_REQUIRED.all {
+        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
@@ -113,10 +116,6 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
                 Toast.makeText(this, "Permission request denied!", Toast.LENGTH_LONG).show()
             }
         }
-    }
-
-    private fun hasRequiredPermissions() = PERMISSIONS_REQUIRED.all {
-        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
     }
     // endregion
 
@@ -134,7 +133,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     private fun setupCamera() {
         val cameraId = getCameraId()
         if (cameraId == null) {
-            Toast.makeText(this, "No cameras available!", LENGTH_SHORT).show()
+            Toast.makeText(this, "No appropriate camera available!", LENGTH_SHORT).show()
             return
         }
 
@@ -142,17 +141,17 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
                 cameraManager.getCameraCharacteristics(cameraId).get(CameraCharacteristics.SENSOR_ORIENTATION)!!
         Log.d(TAG, "Orientation: $orientation")
         previewSize = getSmallestValidOutputSize(cameraId)
-        Log.d(TAG, "Surface View preview size: ${textureView.width} x ${textureView.height}")
+        Log.d(TAG, "Texture View preview size: ${textureView.width} x ${textureView.height}")
         Log.d(TAG, "Selected preview size: $previewSize")
         textureView.setAspectRatio(previewSize.height, previewSize.width)
-        Log.d(TAG, "Surface View preview size after applying values: ${textureView.width} x ${textureView.height}")
-        textureView.post { openCamera(cameraId) }    // IMPORTANT - post (make sure that size is set first and then executed rest of code)
+        Log.d(TAG, "Texture View preview size after applying values: ${textureView.width} x ${textureView.height}")
+        textureView.post { openCamera(cameraId) }
     }
 
     private fun initPreviewSession() {
-        imageReader = ImageReader.newInstance(
-            previewSize.width, previewSize.height, ImageFormat.YUV_420_888, 2
-        ).apply { setOnImageAvailableListener(this@MainActivity, imageReaderHandler) }
+        imageReader = ImageReader
+            .newInstance(previewSize.width, previewSize.height, ImageFormat.YUV_420_888, 2)
+            .apply { setOnImageAvailableListener(this@MainActivity, imageReaderHandler) }
 
         textureView.surfaceTexture.setDefaultBufferSize(previewSize.width, previewSize.height)
         val surface = Surface(textureView.surfaceTexture)
@@ -190,7 +189,7 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
                 return
             }
             isProcessing = true
-            val rgbBytes = convertYUVImageToARGB(image)
+            val rgbBytes = ImageUtils.convertYUVImageToARGB(image)
             bitmap = Bitmap.createBitmap(rgbBytes, previewSize.width, previewSize.height, Bitmap.Config.ARGB_8888)
             processImage(bitmap)
         } catch (ex: Exception) {
@@ -288,18 +287,15 @@ class MainActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
     private fun getCameraId(): String? = cameraManager.run {
         cameraIdList.firstOrNull { id: String ->
             val characteristics = getCameraCharacteristics(id)
-            val capabilities =
-                characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
+            val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
 
             characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK &&
-                    (capabilities?.contains(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE)
-                        ?: false)
-
+                    capabilities?.contains(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE) ?: false
         }
     }
 
     fun saveImage(view: View) {
-        saveBitmap(this, bitmap, -orientation)
+        ImageUtils.saveBitmap(this, bitmap, -orientation)
         Toast.makeText(this, "Image Saved", LENGTH_SHORT).show()
     }
 

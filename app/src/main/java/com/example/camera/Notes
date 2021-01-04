@@ -19,9 +19,14 @@ Problems and fixes:
     Problem was resolved by adding ImageReader as class field.
     Solution: https://stackoverflow.com/a/33468855/8177021
 
+- Slow rendering and lagging after few seconds
+    This behaviour was spotted when using SurfaceView from official Camera2Basic google example. Even when low image resolution
+    is set, there was still lagging visible on my phone (not emulator). Lag was not found on official TensorFlowLite Android example.
+    They were actually using default TextureView and most importantly, there was setting of default buffer size:
+    textureView.surfaceTexture.setDefaultBufferSize(previewSize.width, previewSize.height)
 
 
-Flow
+FLOW
 - set callback on SurfacePreview; when surface is created, setup camera
 - get camera id by matching conditions (lens, orientation..)
 - get output size (regarding selected camera and desired resolution)
