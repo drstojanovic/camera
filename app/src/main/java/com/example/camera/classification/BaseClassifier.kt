@@ -6,8 +6,8 @@ import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.GpuDelegate
 import org.tensorflow.lite.nnapi.NnApiDelegate
 import org.tensorflow.lite.support.common.FileUtil
-import org.tensorflow.lite.support.common.TensorOperator
 import org.tensorflow.lite.support.common.TensorProcessor
+import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
@@ -68,7 +68,9 @@ abstract class BaseClassifier(
         inputImageBuffer = loadImage(bitmap, sensorOrientation)
         tfLite.run(inputImageBuffer.buffer, outputProbabilityBuffer.buffer.rewind())
 
-        return getTopKPredictions(TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer)).mapWithFloatValue)
+        return getTopKPredictions(
+            TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer)).mapWithFloatValue
+        )
     }
 
     private fun loadImage(bitmap: Bitmap, sensorOrientation: Int): TensorImage {
@@ -93,7 +95,7 @@ abstract class BaseClassifier(
 
     abstract fun provideModelFilePath(): String
     abstract fun provideLabelsFilePath(): String
-    abstract fun providePostProcessNormalizationOperator(): TensorOperator
-    abstract fun providePreProcessNormalizationOperator(): TensorOperator
+    open fun providePostProcessNormalizationOperator() = NormalizeOp(0f, 1f)
+    open fun providePreProcessNormalizationOperator() = NormalizeOp(0f, 1f)
 
 }
