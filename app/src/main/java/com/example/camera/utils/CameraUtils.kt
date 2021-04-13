@@ -23,13 +23,15 @@ class CameraUtils(
     private val applicationContext: Context,
     private val cameraHandler: Handler,
     private val imageReaderHandler: Handler,
-    private val cameraHost: EventListener
+    private val cameraHost: CameraEventListener
 ) : ImageReader.OnImageAvailableListener {
 
     private var orientation: Int = 270
     private lateinit var previewSize: Size
     private lateinit var camera: CameraDevice
     private lateinit var imageReader: ImageReader
+    private var isProcessing = false
+    private var bitmap: Bitmap? = null
     private val cameraManager: CameraManager
             by lazy { applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager }
 
@@ -75,10 +77,12 @@ class CameraUtils(
             }
 
             override fun onDisconnected(camera: CameraDevice) {
+                camera.close()
                 Log.w(TAG, "Camera $cameraId has been disconnected")
             }
 
             override fun onError(camera: CameraDevice, error: Int) {
+                camera.close()
                 val msg = when (error) {
                     ERROR_CAMERA_DEVICE -> "Fatal (device)"
                     ERROR_CAMERA_DISABLED -> "Device policy"
@@ -121,8 +125,6 @@ class CameraUtils(
         )
     }
 
-    private var isProcessing = false
-    private var bitmap: Bitmap? = null
     override fun onImageAvailable(reader: ImageReader?) {
         var image: Image? = null
         try {
@@ -175,7 +177,7 @@ class CameraUtils(
             .first()
     }
 
-    interface EventListener {
+    interface CameraEventListener {
         fun onPreviewSizeSelected(size: Size)
         fun onError(text: String)
         fun onImageAvailable(bitmap: Bitmap, orientation: Int)

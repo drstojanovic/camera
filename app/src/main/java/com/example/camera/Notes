@@ -35,3 +35,10 @@ FLOW
 - open camera using camera handler
 - setup image reader
 - create capture session with two surface destinations (preview and image reader) with repeating request
+
+IMPROVEMENTS:
+- auto focus and brightness
+- locking the phone and restarting the app
+- closing camera in onDisconnected and onError callbacks (open camera)
+- start/stop threads in onResume/onPause callbacks
+- check postInferenceCallback solution for isProcessing = false flag

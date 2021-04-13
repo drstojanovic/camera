@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.camera.databinding.ActivityMainBinding
 import com.example.camera.utils.CameraUtils
+import com.example.camera.utils.OnSurfaceTextureAvailableListener
 import com.example.camera.utils.TAG
 import io.reactivex.disposables.CompositeDisposable
 
@@ -24,7 +25,7 @@ private const val PERMISSIONS_REQUEST_CODE = 10
 private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
 private const val RESULT_FORMAT = "%s %.2f"
 
-class MainActivity : AppCompatActivity(), CameraUtils.EventListener {
+class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
     private lateinit var binding: ActivityMainBinding
     private val imageProcessor by lazy { ImageProcessor(applicationContext) }
@@ -48,12 +49,8 @@ class MainActivity : AppCompatActivity(), CameraUtils.EventListener {
     }
 
     private fun setSurfaceListener() {
-        binding.textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, width: Int, height: Int) = Unit
-            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture?) = false
-            override fun onSurfaceTextureUpdated(surface: SurfaceTexture?) = Unit
-            override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) =
-                checkPermissionsAndInit()
+        binding.textureView.surfaceTextureListener = OnSurfaceTextureAvailableListener { _, _, _ ->
+            checkPermissionsAndInit()
         }
     }
 
