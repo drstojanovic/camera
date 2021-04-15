@@ -14,5 +14,4 @@ class Recognition(
             if (location != null) "$result $location "
             else result
         }.trim()
-
 }
