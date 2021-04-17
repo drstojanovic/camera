@@ -2,19 +2,39 @@ package com.example.camera
 
 import android.content.Context
 import android.graphics.Bitmap
-import com.example.camera.classification.ClassifierQuantizedMobileNetV2
+import android.graphics.Matrix
+import android.util.Size
 import com.example.camera.classification.Recognition
+import com.example.camera.detection.ObjectDetector
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
-class ImageProcessor(context: Context) {
+class ImageProcessor(
+    context: Context
+) {
 
-    private val classifier = ClassifierQuantizedMobileNetV2(context, 4)
+    companion object {
+        private const val MODEL_FILE = ""
+        private const val LABELS_FILE = ""
+        private const val MAX_DETECTIONS = 10
+        private val INPUT_SIZE = Size(640, 480)
+    }
+
+    private val detector = ObjectDetector(context, MAX_DETECTIONS, MODEL_FILE, LABELS_FILE, INPUT_SIZE)
 
     fun processImage(image: Bitmap, orientation: Int): Single<List<Recognition>> =
-        Single.fromCallable { classifier.recognizeImage(image, orientation) }
+        Single.fromCallable { detector.recognizeImage(preprocessImage(image, orientation)) }
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
 
+    private fun preprocessImage(image: Bitmap, orientation: Int): Bitmap =
+        image.takeIf { orientation != 0 }
+            ?.let {
+                Bitmap.createBitmap(
+                    image, 0, 0, image.width, image.height,
+                    Matrix().apply { postRotate(orientation.toFloat(), -image.width / 2f, -image.height / 2f) },
+                    true
+                )
+            } ?: image
 }

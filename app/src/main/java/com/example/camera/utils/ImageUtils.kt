@@ -97,6 +97,37 @@ object ImageUtils {
         return -0x1000000 or (r shl 6 and 0xff0000) or (g shr 2 and 0xff00) or (b shr 10 and 0xff)
     }
 
+    fun getTransformationMatrix(
+        srcWidth: Int,
+        srcHeight: Int,
+        dstWidth: Int,
+        dstHeight: Int,
+        applyRotation: Int = 0,
+        maintainAspectRatio: Boolean = true
+    ): Matrix {
+        val matrix = Matrix()
+
+        if (applyRotation != 0) {
+            matrix.postTranslate(-srcWidth / 2f, -srcHeight / 2f)
+            matrix.postRotate(applyRotation.toFloat())
+        }
+
+        if (srcWidth != dstWidth || srcHeight != dstHeight) {
+            val scaleFactorX = dstWidth / srcWidth.toFloat()
+            val scaleFactorY = dstHeight / srcHeight.toFloat()
+            if (maintainAspectRatio) {
+                val scaleFactor = max(scaleFactorX, scaleFactorY)
+                matrix.postScale(scaleFactor, scaleFactor)
+            } else {
+                matrix.postScale(scaleFactorX, scaleFactorY)
+            }
+        }
+        if (applyRotation != 0) {
+            matrix.postTranslate(dstWidth / 2.0f, dstHeight / 2.0f)
+        }
+        return matrix
+    }
+
     fun saveBitmap(context: Context, bitmap: Bitmap?, rotation: Int, filename: String = "test.png") {
         bitmap ?: return
         var outputStream: OutputStream? = null

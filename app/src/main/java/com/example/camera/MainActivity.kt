@@ -3,13 +3,11 @@ package com.example.camera
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.os.*
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import android.view.TextureView
 import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
@@ -45,13 +43,8 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setSurfaceListener()
-    }
-
-    private fun setSurfaceListener() {
-        binding.textureView.surfaceTextureListener = OnSurfaceTextureAvailableListener { _, _, _ ->
-            checkPermissionsAndInit()
-        }
+        binding.textureView.surfaceTextureListener =
+            OnSurfaceTextureAvailableListener { checkPermissionsAndInit() }
     }
 
     override fun onStop() {
@@ -129,5 +122,4 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
                 )
         )
     }
-
 }

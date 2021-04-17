@@ -148,7 +148,6 @@ class CameraUtils(
         }
     }
 
-
     private fun getSensorOrientation(cameraId: String) =
         cameraManager.getCameraCharacteristics(cameraId).get(CameraCharacteristics.SENSOR_ORIENTATION)!!
 

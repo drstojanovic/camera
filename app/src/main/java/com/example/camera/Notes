@@ -42,3 +42,5 @@ IMPROVEMENTS:
 - closing camera in onDisconnected and onError callbacks (open camera)
 - start/stop threads in onResume/onPause callbacks
 - check postInferenceCallback solution for isProcessing = false flag
+- consider only portrait mode (for image rotation use only camera sensor rotation)
+- for now, support only case when frame size and model-input size are the same

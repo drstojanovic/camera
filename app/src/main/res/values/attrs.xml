@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="TrackerOverlayView">
+        <attr name="frameWidth" format="integer" />
+        <attr name="frameHeight" format="integer" />
+    </declare-styleable>
+</resources>
