@@ -13,6 +13,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.example.camera.classification.Recognition
 import com.example.camera.databinding.ActivityMainBinding
 import com.example.camera.utils.CameraUtils
 import com.example.camera.utils.OnSurfaceTextureAvailableListener
@@ -102,24 +103,31 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
             setAspectRatio(size.height, size.width)
             surfaceTexture.setDefaultBufferSize(size.width, size.height)
             Log.d(TAG, "Texture View preview size after applying values: $width x $height")
+            binding.viewTracker.setFrameSize(size)
         }
     }
 
     override fun onImageAvailable(bitmap: Bitmap, orientation: Int) {
-        compositeDisposable.add(
-            imageProcessor.processImage(bitmap, orientation)
-                .subscribe(
-                    { result ->
-                        binding.txtResult1.text = RESULT_FORMAT.format(result[0].title, result[0].confidence * 100)
-                        binding.txtResult2.text = RESULT_FORMAT.format(result[1].title, result[1].confidence * 100)
-                        binding.txtResult3.text = RESULT_FORMAT.format(result[2].title, result[2].confidence * 100)
-                        cameraUtils.onImageProcessed()
-                    },
-                    { throwable ->
-                        Log.e(TAG, throwable.stackTraceToString())
-                        cameraUtils.onImageProcessed()
+        imageProcessor.processImage(bitmap, orientation)
+            .subscribe(
+                { result ->
+                    if (result.isNotEmpty()) {
+                        binding.viewTracker.setData(result)
+                        displayResults(result)
                     }
-                )
-        )
+                    cameraUtils.onImageProcessed()
+                },
+                { throwable ->
+                    Log.e(TAG, throwable.stackTraceToString())
+                    cameraUtils.onImageProcessed()
+                }
+            )
+            .also { compositeDisposable.add(it) }
+    }
+
+    private fun displayResults(result: List<Recognition>) {
+        binding.txtResult1.text = RESULT_FORMAT.format(result[0].title, result[0].confidence * 100)
+        binding.txtResult2.text = RESULT_FORMAT.format(result[1].title, result[1].confidence * 100)
+        binding.txtResult3.text = RESULT_FORMAT.format(result[2].title, result[2].confidence * 100)
     }
 }

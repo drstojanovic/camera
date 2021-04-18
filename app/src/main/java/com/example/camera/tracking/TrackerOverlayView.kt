@@ -15,7 +15,6 @@ import kotlin.math.min
 class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameLayout(context, attributeSet) {
 
     companion object {
-        private const val MIN_ALLOWED_SIZE = 16f
         private const val TEXT_SIZE_SP = 12
         private const val BOX_STROKE_WIDTH = 10f
         private const val TEXT_BACKGROUND_ALPHA = 160
@@ -43,19 +42,10 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
     private lateinit var boxes: List<TrackingBox>
     private lateinit var frameToCanvasMatrix: Matrix
 
-    init {
-        attributeSet?.let { attrs ->
-            frameSize = Size(
-                attrs.getAttributeIntValue(R.styleable.TrackerOverlayView_frameWidth, 0),
-                attrs.getAttributeIntValue(R.styleable.TrackerOverlayView_frameHeight, 0)
-            )
-        }
-    }
-
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (!this::frameToCanvasMatrix.isInitialized) {
-            initTransformationMatrix(canvas)
+            if (this::frameSize.isInitialized) initTransformationMatrix(canvas)
         } else {
             boxes.forEach { box ->
                 val cornerSize = min(box.location.width(), box.location.height()) / 8f
@@ -82,6 +72,10 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
             frameSize.width, frameSize.height,
             canvas.width, canvas.height
         )
+    }
+
+    fun setFrameSize(size: Size) {
+        frameSize = size
     }
 
     fun setData(list: List<Recognition>) {

@@ -15,8 +15,8 @@ class ImageProcessor(
 ) {
 
     companion object {
-        private const val MODEL_FILE = ""
-        private const val LABELS_FILE = ""
+        private const val MODEL_FILE = "detection/model_quanitized.tflite"
+        private const val LABELS_FILE = "detection/labels.txt"
         private const val MAX_DETECTIONS = 10
         private val INPUT_SIZE = Size(640, 480)
     }
