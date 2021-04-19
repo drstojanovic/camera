@@ -15,8 +15,9 @@ class ImageProcessor(
 ) {
 
     companion object {
-        private const val MODEL_FILE = "detection/model_quanitized.tflite"
-        private const val LABELS_FILE = "detection/labels.txt"
+        private const val MODEL_FILE = "detection/lite_model.tflite"
+        private const val QUANITIZED_MODEL_FILE = "detection/lite_quanitized_model.tflite"
+        private const val LABELS_FILE = "labels.txt"
         private const val MAX_DETECTIONS = 10
         private val INPUT_SIZE = Size(640, 480)
     }
@@ -33,7 +34,7 @@ class ImageProcessor(
             ?.let {
                 Bitmap.createBitmap(
                     image, 0, 0, image.width, image.height,
-                    Matrix().apply { postRotate(orientation.toFloat(), -image.width / 2f, -image.height / 2f) },
+                    Matrix().apply { postRotate(-orientation.toFloat(), -image.width / 2f, -image.height / 2f) },
                     true
                 )
             } ?: image

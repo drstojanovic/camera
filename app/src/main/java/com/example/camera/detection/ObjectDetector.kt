@@ -5,8 +5,10 @@ import android.graphics.Bitmap
 import android.util.Size
 import com.example.camera.classification.Recognition
 import org.tensorflow.lite.Interpreter
+import org.tensorflow.lite.support.common.ops.NormalizeOp
+import org.tensorflow.lite.support.image.ImageProcessor
+import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.metadata.MetadataExtractor
-import java.nio.ByteBuffer
 import java.nio.MappedByteBuffer
 import java.nio.charset.Charset
 
@@ -19,12 +21,16 @@ class ObjectDetector(
     private val numberOfThreads: Int = 4
 ) : IDetector {
 
+    companion object {
+        private const val FLOAT_MODEL_IMAGE_MEAN = 127.5f
+        private const val FLOAT_MODEL_IMAGE_STD = 127.5f
+    }
+
     private lateinit var tfLite: Interpreter
     private lateinit var tfLiteOptions: Interpreter.Options
     private lateinit var tfLiteModel: MappedByteBuffer
+    private lateinit var inputTensorImage: TensorImage
     private val labels = arrayListOf<String>()
-    private val intValues = IntArray(inputSize.width * inputSize.height)
-    private val imageData = ByteBuffer.allocateDirect(inputSize.width * inputSize.height * 3)
     private val detectionResult = DetectionResult(maxDetections)
 
     init {
@@ -36,9 +42,8 @@ class ObjectDetector(
     }
 
     override fun recognizeImage(bitmap: Bitmap): List<Recognition> {
-        bitmap.getPixels(intValues, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-        populateImageByteArray()
-        tfLite.runForMultipleInputsOutputs(Array<Any>(1) { imageData }, detectionResult.valuesMap)
+        inputTensorImage = loadTensorImage(bitmap)
+        tfLite.runForMultipleInputsOutputs(Array<Any>(1) { inputTensorImage.buffer }, detectionResult.valuesMap)
         return detectionResult.getRecognitions(labels, inputSize)
     }
 
@@ -63,16 +68,13 @@ class ObjectDetector(
         tfLite = Interpreter(tfLiteModel, tfLiteOptions)
     }
 
-    private fun populateImageByteArray() {
-        imageData.rewind()
-        for (row in 0 until inputSize.height) {
-            for (col in 0 until inputSize.width) {
-                intValues[row * inputSize.width + col].let { pixel ->
-                    imageData.put(((pixel shr 16) and 0xFF).toByte())
-                    imageData.put(((pixel shr 8) and 0xFF).toByte())
-                    imageData.put((pixel and 0xFF).toByte())
-                }
+    private fun loadTensorImage(bitmap: Bitmap): TensorImage =
+        TensorImage(tfLite.getInputTensor(0).dataType())
+            .apply { load(bitmap) }
+            .let {
+                ImageProcessor.Builder()
+                    .add(NormalizeOp(FLOAT_MODEL_IMAGE_MEAN, FLOAT_MODEL_IMAGE_STD))
+                    .build()
+                    .process(it)
             }
-        }
-    }
 }

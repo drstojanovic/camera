@@ -2,7 +2,7 @@ package com.example.camera.classification
 
 import android.graphics.RectF
 
-class Recognition(
+data class Recognition(
     val id: String = "",
     val title: String = "",
     val confidence: Float = 0f,

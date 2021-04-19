@@ -126,8 +126,12 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
     }
 
     private fun displayResults(result: List<Recognition>) {
-        binding.txtResult1.text = RESULT_FORMAT.format(result[0].title, result[0].confidence * 100)
-        binding.txtResult2.text = RESULT_FORMAT.format(result[1].title, result[1].confidence * 100)
-        binding.txtResult3.text = RESULT_FORMAT.format(result[2].title, result[2].confidence * 100)
+        Log.d("sentic", result.toString())
+        if (result.isNotEmpty())
+            binding.txtResult1.text = RESULT_FORMAT.format(result[0].title, result[0].confidence * 100)
+        if (result.size > 1)
+            binding.txtResult2.text = RESULT_FORMAT.format(result[1].title, result[1].confidence * 100)
+        if (result.size > 2)
+            binding.txtResult3.text = RESULT_FORMAT.format(result[2].title, result[2].confidence * 100)
     }
 }
