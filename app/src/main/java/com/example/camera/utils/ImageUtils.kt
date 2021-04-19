@@ -103,7 +103,7 @@ object ImageUtils {
         dstWidth: Int,
         dstHeight: Int,
         applyRotation: Int = 0,
-        maintainAspectRatio: Boolean = true
+        maintainAspectRatio: Boolean = false
     ): Matrix {
         val matrix = Matrix()
 

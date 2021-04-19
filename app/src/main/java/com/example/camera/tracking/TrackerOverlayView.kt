@@ -38,15 +38,16 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
         typeface = Typeface.MONOSPACE
     }
 
-    private lateinit var frameSize: Size
     private lateinit var boxes: List<TrackingBox>
     private lateinit var frameToCanvasMatrix: Matrix
 
+    init {
+        setWillNotDraw(false)
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (!this::frameToCanvasMatrix.isInitialized) {
-            if (this::frameSize.isInitialized) initTransformationMatrix(canvas)
-        } else {
+        if (this::boxes.isInitialized) {
             boxes.forEach { box ->
                 val cornerSize = min(box.location.width(), box.location.height()) / 8f
                 canvas.drawRoundRect(box.location, cornerSize, cornerSize, boxPaint.withColor(box.color))
@@ -64,18 +65,14 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
 
     private fun Canvas.drawBorderedText(x: Float, y: Float, width: Float, height: Float, color: Int, text: String) {
         drawRect(x, y, x + width, y + height, textBackgroundPaint.withColor(color))
-        drawText(text, x, y, textPaint)
+        drawText(text, x, y + height / 2, textPaint)
     }
 
-    private fun initTransformationMatrix(canvas: Canvas) {
+    fun setFrameSize(frameSize: Size) {
         frameToCanvasMatrix = ImageUtils.getTransformationMatrix(
             frameSize.width, frameSize.height,
-            canvas.width, canvas.height
+            width, height
         )
-    }
-
-    fun setFrameSize(size: Size) {
-        frameSize = size
     }
 
     fun setData(list: List<Recognition>) {
