@@ -2,7 +2,6 @@ package com.example.camera.detection
 
 import android.graphics.RectF
 import android.util.Size
-import com.example.camera.classification.Recognition
 import kotlin.math.min
 
 /**

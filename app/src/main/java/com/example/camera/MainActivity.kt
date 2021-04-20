@@ -13,7 +13,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.example.camera.classification.Recognition
+import com.example.camera.detection.Recognition
 import com.example.camera.databinding.ActivityMainBinding
 import com.example.camera.utils.CameraUtils
 import com.example.camera.utils.OnSurfaceTextureAvailableListener

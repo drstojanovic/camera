@@ -1,7 +1,6 @@
 package com.example.camera.detection
 
 import android.graphics.Bitmap
-import com.example.camera.classification.Recognition
 
 interface IDetector {
 

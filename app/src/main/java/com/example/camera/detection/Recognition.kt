@@ -1,4 +1,4 @@
-package com.example.camera.classification
+package com.example.camera.detection
 
 import android.graphics.RectF
 

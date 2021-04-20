@@ -3,7 +3,7 @@ package com.example.camera
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
-import com.example.camera.classification.Recognition
+import com.example.camera.detection.Recognition
 import com.example.camera.detection.ObjectDetector
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers

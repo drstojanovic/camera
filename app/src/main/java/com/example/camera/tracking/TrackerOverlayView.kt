@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.util.Size
 import android.widget.FrameLayout
 import com.example.camera.R
-import com.example.camera.classification.Recognition
+import com.example.camera.detection.Recognition
 import com.example.camera.utils.ImageUtils
 import com.example.camera.utils.spToPx
 import com.example.camera.utils.withColor
