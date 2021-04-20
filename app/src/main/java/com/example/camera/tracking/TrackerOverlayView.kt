@@ -65,7 +65,7 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
 
     private fun Canvas.drawBorderedText(x: Float, y: Float, width: Float, height: Float, color: Int, text: String) {
         drawRect(x, y, x + width, y + height, textBackgroundPaint.withColor(color))
-        drawText(text, x, y + height / 2, textPaint)
+        drawText(text, x, y + height - 10, textPaint)
     }
 
     fun setFrameSize(frameSize: Size) {
@@ -76,7 +76,7 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
     }
 
     fun setData(list: List<Recognition>) {
-        if (!this::frameToCanvasMatrix.isInitialized || list.isEmpty()) return
+        if (!this::frameToCanvasMatrix.isInitialized) return
 
         boxes = list.filter { it.location != null }
             .mapIndexed { index, recognition ->

@@ -19,10 +19,11 @@ class ImageProcessor(
         private const val QUANITIZED_MODEL_FILE = "detection/lite_quanitized_model.tflite"
         private const val LABELS_FILE = "labels.txt"
         private const val MAX_DETECTIONS = 10
+        private const val SCORE_THRESHOLD = 0.5f
         private val INPUT_SIZE = Size(640, 480)
     }
 
-    private val detector = ObjectDetector(context, MAX_DETECTIONS, MODEL_FILE, LABELS_FILE, INPUT_SIZE)
+    private val detector = ObjectDetector(context, MODEL_FILE, LABELS_FILE, MAX_DETECTIONS, SCORE_THRESHOLD, INPUT_SIZE)
 
     fun processImage(image: Bitmap, orientation: Int): Single<List<Recognition>> =
         Single.fromCallable { detector.recognizeImage(preprocessImage(image, orientation)) }

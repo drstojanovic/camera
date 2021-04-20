@@ -14,9 +14,10 @@ import java.nio.charset.Charset
 
 class ObjectDetector(
     context: Context,
-    maxDetections: Int,
     modelFileName: String,
     labelFileName: String,
+    maxDetections: Int,
+    private val scoreThreshold: Float,
     private val inputSize: Size,
     private val numberOfThreads: Int = 4
 ) : IDetector {
@@ -44,7 +45,7 @@ class ObjectDetector(
     override fun recognizeImage(bitmap: Bitmap): List<Recognition> {
         inputTensorImage = loadTensorImage(bitmap)
         tfLite.runForMultipleInputsOutputs(Array<Any>(1) { inputTensorImage.buffer }, detectionResult.valuesMap)
-        return detectionResult.getRecognitions(labels, inputSize)
+        return detectionResult.getRecognitions(labels, inputSize, scoreThreshold)
     }
 
     override fun setNumberOfThreads(numberOfThreads: Int) {

@@ -26,17 +26,21 @@ class DetectionResult(private val maxNumberOfDetections: Int) {
         put(COUNT_INDEX, FloatArray(1))
     }
 
-    fun getRecognitions(labels: List<String>, inputSize: Size): List<Recognition> =
+    fun getRecognitions(labels: List<String>, inputSize: Size, scoreThreshold: Float): List<Recognition> =
         arrayListOf<Recognition>().apply {
             repeat(min(maxNumberOfDetections, getDetectionCount())) { detectionNumber ->
-                add(
-                    Recognition(
-                        id = detectionNumber.toString(),
-                        title = labels[getClassIndex(detectionNumber)],
-                        confidence = getScore(detectionNumber),
-                        location = getLocation(detectionNumber, inputSize)
-                    )
-                )
+                getScore(detectionNumber)
+                    .takeIf { it >= scoreThreshold }
+                    ?.let {
+                        add(
+                            Recognition(
+                                id = detectionNumber.toString(),
+                                title = labels[getClassIndex(detectionNumber)],
+                                confidence = it,
+                                location = getLocation(detectionNumber, inputSize)
+                            )
+                        )
+                    }
             }
         }
 
