@@ -3,7 +3,6 @@ package com.example.camera
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
-import android.util.Size
 import com.example.camera.classification.Recognition
 import com.example.camera.detection.ObjectDetector
 import io.reactivex.Single
@@ -20,13 +19,13 @@ class ImageProcessor(
         private const val LABELS_FILE = "labels.txt"
         private const val MAX_DETECTIONS = 10
         private const val SCORE_THRESHOLD = 0.5f
-        private val INPUT_SIZE = Size(640, 480)
     }
 
-    private val detector = ObjectDetector(context, MODEL_FILE, LABELS_FILE, MAX_DETECTIONS, SCORE_THRESHOLD, INPUT_SIZE)
+    private val detector = ObjectDetector(context, MODEL_FILE, LABELS_FILE, MAX_DETECTIONS, SCORE_THRESHOLD)
 
     fun processImage(image: Bitmap, orientation: Int): Single<List<Recognition>> =
         Single.fromCallable { detector.recognizeImage(preprocessImage(image, orientation)) }
+            .flatMap { filterInvalidDetections(it, image.width, image.height) }
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
 
@@ -39,4 +38,7 @@ class ImageProcessor(
                     true
                 )
             } ?: image
+
+    private fun filterInvalidDetections(list: List<Recognition>, width: Int, height: Int) =
+        Single.fromCallable { list.filterNot { it.location.width() > width || it.location.height() > height } }
 }

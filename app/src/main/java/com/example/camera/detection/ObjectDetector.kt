@@ -18,7 +18,6 @@ class ObjectDetector(
     labelFileName: String,
     maxDetections: Int,
     private val scoreThreshold: Float,
-    private val inputSize: Size,
     private val numberOfThreads: Int = 4
 ) : IDetector {
 
@@ -31,6 +30,7 @@ class ObjectDetector(
     private lateinit var tfLiteOptions: Interpreter.Options
     private lateinit var tfLiteModel: MappedByteBuffer
     private lateinit var inputTensorImage: TensorImage
+    private lateinit var inputSize: Size
     private val labels = arrayListOf<String>()
     private val detectionResult = DetectionResult(maxDetections)
 
@@ -62,6 +62,9 @@ class ObjectDetector(
         tfLiteModel = modelFile
         tfLiteOptions = Interpreter.Options().apply { setNumThreads(numberOfThreads) }
         tfLite = Interpreter(tfLiteModel, tfLiteOptions)
+        tfLite.getInputTensor(0).shape().let { shape -> // { 1, height, width, 3 }
+            inputSize = Size(shape[1], shape[2])
+        }
     }
 
     private fun recreateInterpreter() {

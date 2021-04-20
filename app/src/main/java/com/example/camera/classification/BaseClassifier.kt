@@ -2,6 +2,7 @@ package com.example.camera.classification
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.RectF
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.GpuDelegate
 import org.tensorflow.lite.nnapi.NnApiDelegate
@@ -89,7 +90,7 @@ abstract class BaseClassifier(
 
     private fun getTopKPredictions(labelProb: Map<String, Float>): List<Recognition> =
         labelProb.entries
-            .map { entry -> Recognition(entry.key, entry.key, entry.value, null) }
+            .map { entry -> Recognition(entry.key, entry.key, entry.value, RectF()) }
             .sortedByDescending { it.confidence }
             .take(MAX_RESULTS)
 

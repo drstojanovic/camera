@@ -9,7 +9,7 @@
     <color name="colorBoxYellow">#FFFF00</color>
     <color name="colorBoxCyan">#00FFFF</color>
     <color name="colorBoxMagenta">#FF00FF</color>
-    <color name="colorBoxWhite">#FFFFFF</color>
+    <color name="colorBoxPurpleDark">#673AB7</color>
     <color name="colorBoxGreenIntense">#55FF55</color>
     <color name="colorBoxOrange">#FFA500</color>
     <color name="colorBoxPinkLight">#FF8888</color>
@@ -23,7 +23,7 @@
         <item>@color/colorBoxYellow</item>
         <item>@color/colorBoxCyan</item>
         <item>@color/colorBoxMagenta</item>
-        <item>@color/colorBoxWhite</item>
+        <item>@color/colorBoxPurpleDark</item>
         <item>@color/colorBoxGreenIntense</item>
         <item>@color/colorBoxOrange</item>
         <item>@color/colorBoxPinkLight</item>

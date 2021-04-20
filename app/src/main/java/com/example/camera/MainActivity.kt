@@ -111,10 +111,8 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         imageProcessor.processImage(bitmap, orientation)
             .subscribe(
                 { result ->
-                    if (result.isNotEmpty()) {
-                        binding.viewTracker.setData(result)
-                        displayResults(result)
-                    }
+                    binding.viewTracker.setData(result)
+                    displayResults(result)
                     cameraUtils.onImageProcessed()
                 },
                 { throwable ->
@@ -127,11 +125,11 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
     private fun displayResults(result: List<Recognition>) {
         Log.d("sentic", result.toString())
-        if (result.isNotEmpty())
-            binding.txtResult1.text = RESULT_FORMAT.format(result[0].title, result[0].confidence * 100)
-        if (result.size > 1)
-            binding.txtResult2.text = RESULT_FORMAT.format(result[1].title, result[1].confidence * 100)
-        if (result.size > 2)
-            binding.txtResult3.text = RESULT_FORMAT.format(result[2].title, result[2].confidence * 100)
+        binding.txtResult1.text =
+            if (result.isNotEmpty()) RESULT_FORMAT.format(result[0].title, result[0].confidence * 100) else ""
+        binding.txtResult2.text =
+            if (result.size > 1) RESULT_FORMAT.format(result[1].title, result[1].confidence * 100) else ""
+        binding.txtResult3.text =
+            if (result.size > 2) RESULT_FORMAT.format(result[2].title, result[2].confidence * 100) else ""
     }
 }
