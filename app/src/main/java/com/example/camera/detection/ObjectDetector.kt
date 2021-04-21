@@ -3,6 +3,7 @@ package com.example.camera.detection
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Size
+import com.example.camera.utils.ModelUtils
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ImageProcessor

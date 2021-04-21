@@ -1,4 +1,4 @@
-package com.example.camera.detection
+package com.example.camera.utils
 
 import android.content.res.AssetManager
 import java.io.FileInputStream
@@ -17,5 +17,4 @@ object ModelUtils {
                     fileDescriptor.declaredLength
                 )
         }
-
 }

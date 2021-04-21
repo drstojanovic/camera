@@ -6,21 +6,21 @@
     <color name="colorBoxRed">#FF0000</color>
     <color name="colorBoxGreen">#00FF00</color>
     <color name="colorBoxBlue">#0000FF</color>
-    <color name="colorBoxYellow">#FFFF00</color>
-    <color name="colorBoxCyan">#00FFFF</color>
-    <color name="colorBoxMagenta">#FF00FF</color>
+    <color name="colorBoxGreenDark">#009688</color>
+    <color name="colorBoxCyan">#00C6C6</color>
+    <color name="colorBoxMagenta">#B800B8</color>
     <color name="colorBoxPurpleDark">#673AB7</color>
     <color name="colorBoxGreenIntense">#55FF55</color>
     <color name="colorBoxOrange">#FFA500</color>
     <color name="colorBoxPinkLight">#FF8888</color>
-    <color name="colorBoxPurpleLight">#AAAAFF</color>
-    <color name="colorBoxYellowLight">#FFFFAA</color>
+    <color name="colorBoxPurpleLight">#6262FD</color>
+    <color name="colorBoxBrown">#575700</color>
 
     <array name="bbox_colors">
         <item>@color/colorBoxRed</item>
         <item>@color/colorBoxGreen</item>
         <item>@color/colorBoxBlue</item>
-        <item>@color/colorBoxYellow</item>
+        <item>@color/colorBoxGreenDark</item>
         <item>@color/colorBoxCyan</item>
         <item>@color/colorBoxMagenta</item>
         <item>@color/colorBoxPurpleDark</item>
@@ -28,7 +28,7 @@
         <item>@color/colorBoxOrange</item>
         <item>@color/colorBoxPinkLight</item>
         <item>@color/colorBoxPurpleLight</item>
-        <item>@color/colorBoxYellowLight</item>
+        <item>@color/colorBoxBrown</item>
     </array>
 
 </resources>

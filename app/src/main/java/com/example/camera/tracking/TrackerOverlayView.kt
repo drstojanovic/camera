@@ -55,9 +55,9 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
                     x = box.location.left + cornerSize,
                     y = box.location.top,
                     height = textPaint.textSize,
-                    width = textPaint.measureText(box.title),
+                    width = textPaint.measureText(box.description),
                     color = box.color,
-                    text = box.title
+                    text = box.description
                 )
             }
         }
