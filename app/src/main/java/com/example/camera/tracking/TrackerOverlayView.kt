@@ -40,6 +40,7 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
 
     private lateinit var boxes: List<TrackingBox>
     private lateinit var frameToCanvasMatrix: Matrix
+    private lateinit var modelOutputToCanvasMatrix: Matrix
 
     init {
         setWillNotDraw(false)
@@ -75,12 +76,20 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
         )
     }
 
+    fun setModelInputSize(outputSize: Size) {
+        modelOutputToCanvasMatrix =
+            ImageUtils.getTransformationMatrix(
+                outputSize.width, outputSize.height,
+                width, height
+            )
+    }
+
     fun setData(list: List<Recognition>) {
-        if (!this::frameToCanvasMatrix.isInitialized) return
+        if (!this::modelOutputToCanvasMatrix.isInitialized) return
 
         boxes = list.mapIndexed { index, recognition ->
-            val mappedLocation = RectF(recognition.location!!)
-            frameToCanvasMatrix.mapRect(mappedLocation)
+            val mappedLocation = RectF(recognition.location)
+            modelOutputToCanvasMatrix.mapRect(mappedLocation)
 
             TrackingBox(
                 location = mappedLocation,

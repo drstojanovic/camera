@@ -2,6 +2,7 @@ package com.example.camera.detection
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import android.util.Size
 import com.example.camera.utils.ModelUtils
 import org.tensorflow.lite.Interpreter
@@ -43,8 +44,11 @@ class ObjectDetector(
     }
 
     override fun recognizeImage(bitmap: Bitmap): List<Recognition> {
+        val startTime = System.currentTimeMillis()
         inputTensorImage = loadTensorImage(bitmap)
+        Log.d("OD - loading time:", (System.currentTimeMillis() - startTime).toString())
         tfLite.runForMultipleInputsOutputs(Array<Any>(1) { inputTensorImage.buffer }, detectionResult.valuesMap)
+        Log.d("OD - inference time:", (System.currentTimeMillis() - startTime).toString())
         return detectionResult.getRecognitions(labels, inputSize, scoreThreshold)
     }
 
@@ -63,7 +67,7 @@ class ObjectDetector(
         tfLiteOptions = Interpreter.Options().apply { setNumThreads(numberOfThreads) }
         tfLite = Interpreter(tfLiteModel, tfLiteOptions)
         tfLite.getInputTensor(0).shape().let { shape -> // { 1, height, width, 3 }
-            inputSize = Size(shape[1], shape[2])
+            inputSize = Size(shape[2], shape[1])
         }
     }
 
