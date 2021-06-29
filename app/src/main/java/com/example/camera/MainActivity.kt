@@ -15,9 +15,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.camera.detection.Recognition
 import com.example.camera.databinding.ActivityMainBinding
+import com.example.camera.processing.LocalImageProcessor
+import com.example.camera.processing.RemoteImageProcessor
+import com.example.camera.processing.Settings
 import com.example.camera.utils.CameraUtils
 import com.example.camera.utils.OnSurfaceTextureAvailableListener
 import com.example.camera.utils.TAG
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
 private const val PERMISSIONS_REQUEST_CODE = 10
@@ -27,7 +31,7 @@ private const val RESULT_FORMAT = "%s %.2f"
 class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
     private lateinit var binding: ActivityMainBinding
-    private val imageProcessor by lazy { ImageProcessor(applicationContext) }
+    private val imageProcessor = RemoteImageProcessor(Settings(serverIpAddress = "192.168.0.21",serverPort = "9990"))
     private val compositeDisposable = CompositeDisposable()
     private val cameraThread = HandlerThread("Camera Thread").apply { start() }
     private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
@@ -62,6 +66,7 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         imageReaderThread.quitSafely()
         cameraThread.quitSafely()
         compositeDisposable.dispose()
+        imageProcessor.dispose()
     }
 
     private fun checkPermissionsAndInit() {
@@ -103,12 +108,13 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
             setAspectRatio(size.height, size.width)
             surfaceTexture.setDefaultBufferSize(size.width, size.height)
             Log.d(TAG, "Texture View preview size after applying values: $width x $height")
-            binding.viewTracker.setModelInputSize(ImageProcessor.inputSize)
+            binding.viewTracker.setModelInputSize(LocalImageProcessor.inputSize)
         }
     }
 
     override fun onImageAvailable(bitmap: Bitmap, orientation: Int) {
         imageProcessor.processImage(bitmap, orientation)
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result ->
                     binding.viewTracker.setData(result)

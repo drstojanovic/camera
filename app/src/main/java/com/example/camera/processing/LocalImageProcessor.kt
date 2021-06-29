@@ -1,19 +1,17 @@
-package com.example.camera
+package com.example.camera.processing
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Size
 import com.example.camera.detection.ObjectDetector
 import com.example.camera.detection.Recognition
-import com.example.camera.utils.ImageUtils
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlin.math.abs
 
-class ImageProcessor(
+class LocalImageProcessor(
     context: Context
-) {
+) : ImageProcessor() {
 
     companion object {
         private const val MODEL_FILE = "detection/lite_model_v7.tflite"
@@ -31,22 +29,9 @@ class ImageProcessor(
 
     private val detector = ObjectDetector(context, MODEL_FILE, LABELS_FILE, MAX_DETECTIONS, SCORE_THRESHOLD)
 
-    fun processImage(image: Bitmap, orientation: Int): Single<List<Recognition>> =
-        Single.fromCallable { detector.recognizeImage(preprocessImage(image, orientation)) }
+    override fun process(image: Bitmap): Single<List<Recognition>> =
+        Single.fromCallable { detector.recognizeImage(image) }
             .flatMap { filterInvalidDetections(it, image.width, image.height) }
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
-
-    private fun preprocessImage(image: Bitmap, orientation: Int): Bitmap {
-        val srcWidth = if (abs(orientation) in setOf(90, 270)) image.height else image.width
-        val srcHeight = if (abs(orientation) in setOf(90, 270)) image.width else image.height
-        return Bitmap.createBitmap(
-            image, 0, 0, image.width, image.height,
-            ImageUtils.getTransformationMatrix(srcWidth, srcHeight, inputSize.width, inputSize.height, -orientation),
-            true
-        )
-    }
-
-    private fun filterInvalidDetections(list: List<Recognition>, width: Int, height: Int) =
-        Single.fromCallable { list.filterNot { it.location.width() > width || it.location.height() > height } }
 }
