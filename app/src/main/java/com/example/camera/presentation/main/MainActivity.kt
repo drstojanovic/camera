@@ -1,4 +1,4 @@
-package com.example.camera
+package com.example.camera.presentation.main
 
 import android.Manifest
 import android.content.pm.PackageManager

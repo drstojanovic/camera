@@ -3,6 +3,8 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="white">#FFF</color>
+
     <color name="colorBoxRed">#FF0000</color>
     <color name="colorBoxGreen">#00FF00</color>
     <color name="colorBoxBlue">#0000FF</color>

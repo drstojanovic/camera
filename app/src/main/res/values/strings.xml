@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Camera</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+
+    <string name="setup_image_resolution">Image resolution:</string>
+    <string name="setup_max_detections">Maximal detections:</string>
+    <string name="setup_confidence_threshold">Confidence threshold:</string>
+    <string name="setup_inference_type">Inference type:</string>
+    <string name="setup_inference_local">Local</string>
+    <string name="setup_inference_remote">Remote</string>
+    <string name="setup_server_address">Server IP address</string>
+    <string name="setup_server_port">Port</string>
 </resources>

@@ -8,4 +8,30 @@
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
+    <style name="TextLabelStyle">
+        <item name="android:layout_marginStart">32dp</item>
+        <item name="android:layout_marginTop">32dp</item>
+    </style>
+
+    <style name="ValueComponentStyle">
+        <item name="android:layout_marginEnd">32dp</item>
+    </style>
+
+    <style name="SwitchButtonStyle">
+        <item name="android:background">@drawable/shape_selection_active</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:paddingStart">32dp</item>
+        <item name="android:paddingEnd">32dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">16dp</item>
+    </style>
+
+    <style name="SecondaryButtonStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:background">@drawable/ripple_btn_secondary</item>
+    </style>
+
 </resources>
