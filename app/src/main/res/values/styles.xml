@@ -8,13 +8,15 @@
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
+    <style name="SplashTheme" parent="AppTheme">
+        <item name="android:background">@drawable/traffic</item>
+    </style>
+
     <style name="TextLabelStyle">
-        <item name="android:layout_marginStart">32dp</item>
         <item name="android:layout_marginTop">32dp</item>
     </style>
 
     <style name="ValueComponentStyle">
-        <item name="android:layout_marginEnd">32dp</item>
     </style>
 
     <style name="SwitchButtonStyle">
