@@ -1,4 +1,4 @@
-package com.example.camera.tracking
+package com.example.camera.presentation.main.tracking
 
 import android.graphics.RectF
 

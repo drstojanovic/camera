@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.dash.DashActivity"
+            android:name=".presentation.setup.SetupActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".presentation.main.MainActivity"

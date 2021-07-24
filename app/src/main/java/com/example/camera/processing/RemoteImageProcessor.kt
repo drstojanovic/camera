@@ -64,9 +64,8 @@ class RemoteImageProcessor(
         return Single.create { emitter ->
             socket.emit(EVENT_IMAGE, encodedBytes, Ack { result ->
                 if (result.isNotEmpty() && result[0] != "") {
-                    val rec = recognitionAdapter.fromJson(result[0].toString())
-                    if (rec != null) {
-                        recognitions = rec.mapIndexed { index, r -> r.toRecognition(index) }
+                    recognitionAdapter.fromJson(result[0].toString())?.let { recs ->
+                        recognitions = recs.mapIndexed { index, r -> r.toRecognition(index) }
                     }
                 }
                 emitter.onSuccess(recognitions)
