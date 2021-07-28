@@ -21,7 +21,6 @@ class SetupActivity : AppCompatActivity() {
         setObservers()
     }
 
-
     private fun setObservers() {
         viewModel.action.observe(this) { action ->
             if (action == SetupViewModel.SetupAction.PROCEED)
@@ -31,6 +30,7 @@ class SetupActivity : AppCompatActivity() {
 
     private fun setVariables() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_setup)
+        binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this).get(SetupViewModel::class.java)
         binding.vm = viewModel
     }

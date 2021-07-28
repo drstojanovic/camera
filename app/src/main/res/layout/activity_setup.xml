@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -61,19 +62,33 @@
                     style="@style/ValueComponentStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:items="@{vm.resolutions}"
+                    app:items="@{vm.setupData.resolutionsLabels}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@id/txt_resolution"
-                    app:onItemSelected="@{(position) -> vm.onResolutionSelected(position)}" />
+                    app:onItemSelected="@{(position) -> vm.onResolutionSelected(position)}"
+                    app:selectedIndex="@{vm.resolutionIndexLive}"
+                    tools:listitem="@android:layout/simple_spinner_item" />
 
                 <TextView
-                    android:id="@+id/txt_detections"
+                    android:id="@+id/txt_detections_label"
                     style="@style/TextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/setup_max_detections"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/txt_resolution" />
+
+                <TextView
+                    android:id="@+id/txt_detections"
+                    style="@style/ValueComponentStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_half"
+                    android:text="@{vm.maxDetectionsLive.toString()}"
+                    app:layout_constraintBottom_toBottomOf="@id/txt_detections_label"
+                    app:layout_constraintStart_toEndOf="@id/txt_detections_label"
+                    app:layout_constraintTop_toTopOf="@id/txt_detections_label"
+                    tools:text="5" />
 
                 <SeekBar
                     android:id="@+id/slider_detections_count"
@@ -82,16 +97,53 @@
                     android:layout_marginTop="@dimen/margin_half"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/txt_detections" />
+                    app:layout_constraintTop_toBottomOf="@id/txt_detections_label"
+                    app:max="@{vm.setupData.detectionCountLimitMax}"
+                    app:min="@{vm.setupData.detectionCountLimitMin}"
+                    app:onProgressChange="@{(progress) -> vm.onMaxDetectionLimitChange(progress)}"
+                    app:progress="@{vm.settingsLive.maxDetections}"
+                    app:step="@{1}" />
 
                 <TextView
-                    android:id="@+id/txt_confidence"
+                    android:id="@+id/txt_detections_limit_label_min"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:text="@{vm.setupData.detectionCountLimitMinLabel}"
+                    app:layout_constraintStart_toStartOf="@id/slider_detections_count"
+                    app:layout_constraintTop_toBottomOf="@id/slider_detections_count"
+                    tools:text="1" />
+
+                <TextView
+                    android:id="@+id/txt_detections_limit_label_max"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:text="@{vm.setupData.detectionCountLimitMaxLabel}"
+                    app:layout_constraintEnd_toEndOf="@id/slider_detections_count"
+                    app:layout_constraintTop_toBottomOf="@id/slider_detections_count"
+                    tools:text="10" />
+
+                <TextView
+                    android:id="@+id/txt_confidence_label"
                     style="@style/TextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/setup_confidence_threshold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/slider_detections_count" />
+
+                <TextView
+                    android:id="@+id/txt_confidence"
+                    style="@style/ValueComponentStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_half"
+                    android:text="@{vm.confidenceThresholdLive}"
+                    app:layout_constraintBottom_toBottomOf="@id/txt_confidence_label"
+                    app:layout_constraintStart_toEndOf="@id/txt_confidence_label"
+                    app:layout_constraintTop_toTopOf="@id/txt_confidence_label"
+                    tools:text="50" />
 
                 <SeekBar
                     android:id="@+id/slider_confidence"
@@ -100,7 +152,32 @@
                     android:layout_marginTop="@dimen/margin_half"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/txt_confidence" />
+                    app:layout_constraintTop_toBottomOf="@id/txt_confidence_label"
+                    app:max="@{vm.setupData.confidenceThresholdRangeMax}"
+                    app:min="@{vm.setupData.confidenceThresholdRangeMin}"
+                    app:onProgressChange="@{(progress) -> vm.onConfidenceThresholdChange(progress)}"
+                    app:progress="@{vm.settingsLive.confidenceThreshold}"
+                    app:step="@{vm.setupData.confidenceThresholdSliderStep}" />
+
+                <TextView
+                    android:id="@+id/txt_confidence_range_label_min"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:text="@{vm.setupData.confidenceThresholdRangeMinLabel}"
+                    app:layout_constraintStart_toStartOf="@id/slider_confidence"
+                    app:layout_constraintTop_toBottomOf="@id/slider_confidence"
+                    tools:text="30" />
+
+                <TextView
+                    android:id="@+id/txt_confidence_range_label_max"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:text="@{vm.setupData.confidenceThresholdRangeMaxLabel}"
+                    app:layout_constraintEnd_toEndOf="@id/slider_confidence"
+                    app:layout_constraintTop_toBottomOf="@id/slider_confidence"
+                    tools:text="100" />
 
                 <TextView
                     android:id="@+id/txt_inference_type"

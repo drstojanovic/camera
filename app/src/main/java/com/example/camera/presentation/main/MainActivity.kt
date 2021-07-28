@@ -31,7 +31,7 @@ private const val RESULT_FORMAT = "%s %.2f"
 class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
     private lateinit var binding: ActivityMainBinding
-    private val imageProcessor = RemoteImageProcessor(Settings(serverIpAddress = "192.168.0.21",serverPort = "9990"))
+    private val imageProcessor = RemoteImageProcessor(Settings(null,null,10,50,480,640)) //todo: take as an argument
     private val compositeDisposable = CompositeDisposable()
     private val cameraThread = HandlerThread("Camera Thread").apply { start() }
     private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
     }
 
     private fun displayResults(result: List<Recognition>) {
-        Log.d("sentic", result.toString())
+        Log.d(TAG, result.toString())
         binding.txtResult1.text =
             if (result.isNotEmpty()) RESULT_FORMAT.format(result[0].title, result[0].confidence * 100) else ""
         binding.txtResult2.text =

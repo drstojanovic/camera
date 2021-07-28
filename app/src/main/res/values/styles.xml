@@ -13,10 +13,12 @@
     </style>
 
     <style name="TextLabelStyle">
-        <item name="android:layout_marginTop">32dp</item>
+        <item name="android:layout_marginTop">52dp</item>
     </style>
 
     <style name="ValueComponentStyle">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="SwitchButtonStyle">
