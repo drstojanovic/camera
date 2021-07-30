@@ -241,7 +241,9 @@
                         android:imeOptions="actionNext"
                         android:importantForAutofill="no"
                         android:inputType="number"
-                        android:maxLength="15" />
+                        android:maxLength="15"
+                        android:text="@{vm.settingsLive.serverIpAddress}"
+                        app:onTextChange="@{(text) -> vm.onIpAddressChange(text)}" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -263,7 +265,9 @@
                         android:imeOptions="actionDone"
                         android:importantForAutofill="no"
                         android:inputType="number"
-                        android:maxLength="5" />
+                        android:maxLength="5"
+                        android:text="@{vm.settingsLive.serverPort}"
+                        app:onTextChange="@{(text) -> vm.onPortChange(text)}" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -278,6 +282,7 @@
             android:layout_marginStart="@dimen/margin_default"
             android:layout_marginEnd="@dimen/margin_default"
             android:layout_marginBottom="@dimen/margin_default"
+            android:background="@drawable/bg_button_primary"
             android:onClick="@{() -> vm.onProceedClick()}"
             android:text="@string/dash_start"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -1,11 +1,9 @@
 package com.example.camera.utils
 
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.SeekBar
-import android.widget.Spinner
+import android.widget.*
 import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
 
 @BindingAdapter("selected")
@@ -16,6 +14,11 @@ fun View.bindSelectionState(isSelected: Boolean) {
 @BindingAdapter("visibility")
 fun View.bindVisibility(isVisible: Boolean) {
     this.isVisible = isVisible
+}
+
+@BindingAdapter("onTextChange")
+fun EditText.bindTextChangeListener(textChangeListener: StringActionListener?) {
+    doOnTextChanged { text, _, _, _ -> textChangeListener?.onAction(text?.toString() ?: "") }
 }
 
 @BindingAdapter(value = ["items", "selectedIndex", "onItemSelected"], requireAll = false)
@@ -58,4 +61,8 @@ fun SeekBar.bindSlideListener(
 
 interface ActionListener {
     fun onAction(parameter: Int)
+}
+
+interface StringActionListener {
+    fun onAction(parameter: String)
 }

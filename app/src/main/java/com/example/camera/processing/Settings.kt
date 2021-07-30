@@ -1,5 +1,9 @@
 package com.example.camera.processing
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class Settings(
     var serverIpAddress: String? = null,
     var serverPort: String? = null,
@@ -8,8 +12,8 @@ data class Settings(
     var confidenceThreshold: Int,
     var imageWidth: Int,
     var imageHeight: Int
-) {
-    val serverAddress: String
+) : Parcelable {
+    val serverAddressFull: String
         get() = "http://$serverIpAddress:$serverPort/"
 
     fun toQuery(): String =

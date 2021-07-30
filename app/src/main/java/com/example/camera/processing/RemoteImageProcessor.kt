@@ -34,7 +34,7 @@ class RemoteImageProcessor(
     private fun setupSocket() {
         try {
             socket = IO.socket(
-                settings.serverAddress,
+                settings.serverAddressFull,
                 IO.Options.builder()
                     .setTransports(arrayOf(WebSocket.NAME))
                     .setQuery(settings.toQuery())

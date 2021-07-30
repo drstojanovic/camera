@@ -10,7 +10,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class LocalImageProcessor(
-    context: Context
+    context: Context,
+    private val settings: Settings
 ) : ImageProcessor() {
 
     companion object {

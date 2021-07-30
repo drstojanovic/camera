@@ -1,7 +1,6 @@
 package com.example.camera.presentation.main
 
-import android.Manifest
-import android.content.pm.PackageManager
+import android.content.Intent
 import android.graphics.Bitmap
 import android.hardware.camera2.*
 import android.os.*
@@ -12,9 +11,12 @@ import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import com.example.camera.detection.Recognition
+import androidx.databinding.DataBindingUtil
+import com.example.camera.CameraApp
+import com.example.camera.R
 import com.example.camera.databinding.ActivityMainBinding
+import com.example.camera.detection.Recognition
+import com.example.camera.processing.ImageProcessor
 import com.example.camera.processing.LocalImageProcessor
 import com.example.camera.processing.RemoteImageProcessor
 import com.example.camera.processing.Settings
@@ -24,15 +26,19 @@ import com.example.camera.utils.TAG
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
-private const val PERMISSIONS_REQUEST_CODE = 10
-private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
 private const val RESULT_FORMAT = "%s %.2f"
 
 class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
+    companion object {
+        private const val EXTRA_SETTINGS = "settings"
+
+        fun createIntent(settings: Settings) =
+            Intent(CameraApp.appContext!!, MainActivity::class.java).putExtra(EXTRA_SETTINGS, settings)
+    }
+
     private lateinit var binding: ActivityMainBinding
-    private val imageProcessor =
-        RemoteImageProcessor(Settings(null, null, true, 10, 50, 480, 640)) //todo: take as an argument
+    private lateinit var imageProcessor: ImageProcessor
     private val compositeDisposable = CompositeDisposable()
     private val cameraThread = HandlerThread("Camera Thread").apply { start() }
     private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
@@ -47,10 +53,15 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        initImageProcessor(intent.getParcelableExtra(EXTRA_SETTINGS)!!)
         binding.textureView.surfaceTextureListener =
-            OnSurfaceTextureAvailableListener { checkPermissionsAndInit() }
+            OnSurfaceTextureAvailableListener { cameraUtils.setup(windowManager.defaultDisplay.rotation) }
+    }
+
+    private fun initImageProcessor(settings: Settings) {
+        imageProcessor = if (settings.localInference) LocalImageProcessor(this, settings)
+        else RemoteImageProcessor(settings)
     }
 
     override fun onStop() {
@@ -68,29 +79,6 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         cameraThread.quitSafely()
         compositeDisposable.dispose()
         imageProcessor.dispose()
-    }
-
-    private fun checkPermissionsAndInit() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || hasRequiredPermissions()) {
-            cameraUtils.setup(windowManager.defaultDisplay.rotation)
-        } else {
-            requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
-        }
-    }
-
-    private fun hasRequiredPermissions() = PERMISSIONS_REQUIRED.all {
-        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSIONS_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                cameraUtils.setup(windowManager.defaultDisplay.rotation)
-            } else {
-                Toast.makeText(this, "Permission request denied!", Toast.LENGTH_LONG).show()
-            }
-        }
     }
 
     fun saveImage(view: View) {

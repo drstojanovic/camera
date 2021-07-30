@@ -15,13 +15,14 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
         PROCEED
     }
 
-    private lateinit var settings: Settings
     private val settingsRepository = SettingsRepository()
     private val _settingsLive: MutableLiveData<Settings> = MutableLiveData()
     private val _maxDetectionsLive: MutableLiveData<Int> = MutableLiveData(0)
     private val _confidenceThresholdLive: MutableLiveData<Int> = MutableLiveData(0)
     private val _isLocalInferenceLive = MutableLiveData(false)
 
+    lateinit var settings: Settings
+        private set
     val setupData = SetupData()
     val settingsLive: LiveData<Settings> = _settingsLive
     val isLocalInferenceLive: LiveData<Boolean> = _isLocalInferenceLive
@@ -77,6 +78,14 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     fun onRemoteInferenceSelected() {
         _isLocalInferenceLive.postValue(false)
         settings.localInference = false
+    }
+
+    fun onIpAddressChange(text: String) {
+        settings.serverIpAddress = text
+    }
+
+    fun onPortChange(text: String) {
+        settings.serverPort = text
     }
 
     fun onProceedClick() {

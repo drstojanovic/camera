@@ -7,13 +7,13 @@ class SetupData {
     val resolutionsLabels: List<String> get() = resolutions.map { "${it.width}x${it.height}" }
 
     val detectionCountLimitMin = 1
-    val detectionCountLimitMinLabel = "$detectionCountLimitMin"
+    val detectionCountLimitMinLabel get() = "$detectionCountLimitMin"
     val detectionCountLimitMax = 10
-    val detectionCountLimitMaxLabel = "$detectionCountLimitMax"
+    val detectionCountLimitMaxLabel get() = "$detectionCountLimitMax"
 
     val confidenceThresholdRangeMin = 30
-    val confidenceThresholdRangeMinLabel = "$confidenceThresholdRangeMin"
+    val confidenceThresholdRangeMinLabel get() = "$confidenceThresholdRangeMin"
     val confidenceThresholdRangeMax = 100
-    val confidenceThresholdRangeMaxLabel = "$confidenceThresholdRangeMax"
+    val confidenceThresholdRangeMaxLabel get() = "$confidenceThresholdRangeMax"
     val confidenceThresholdSliderStep = 10
 }
