@@ -20,9 +20,11 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     private val _settingsLive: MutableLiveData<Settings> = MutableLiveData()
     private val _maxDetectionsLive: MutableLiveData<Int> = MutableLiveData(0)
     private val _confidenceThresholdLive: MutableLiveData<Int> = MutableLiveData(0)
+    private val _isLocalInferenceLive = MutableLiveData(false)
 
     val setupData = SetupData()
     val settingsLive: LiveData<Settings> = _settingsLive
+    val isLocalInferenceLive: LiveData<Boolean> = _isLocalInferenceLive
     val maxDetectionsLive: LiveData<String>
         get() = Transformations.map(_maxDetectionsLive) { it.toString() }
     val confidenceThresholdLive: LiveData<String>
@@ -42,6 +44,7 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
                     _settingsLive.postValue(it)
                     _maxDetectionsLive.postValue(it.maxDetections)
                     _confidenceThresholdLive.postValue(it.confidenceThreshold)
+                    _isLocalInferenceLive.postValue(it.localInference)
                 },
                 onError = {
                     Log.e(TAG, it.message ?: it.toString())
@@ -64,6 +67,16 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     fun onConfidenceThresholdChange(confidenceThreshold: Int) {
         settings.confidenceThreshold = confidenceThreshold
         _confidenceThresholdLive.postValue(confidenceThreshold)
+    }
+
+    fun onLocalInferenceSelected() {
+        _isLocalInferenceLive.postValue(true)
+        settings.localInference = true
+    }
+
+    fun onRemoteInferenceSelected() {
+        _isLocalInferenceLive.postValue(false)
+        settings.localInference = false
     }
 
     fun onProceedClick() {

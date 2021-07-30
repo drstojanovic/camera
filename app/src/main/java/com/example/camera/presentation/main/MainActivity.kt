@@ -31,7 +31,8 @@ private const val RESULT_FORMAT = "%s %.2f"
 class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
     private lateinit var binding: ActivityMainBinding
-    private val imageProcessor = RemoteImageProcessor(Settings(null,null,10,50,480,640)) //todo: take as an argument
+    private val imageProcessor =
+        RemoteImageProcessor(Settings(null, null, true, 10, 50, 480, 640)) //todo: take as an argument
     private val compositeDisposable = CompositeDisposable()
     private val cameraThread = HandlerThread("Camera Thread").apply { start() }
     private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }

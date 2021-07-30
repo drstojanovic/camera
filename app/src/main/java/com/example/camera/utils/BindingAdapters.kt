@@ -5,7 +5,18 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import android.widget.Spinner
+import androidx.core.view.isVisible
 import androidx.databinding.BindingAdapter
+
+@BindingAdapter("selected")
+fun View.bindSelectionState(isSelected: Boolean) {
+    this.isSelected = isSelected
+}
+
+@BindingAdapter("visibility")
+fun View.bindVisibility(isVisible: Boolean) {
+    this.isVisible = isVisible
+}
 
 @BindingAdapter(value = ["items", "selectedIndex", "onItemSelected"], requireAll = false)
 fun Spinner.bindSpinnerItems(items: List<String>, selectedIndex: Int, onItemSelected: ActionListener?) {

@@ -3,6 +3,7 @@ package com.example.camera.processing
 data class Settings(
     var serverIpAddress: String? = null,
     var serverPort: String? = null,
+    var localInference: Boolean,
     var maxDetections: Int,
     var confidenceThreshold: Int,
     var imageWidth: Int,

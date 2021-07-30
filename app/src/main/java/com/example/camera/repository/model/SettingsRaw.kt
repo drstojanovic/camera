@@ -1,16 +1,14 @@
 package com.example.camera.repository.model
 
 import com.example.camera.processing.Settings
-import com.example.camera.utils.DEFAULTS_CONFIDENCE_THRESHOLD
-import com.example.camera.utils.DEFAULTS_IMAGE_HEIGHT
-import com.example.camera.utils.DEFAULTS_IMAGE_WIDTH
-import com.example.camera.utils.DEFAULTS_MAX_DETECTIONS
+import com.example.camera.utils.*
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 class SettingsRaw(
     val serverIpAddress: String? = null,
     val serverPort: String? = null,
+    val localInference: Boolean = DEFAULTS_LOCAL_INFERENCE,
     val maxDetections: Int = DEFAULTS_MAX_DETECTIONS,
     val confidenceThreshold: Int = DEFAULTS_CONFIDENCE_THRESHOLD,
     val imageWidth: Int = DEFAULTS_IMAGE_WIDTH,
@@ -20,6 +18,7 @@ class SettingsRaw(
 fun SettingsRaw.toSettings() = Settings(
     serverIpAddress = serverIpAddress,
     serverPort = serverPort,
+    localInference = localInference,
     maxDetections = maxDetections,
     confidenceThreshold = confidenceThreshold,
     imageWidth = imageWidth,
@@ -29,6 +28,7 @@ fun SettingsRaw.toSettings() = Settings(
 fun Settings.toSettingsRaw() = SettingsRaw(
     serverIpAddress = serverIpAddress.orEmpty(),
     serverPort = serverPort.orEmpty(),
+    localInference = localInference,
     maxDetections = maxDetections,
     confidenceThreshold = confidenceThreshold,
     imageWidth = imageWidth,
