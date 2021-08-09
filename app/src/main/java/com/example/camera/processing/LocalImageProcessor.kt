@@ -11,7 +11,7 @@ import io.reactivex.schedulers.Schedulers
 
 class LocalImageProcessor(
     context: Context,
-    private val settings: Settings
+    settings: Settings
 ) : ImageProcessor() {
 
     companion object {
@@ -23,12 +23,16 @@ class LocalImageProcessor(
         private const val LABELS_FILE = "labels.txt"
         private const val MAX_DETECTIONS = 10
         private const val SCORE_THRESHOLD = 0.5f
-
-//      val inputSize = Size(300, 400)
-        val inputSize = Size(480, 640)
+        val inputSize = Size(480, 640) // TODO: remove it from static field and check usages
     }
 
-    private val detector = ObjectDetector(context, MODEL_FILE, LABELS_FILE, MAX_DETECTIONS, SCORE_THRESHOLD)
+    private val detector = ObjectDetector(
+        context,
+        modelFileName = MODEL_FILE,     // TODO: use file depending on image size
+        labelFileName = LABELS_FILE,
+        maxDetections = settings.maxDetections,
+        scoreThreshold = settings.confidenceThreshold / 100f
+    )
 
     override fun process(image: Bitmap): Single<List<Recognition>> =
         Single.fromCallable { detector.recognizeImage(image) }

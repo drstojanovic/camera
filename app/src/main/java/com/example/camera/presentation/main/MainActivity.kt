@@ -60,8 +60,9 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
     }
 
     private fun initImageProcessor(settings: Settings) {
-        imageProcessor = if (settings.localInference) LocalImageProcessor(this, settings)
-        else RemoteImageProcessor(settings)
+        imageProcessor =
+            if (settings.localInference) LocalImageProcessor(this, settings)
+            else RemoteImageProcessor(settings)
     }
 
     override fun onStop() {
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
     override fun onPreviewSizeSelected(size: Size) {
         with(binding.textureView) {
             setAspectRatio(size.height, size.width)
-            surfaceTexture.setDefaultBufferSize(size.width, size.height)
+            surfaceTexture?.setDefaultBufferSize(size.width, size.height)
             Log.d(TAG, "Texture View preview size after applying values: $width x $height")
             binding.viewTracker.setModelInputSize(LocalImageProcessor.inputSize)
         }

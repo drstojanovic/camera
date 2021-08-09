@@ -1,7 +1,8 @@
 package com.example.camera.processing
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import android.util.Size
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Settings(
@@ -15,6 +16,8 @@ data class Settings(
 ) : Parcelable {
     val serverAddressFull: String
         get() = "http://$serverIpAddress:$serverPort/"
+
+    val imageSize: Size by lazy { Size(imageWidth, imageHeight) }
 
     fun toQuery(): String =
         "maxDetections=$maxDetections&confidenceThreshold=$confidenceThreshold&imageWidth=$imageWidth&imageHeight=$imageHeight"
