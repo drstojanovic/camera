@@ -8,7 +8,9 @@ import kotlin.math.abs
 
 const val TAG = "ImageProcessor"
 
-abstract class ImageProcessor {
+abstract class ImageProcessor(protected val settings: Settings) {
+
+    val selectedInputSize get() = settings.imageSize
 
     fun processImage(image: Bitmap, orientation: Int): Single<List<Recognition>> {
         return process(preprocessImage(image, orientation))
@@ -25,7 +27,7 @@ abstract class ImageProcessor {
             image, 0, 0, image.width, image.height,
             ImageUtils.getTransformationMatrix(
                 srcWidth, srcHeight,
-                LocalImageProcessor.inputSize.width, LocalImageProcessor.inputSize.height,
+                settings.imageSize.width, settings.imageSize.height,
                 -orientation
             ), true
         )

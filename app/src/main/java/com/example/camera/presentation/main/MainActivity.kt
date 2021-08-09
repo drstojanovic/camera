@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
             setAspectRatio(size.height, size.width)
             surfaceTexture?.setDefaultBufferSize(size.width, size.height)
             Log.d(TAG, "Texture View preview size after applying values: $width x $height")
-            binding.viewTracker.setModelInputSize(LocalImageProcessor.inputSize)
+            binding.viewTracker.setModelInputSize(imageProcessor.selectedInputSize)
         }
     }
 

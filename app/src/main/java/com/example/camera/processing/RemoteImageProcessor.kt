@@ -19,8 +19,8 @@ import io.socket.engineio.client.transports.WebSocket
 import java.io.ByteArrayOutputStream
 
 class RemoteImageProcessor(
-    private val settings: Settings
-) : ImageProcessor(), LifecycleObserver {
+    settings: Settings
+) : ImageProcessor(settings), LifecycleObserver {
 
     private lateinit var socket: Socket
     private val recognitionAdapter: JsonAdapter<List<RecognitionRaw>> =
