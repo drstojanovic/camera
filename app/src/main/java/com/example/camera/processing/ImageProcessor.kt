@@ -27,12 +27,9 @@ abstract class ImageProcessor(protected val settings: Settings) {
             image, 0, 0, image.width, image.height,
             ImageUtils.getTransformationMatrix(
                 srcWidth, srcHeight,
-                settings.imageSize.width, settings.imageSize.height,
+                settings.imageWidth, settings.imageHeight,
                 -orientation
             ), true
         )
     }
-
-    protected fun filterInvalidDetections(list: List<Recognition>, width: Int, height: Int): Single<List<Recognition>> =
-        Single.fromCallable { list.filterNot { it.location.width() > width || it.location.height() > height } }
 }

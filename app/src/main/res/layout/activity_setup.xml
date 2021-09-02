@@ -284,7 +284,7 @@
             android:layout_marginBottom="@dimen/margin_default"
             android:background="@drawable/bg_button_primary"
             android:onClick="@{() -> vm.onProceedClick()}"
-            android:text="@string/dash_start"
+            android:text="@string/setup_start_detection"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

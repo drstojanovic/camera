@@ -17,7 +17,6 @@ class ObjectDetector(
     context: Context,
     modelFileName: String,
     labelFileName: String,
-    maxDetections: Int,
     private val scoreThreshold: Float,
     private val numberOfThreads: Int = 4
 ) : IDetector {
@@ -33,7 +32,7 @@ class ObjectDetector(
     private lateinit var inputTensorImage: TensorImage
     private lateinit var inputSize: Size
     private val labels = arrayListOf<String>()
-    private val detectionResult = DetectionResult(maxDetections)
+    private val detectionResult = DetectionResult()
 
     init {
         val modelFile = ModelUtils.loadModelFile(context.assets, modelFileName)

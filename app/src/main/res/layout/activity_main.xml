@@ -7,15 +7,14 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        android:layout_height="match_parent">
 
         <com.example.camera.utils.AutoFitTextureView
             android:id="@+id/texture_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.8"
+            app:layout_constraintHeight_percent="0.7"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -28,47 +27,118 @@
             app:layout_constraintStart_toStartOf="@id/texture_view"
             app:layout_constraintTop_toTopOf="@id/texture_view" />
 
-        <TextView
-            android:id="@+id/txt_result_1"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            app:layout_constraintWidth_percent="0.4"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@id/txt_result_2"
+            android:layout_margin="@dimen/margin_half"
+            android:background="@color/colorAccentLight"
+            android:padding="12dp"
+            app:layout_constraintBottom_toTopOf="@id/constraint_measurements"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/texture_view"
-            tools:text="Zebra" />
+            app:layout_constraintVertical_bias="1">
 
-        <TextView
-            android:id="@+id/txt_result_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            app:layout_constraintBottom_toTopOf="@id/txt_result_3"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txt_result_1"
-            tools:text="23.5" />
+            <TextView
+                android:id="@+id/txt_result_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_half"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/txt_result_2"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="Zebra" />
 
-        <TextView
-            android:id="@+id/txt_result_3"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/txt_result_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_small"
+                android:layout_marginStart="@dimen/margin_half"
+                app:layout_constraintBottom_toTopOf="@id/txt_result_3"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txt_result_1"
+                tools:text="23.5" />
+
+            <TextView
+                android:id="@+id/txt_result_3"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="@dimen/margin_small"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_half"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txt_result_2"
+                tools:text="23.5" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraint_measurements"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
+            android:layout_margin="@dimen/margin_half"
+            android:background="@color/colorAccentLight"
+            android:padding="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txt_result_2"
-            tools:text="23.5" />
+            app:layout_constraintTop_toBottomOf="@id/texture_view"
+            app:layout_constraintVertical_bias="1">
+
+            <TextView
+                android:id="@+id/txt_inference_average_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/detection_inference_time_average"
+                app:layout_constraintEnd_toStartOf="@id/txt_inference_average"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/txt_inference_average"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@id/txt_inference_average_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/txt_inference_average_label"
+                app:layout_constraintTop_toTopOf="@id/txt_inference_average_label"
+                tools:text="150 ms" />
+
+            <TextView
+                android:id="@+id/txt_inference_last_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_small"
+                android:text="@string/detection_inference_time_last"
+                app:layout_constraintEnd_toStartOf="@id/txt_inference_last"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txt_inference_average_label" />
+
+            <TextView
+                android:id="@+id/txt_inference_last"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@id/txt_inference_last_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/txt_inference_last_label"
+                app:layout_constraintTop_toTopOf="@id/txt_inference_last_label"
+                tools:text="132 ms" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_camera"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="24dp"
             android:layout_marginBottom="24dp"
-            android:onClick="saveImage"
             android:src="@drawable/ic_camera"
+            android:visibility="gone"
+            app:backgroundTint="@color/colorAccent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             tools:ignore="ContentDescription" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

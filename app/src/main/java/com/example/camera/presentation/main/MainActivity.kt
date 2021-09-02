@@ -7,7 +7,6 @@ import android.os.*
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import android.view.View
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
@@ -55,8 +54,13 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         initImageProcessor(intent.getParcelableExtra(EXTRA_SETTINGS)!!)
+        initListeners()
+    }
+
+    private fun initListeners() {
         binding.textureView.surfaceTextureListener =
             OnSurfaceTextureAvailableListener { cameraUtils.setup(windowManager.defaultDisplay.rotation) }
+        binding.fabCamera.setOnClickListener { saveImage() }
     }
 
     private fun initImageProcessor(settings: Settings) {
@@ -80,11 +84,6 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         cameraThread.quitSafely()
         compositeDisposable.dispose()
         imageProcessor.dispose()
-    }
-
-    fun saveImage(view: View) {
-        cameraUtils.saveImage()
-        Toast.makeText(this, "Image saved.", LENGTH_SHORT).show()
     }
 
     override fun onError(text: String) =
@@ -117,6 +116,11 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
                 }
             )
             .also { compositeDisposable.add(it) }
+    }
+
+    private fun saveImage() {
+        cameraUtils.saveImage()
+        Toast.makeText(this, "Image saved.", LENGTH_SHORT).show()
     }
 
     private fun displayResults(result: List<Recognition>) {

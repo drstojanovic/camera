@@ -17,7 +17,8 @@ data class Settings(
     val serverAddressFull: String
         get() = "http://$serverIpAddress:$serverPort/"
 
-    val imageSize: Size by lazy { Size(imageWidth, imageHeight) }
+    val imageSize: Size
+        get() = Size(imageWidth, imageHeight)
 
     fun toQuery(): String =
         "maxDetections=$maxDetections&confidenceThreshold=$confidenceThreshold&imageWidth=$imageWidth&imageHeight=$imageHeight"

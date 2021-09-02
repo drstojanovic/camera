@@ -8,6 +8,11 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
+/**
+ * For local image processing, max detection limit is handled manually (by removing the items), after 10 results are returned from model.
+ * This is done because of the static nature of tflite model where output count can not be changed once model is generated.
+ * While generating, there is a parameter 'max_detections' which is 10 by default.
+ */
 class LocalImageProcessor(
     context: Context,
     settings: Settings
@@ -20,9 +25,8 @@ class LocalImageProcessor(
 
     private val detector = ObjectDetector(
         context,
-        modelFileName = MODEL_FILE,     // TODO: use file depending on image size
+        modelFileName = MODEL_FILE,
         labelFileName = LABELS_FILE,
-        maxDetections = settings.maxDetections,
         scoreThreshold = settings.confidenceThreshold / 100f
     )
 
@@ -31,4 +35,10 @@ class LocalImageProcessor(
             .flatMap { filterInvalidDetections(it, image.width, image.height) }
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
+
+    private fun filterInvalidDetections(list: List<Recognition>, width: Int, height: Int): Single<List<Recognition>> =
+        Single.fromCallable {
+            list.filterNot { it.location.width() > width || it.location.height() > height }
+                .take(settings.maxDetections)
+        }
 }

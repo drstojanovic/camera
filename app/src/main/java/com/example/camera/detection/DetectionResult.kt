@@ -8,8 +8,16 @@ import kotlin.math.min
  * Model returns map of arrays. When processing result, we always flat that first array.
  * For example, for key of 0 (location) we get this result: [ [ [1, 5, 6, 5], [22, 16, 19, 8], [12, 26, 39, 18] ] ]
  * To get bbox location for detection number 2, first we flatten the result - result[0], and then get by index 2 - result[0][2]
+ *
+ *
+ * NUMBER_OF_DETECTIONS is made as constant field since tflite prefer static input/output.
+ * That means that once created, tflite model always have same input/output.
+ * By default model returns 10 results, but it can be changed in model-creation phase using max_detections parameter.
+ * https://stackoverflow.com/a/58178610
  */
-class DetectionResult(private val maxNumberOfDetections: Int) {
+private const val NUMBER_OF_DETECTIONS = 10
+
+class DetectionResult {
 
     companion object {
         private const val LOCATIONS_INDEX = 0
@@ -19,15 +27,15 @@ class DetectionResult(private val maxNumberOfDetections: Int) {
     }
 
     val valuesMap = mutableMapOf<Int, Any>().apply {
-        put(LOCATIONS_INDEX, Array(1) { Array(maxNumberOfDetections) { FloatArray(4) } })
-        put(CLASSES_INDEX, Array(1) { FloatArray(maxNumberOfDetections) })
-        put(SCORES_INDEX, Array(1) { FloatArray(maxNumberOfDetections) })
+        put(LOCATIONS_INDEX, Array(1) { Array(NUMBER_OF_DETECTIONS) { FloatArray(4) } })
+        put(CLASSES_INDEX, Array(1) { FloatArray(NUMBER_OF_DETECTIONS) })
+        put(SCORES_INDEX, Array(1) { FloatArray(NUMBER_OF_DETECTIONS) })
         put(COUNT_INDEX, FloatArray(1))
     }
 
     fun getRecognitions(labels: List<String>, inputSize: Size, scoreThreshold: Float): List<Recognition> =
         arrayListOf<Recognition>().apply {
-            repeat(min(maxNumberOfDetections, getDetectionCount())) { detectionNumber ->
+            repeat(min(NUMBER_OF_DETECTIONS, getDetectionCount())) { detectionNumber ->
                 getScore(detectionNumber)
                     .takeIf { it >= scoreThreshold }
                     ?.let {
