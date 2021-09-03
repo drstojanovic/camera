@@ -1,6 +1,7 @@
 package com.example.camera.presentation.setup
 
 import android.util.Log
+import android.util.Size
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -20,16 +21,15 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     private val _maxDetectionsLive: MutableLiveData<Int> = MutableLiveData(0)
     private val _confidenceThresholdLive: MutableLiveData<Int> = MutableLiveData(0)
     private val _isLocalInferenceLive = MutableLiveData(false)
+    private val resolutions = listOf(Size(480, 640), Size(300, 400))
 
     lateinit var settings: Settings
         private set
-    val setupData = SetupData()
+    val resolutionsLabels: List<String> get() = resolutions.map { "${it.width}x${it.height}" }
     val settingsLive: LiveData<Settings> = _settingsLive
     val isLocalInferenceLive: LiveData<Boolean> = _isLocalInferenceLive
-    val maxDetectionsLive: LiveData<String>
-        get() = Transformations.map(_maxDetectionsLive) { it.toString() }
-    val confidenceThresholdLive: LiveData<String>
-        get() = Transformations.map(_confidenceThresholdLive) { it.toString() }
+    val maxDetectionsLive: LiveData<Int> = _maxDetectionsLive
+    val confidenceThresholdLive: LiveData<Int> = _confidenceThresholdLive
     val resolutionIndexLive: LiveData<Int>
         get() = Transformations.map(_settingsLive) { getSelectedResolutionIndex(it.imageWidth, it.imageHeight) }
 
@@ -52,9 +52,9 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
                 })
 
     fun onResolutionSelected(index: Int) {
-        if (index !in setupData.resolutions.indices) return
+        if (index !in resolutions.indices) return
 
-        setupData.resolutions[index].let { size ->
+        resolutions[index].let { size ->
             settings.imageWidth = size.width
             settings.imageHeight = size.height
         }
@@ -103,5 +103,5 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     }
 
     private fun getSelectedResolutionIndex(imageWidth: Int, imageHeight: Int): Int =
-        setupData.resolutions.indexOfFirst { it.width == imageWidth && it.height == imageHeight }
+        resolutions.indexOfFirst { it.width == imageWidth && it.height == imageHeight }
 }

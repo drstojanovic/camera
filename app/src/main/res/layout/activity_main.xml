@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.example.camera.utils.AutoFitTextureView
+        <com.example.camera.utils.view.AutoFitTextureView
             android:id="@+id/texture_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -18,7 +18,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.example.camera.presentation.main.tracking.TrackerOverlayView
+        <com.example.camera.utils.view.TrackerOverlayView
             android:id="@+id/view_tracker"
             android:layout_width="0dp"
             android:layout_height="0dp"

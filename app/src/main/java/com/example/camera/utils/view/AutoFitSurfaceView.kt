@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.example.camera.utils
+package com.example.camera.utils.view
 
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.SurfaceView
+import com.example.camera.utils.TAG
 import kotlin.math.roundToInt
 
 /**

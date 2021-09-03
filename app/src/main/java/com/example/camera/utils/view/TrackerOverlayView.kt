@@ -1,4 +1,4 @@
-package com.example.camera.presentation.main.tracking
+package com.example.camera.utils.view
 
 import android.content.Context
 import android.graphics.*
@@ -7,6 +7,7 @@ import android.util.Size
 import android.widget.FrameLayout
 import com.example.camera.R
 import com.example.camera.detection.Recognition
+import com.example.camera.presentation.main.TrackingBox
 import com.example.camera.utils.ImageUtils
 import com.example.camera.utils.spToPx
 import com.example.camera.utils.withColor
