@@ -48,3 +48,5 @@ DETECTION NOTES:
 - check divisioning input image on tiles for small objects
 - consider approach where multiple good sequential results only count (to smooth out false positives).
   Try to make this configurable so that can be chosen between confidence and precision.
+- in setup process add compression rate as setting. This can be used to investigate influence of image quality and size
+  to detection quality and speed.

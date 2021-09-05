@@ -10,6 +10,7 @@
     <string name="setup_max_detections">Maximal detections:</string>
     <string name="setup_confidence_threshold">Confidence threshold:</string>
     <string name="setup_inference_type">Inference type:</string>
+    <string name="setup_image_quality">Image quality</string>
     <string name="setup_inference_local">Local</string>
     <string name="setup_inference_remote">Remote</string>
     <string name="setup_server_address">Server IP address</string>
@@ -17,6 +18,8 @@
 
     <string name="detection_inference_time_average">Average inference time:</string>
     <string name="detection_inference_time_last">Last inference time:</string>
+    <string name="detection_image_size_average">Average image size:</string>
+    <string name="detection_image_size_last">Last image size:</string>
     <string name="detection_inference_time">%1$d ms</string>
 
 </resources>

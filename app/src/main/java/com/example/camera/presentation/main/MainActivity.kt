@@ -14,6 +14,7 @@ import androidx.databinding.DataBindingUtil
 import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.databinding.ActivityMainBinding
+import com.example.camera.detection.ProcessingResult
 import com.example.camera.detection.Recognition
 import com.example.camera.processing.ImageProcessor
 import com.example.camera.processing.LocalImageProcessor
@@ -105,9 +106,10 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         imageProcessor.processImage(bitmap, orientation)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { result ->
-                    binding.viewTracker.setData(result)
-                    displayResults(result)
+                { result: ProcessingResult ->
+                    binding.viewTracker.setData(result.recognitions)
+                    displayResults(result.recognitions)
+                    displayNumbers(result)
                     cameraUtils.onImageProcessed()
                 },
                 { throwable ->
@@ -116,6 +118,13 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
                 }
             )
             .also { compositeDisposable.add(it) }
+    }
+
+    private fun displayNumbers(result: ProcessingResult) {
+        binding.txtInferenceLast.text = result.lastRecognitionTimeString
+        binding.txtInferenceAverage.text = result.avgRecognitionTimeString
+        binding.txtImageSizeAverage.text = result.avgImageSizeKbString
+        binding.txtLastImageSize.text = result.lastImageSizeBytesString
     }
 
     private fun saveImage() {

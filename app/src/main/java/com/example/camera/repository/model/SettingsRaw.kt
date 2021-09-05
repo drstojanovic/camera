@@ -11,6 +11,7 @@ class SettingsRaw(
     val localInference: Boolean = DEFAULTS_LOCAL_INFERENCE,
     val maxDetections: Int = DEFAULTS_MAX_DETECTIONS,
     val confidenceThreshold: Int = DEFAULTS_CONFIDENCE_THRESHOLD,
+    val imageQuality: Int = DEFAULTS_IMAGE_QUALITY,
     val imageWidth: Int = DEFAULTS_IMAGE_WIDTH,
     val imageHeight: Int = DEFAULTS_IMAGE_HEIGHT
 )
@@ -21,6 +22,7 @@ fun SettingsRaw.toSettings() = Settings(
     localInference = localInference,
     maxDetections = maxDetections,
     confidenceThreshold = confidenceThreshold,
+    imageQuality = imageQuality,
     imageWidth = imageWidth,
     imageHeight = imageHeight
 )
@@ -31,6 +33,7 @@ fun Settings.toSettingsRaw() = SettingsRaw(
     localInference = localInference,
     maxDetections = maxDetections,
     confidenceThreshold = confidenceThreshold,
+    imageQuality = imageQuality,
     imageWidth = imageWidth,
     imageHeight = imageHeight
 )

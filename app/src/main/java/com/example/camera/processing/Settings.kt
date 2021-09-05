@@ -11,6 +11,7 @@ data class Settings(
     var localInference: Boolean,
     var maxDetections: Int,
     var confidenceThreshold: Int,
+    var imageQuality: Int,
     var imageWidth: Int,
     var imageHeight: Int
 ) : Parcelable {

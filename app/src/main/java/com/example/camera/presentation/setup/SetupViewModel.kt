@@ -18,8 +18,6 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
 
     private val settingsRepository = SettingsRepository()
     private val _settingsLive: MutableLiveData<Settings> = MutableLiveData()
-    private val _maxDetectionsLive: MutableLiveData<Int> = MutableLiveData(0)
-    private val _confidenceThresholdLive: MutableLiveData<Int> = MutableLiveData(0)
     private val _isLocalInferenceLive = MutableLiveData(false)
     private val resolutions = listOf(Size(480, 640), Size(300, 400))
 
@@ -28,8 +26,6 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     val resolutionsLabels: List<String> get() = resolutions.map { "${it.width}x${it.height}" }
     val settingsLive: LiveData<Settings> = _settingsLive
     val isLocalInferenceLive: LiveData<Boolean> = _isLocalInferenceLive
-    val maxDetectionsLive: LiveData<Int> = _maxDetectionsLive
-    val confidenceThresholdLive: LiveData<Int> = _confidenceThresholdLive
     val resolutionIndexLive: LiveData<Int>
         get() = Transformations.map(_settingsLive) { getSelectedResolutionIndex(it.imageWidth, it.imageHeight) }
 
@@ -43,8 +39,6 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
                 onSuccess = {
                     this.settings = it.copy()
                     _settingsLive.postValue(it)
-                    _maxDetectionsLive.postValue(it.maxDetections)
-                    _confidenceThresholdLive.postValue(it.confidenceThreshold)
                     _isLocalInferenceLive.postValue(it.localInference)
                 },
                 onError = {
@@ -62,12 +56,14 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
 
     fun onMaxDetectionLimitChange(detectionLimit: Int) {
         settings.maxDetections = detectionLimit
-        _maxDetectionsLive.postValue(detectionLimit)
     }
 
     fun onConfidenceThresholdChange(confidenceThreshold: Int) {
         settings.confidenceThreshold = confidenceThreshold
-        _confidenceThresholdLive.postValue(confidenceThreshold)
+    }
+
+    fun onImageQualityChange(imageQuality:Int) {
+        settings.imageQuality = imageQuality
     }
 
     fun onLocalInferenceSelected() {

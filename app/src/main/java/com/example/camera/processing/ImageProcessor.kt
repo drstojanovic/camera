@@ -1,7 +1,7 @@
 package com.example.camera.processing
 
 import android.graphics.Bitmap
-import com.example.camera.detection.Recognition
+import com.example.camera.detection.ProcessingResult
 import com.example.camera.utils.ImageUtils
 import io.reactivex.Single
 import kotlin.math.abs
@@ -11,12 +11,16 @@ const val TAG = "ImageProcessor"
 abstract class ImageProcessor(protected val settings: Settings) {
 
     val selectedInputSize get() = settings.imageSize
+    private var sampleCount = 0
+    private var avgImageSize = 0
+    private var avgRecognitionTime = 0
 
-    fun processImage(image: Bitmap, orientation: Int): Single<List<Recognition>> {
+    fun processImage(image: Bitmap, orientation: Int): Single<ProcessingResult> {
         return process(preprocessImage(image, orientation))
+            .map { calculateStats(it) }
     }
 
-    abstract fun process(image: Bitmap): Single<List<Recognition>>
+    abstract fun process(image: Bitmap): Single<ProcessingResult>
 
     open fun dispose() {}
 
@@ -31,5 +35,16 @@ abstract class ImageProcessor(protected val settings: Settings) {
                 -orientation
             ), true
         )
+    }
+
+    private fun calculateStats(result: ProcessingResult): ProcessingResult {
+        avgImageSize = (avgImageSize * sampleCount + result.imageSizeBytes) / (sampleCount + 1)
+        avgRecognitionTime = (avgRecognitionTime * sampleCount + result.recognitionTime) / (sampleCount + 1)
+        sampleCount++
+
+        return result.apply {
+            avgImageSize = this@ImageProcessor.avgImageSize
+            avgRecognitionTime = this@ImageProcessor.avgRecognitionTime
+        }
     }
 }

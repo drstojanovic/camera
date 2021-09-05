@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.LifecycleObserver
 import com.example.camera.detection.Recognition
 import com.example.camera.detection.RecognitionRaw
+import com.example.camera.detection.ProcessingResult
 import com.example.camera.detection.toRecognition
 import com.example.camera.utils.EVENT_IMAGE
 import com.squareup.moshi.JsonAdapter
@@ -51,15 +52,16 @@ class RemoteImageProcessor(
         socket.close()
     }
 
-    override fun process(image: Bitmap): Single<List<Recognition>> {
+    override fun process(image: Bitmap): Single<ProcessingResult> {
         if (!socket.connected()) {
             return Single.error(IllegalStateException("Socket disconnected"))
         }
 
         var recognitions = listOf<Recognition>()
         val byteArrayStream = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayStream)
+        image.compress(Bitmap.CompressFormat.JPEG, settings.imageQuality, byteArrayStream)
         val encodedBytes = Base64.encode(byteArrayStream.toByteArray(), Base64.NO_WRAP)
+        val processingStart = System.currentTimeMillis()
 
         return Single.create { emitter ->
             socket.emit(EVENT_IMAGE, encodedBytes, Ack { result ->
@@ -68,7 +70,13 @@ class RemoteImageProcessor(
                         recognitions = recs.mapIndexed { index, r -> r.toRecognition(index) }
                     }
                 }
-                emitter.onSuccess(recognitions)
+                emitter.onSuccess(
+                    ProcessingResult(
+                        recognitions = recognitions,
+                        recognitionTime = (System.currentTimeMillis() - processingStart).toInt(),
+                        imageSizeBytes = byteArrayStream.size()
+                    )
+                )
             })
         }
     }

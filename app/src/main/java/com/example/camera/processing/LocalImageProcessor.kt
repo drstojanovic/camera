@@ -2,11 +2,14 @@ package com.example.camera.processing
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import com.example.camera.detection.ObjectDetector
+import com.example.camera.detection.ProcessingResult
 import com.example.camera.detection.Recognition
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.io.ByteArrayOutputStream
 
 /**
  * For local image processing, max detection limit is handled manually (by removing the items), after 10 results are returned from model.
@@ -30,15 +33,27 @@ class LocalImageProcessor(
         scoreThreshold = settings.confidenceThreshold / 100f
     )
 
-    override fun process(image: Bitmap): Single<List<Recognition>> =
-        Single.fromCallable { detector.recognizeImage(image) }
-            .flatMap { filterInvalidDetections(it, image.width, image.height) }
+    //todo: add option to completely disable the compression process; compare speed with and without compression
+    override fun process(image: Bitmap): Single<ProcessingResult> =
+        Single.fromCallable {
+            val byteArray = ByteArrayOutputStream()
+            image.compress(Bitmap.CompressFormat.JPEG, settings.imageQuality, byteArray)
+            val bytes = byteArray.toByteArray()
+            val processingStart = System.currentTimeMillis()
+            ProcessingResult(
+                recognitions = filterInvalidDetections(
+                    detector.recognizeImage(BitmapFactory.decodeByteArray(bytes, 0, bytes.size)),
+                    image.width,
+                    image.height
+                ),
+                recognitionTime = (System.currentTimeMillis() - processingStart).toInt(),
+                imageSizeBytes = bytes.size
+            )
+        }
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
 
-    private fun filterInvalidDetections(list: List<Recognition>, width: Int, height: Int): Single<List<Recognition>> =
-        Single.fromCallable {
-            list.filterNot { it.location.width() > width || it.location.height() > height }
-                .take(settings.maxDetections)
-        }
+    private fun filterInvalidDetections(list: List<Recognition>, width: Int, height: Int): List<Recognition> =
+        list.filterNot { it.location.width() > width || it.location.height() > height }
+            .take(settings.maxDetections)
 }
