@@ -17,10 +17,9 @@
     <string name="setup_server_port">Port</string>
 
     <string name="detection_empty_result">No detections</string>
-    <string name="detection_inference_time_average">Average inference time:</string>
-    <string name="detection_inference_time_last">Last inference time:</string>
-    <string name="detection_image_size_average">Average image size:</string>
-    <string name="detection_image_size_last">Last image size:</string>
-    <string name="detection_inference_time">%1$d ms</string>
+    <string name="detection_inference_time">Inference time</string>
+    <string name="detection_image_size">Image size</string>
+    <string name="detection_average_value">Average:</string>
+    <string name="detection_last_value">Last:</string>
 
 </resources>

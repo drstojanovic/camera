@@ -10,6 +10,7 @@ import android.view.Surface
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import com.example.camera.CameraApp
 import com.example.camera.R
@@ -120,16 +121,16 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
             .also { compositeDisposable.add(it) }
     }
 
-    private fun displayNumbers(result: ProcessingResult) {
-        binding.txtInferenceLast.text = result.lastRecognitionTimeString
-        binding.txtInferenceAverage.text = result.avgRecognitionTimeString
-        binding.txtImageSizeAverage.text = result.avgImageSizeKbString
-        binding.txtLastImageSize.text = result.lastImageSizeBytesString
-    }
-
     private fun saveImage() {
         cameraUtils.saveImage()
         Toast.makeText(this, "Image saved.", LENGTH_SHORT).show()
+    }
+
+    private fun displayNumbers(result: ProcessingResult) {
+        binding.txtInferenceLast.text = result.lastRecognitionTimeString
+        binding.txtInferenceAverage.text = result.avgRecognitionTimeString
+        binding.txtImageSizeLast.text = result.lastImageSizeBytesString
+        binding.txtImageSizeAverage.text = result.avgImageSizeKbString
     }
 
     private fun displayResults(result: List<Recognition>) {
@@ -140,5 +141,6 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
             if (result.size > 1) RESULT_FORMAT.format(result[1].title, result[1].confidence * 100) else ""
         binding.txtResult3.text =
             if (result.size > 2) RESULT_FORMAT.format(result[2].title, result[2].confidence * 100) else ""
+        binding.txtNoDetections.isVisible = result.isEmpty()
     }
 }

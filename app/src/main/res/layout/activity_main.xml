@@ -37,19 +37,18 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="@dimen/margin_half">
+                android:layout_height="wrap_content">
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_detections"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_small"
+                    android:layout_margin="@dimen/margin_small"
                     app:cardCornerRadius="4dp"
-                    app:layout_constraintBottom_toTopOf="@id/card_measurements"
+                    app:layout_constraintBottom_toTopOf="@id/card_inference"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintWidth_percent="0.4">
+                    app:layout_constraintWidth_percent="0.45">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -100,14 +99,13 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/card_measurements"
+                    android:id="@+id/card_inference"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_marginTop="@dimen/margin_small"
-                    android:layout_marginBottom="@dimen/margin_small"
+                    android:layout_margin="@dimen/margin_small"
                     app:cardCornerRadius="4dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/card_image_size"
                     app:layout_constraintHeight="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/card_detections">
@@ -115,90 +113,131 @@
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_margin="@dimen/margin_small"
-                        android:layout_marginBottom="@dimen/margin_small"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent">
+                        android:layout_margin="@dimen/margin_small">
 
                         <TextView
-                            android:id="@+id/txt_inference_average_label"
+                            android:id="@+id/txt_inference_label"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="@string/detection_inference_time_average"
-                            app:layout_constraintEnd_toStartOf="@id/txt_inference_average"
+                            android:drawablePadding="@dimen/margin_small"
+                            android:gravity="center_vertical"
+                            android:includeFontPadding="false"
+                            android:text="@string/detection_inference_time"
+                            android:textStyle="bold"
+                            app:drawableStartCompat="@drawable/ic_timer"
+                            app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
-                            android:id="@+id/txt_inference_average"
+                            android:id="@+id/txt_inference_last_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:layout_constraintBottom_toBottomOf="@id/txt_inference_average_label"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/txt_inference_average_label"
-                            app:layout_constraintTop_toTopOf="@id/txt_inference_average_label"
-                            tools:text="150 ms" />
-
-                        <TextView
-                            android:id="@+id/txt_inference_last_label"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/margin_small"
-                            android:text="@string/detection_inference_time_last"
-                            app:layout_constraintEnd_toStartOf="@id/txt_inference_last"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/txt_inference_average_label" />
+                            android:text="@string/detection_last_value"
+                            app:layout_constraintStart_toStartOf="@id/txt_inference_label"
+                            app:layout_constraintTop_toBottomOf="@id/txt_inference_label" />
 
                         <TextView
                             android:id="@+id/txt_inference_last"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:layout_constraintBottom_toBottomOf="@id/txt_inference_last_label"
                             app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="1"
                             app:layout_constraintStart_toEndOf="@id/txt_inference_last_label"
                             app:layout_constraintTop_toTopOf="@id/txt_inference_last_label"
-                            tools:text="132 ms" />
+                            tools:text="150 ms" />
+
+                        <TextView
+                            android:id="@+id/txt_inference_average_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/margin_small"
+                            android:text="@string/detection_average_value"
+                            app:layout_constraintStart_toStartOf="@id/txt_inference_last_label"
+                            app:layout_constraintTop_toBottomOf="@id/txt_inference_last_label" />
+
+                        <TextView
+                            android:id="@+id/txt_inference_average"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="1"
+                            app:layout_constraintStart_toEndOf="@id/txt_inference_average_label"
+                            app:layout_constraintTop_toTopOf="@id/txt_inference_average_label"
+                            tools:text="150 ms" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_image_size"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_small"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    app:cardCornerRadius="4dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/card_inference"
+                    app:layout_constraintTop_toBottomOf="@id/card_detections">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="@dimen/margin_small">
+
+                        <TextView
+                            android:id="@+id/txt_image_size_label"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:drawablePadding="@dimen/margin_small"
+                            android:gravity="center_vertical"
+                            android:text="@string/detection_image_size"
+                            android:textStyle="bold"
+                            app:drawableStartCompat="@drawable/ic_image"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/txt_image_size_last_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/margin_small"
+                            android:text="@string/detection_last_value"
+                            app:layout_constraintStart_toStartOf="@id/txt_image_size_label"
+                            app:layout_constraintTop_toBottomOf="@id/txt_image_size_label" />
+
+                        <TextView
+                            android:id="@+id/txt_image_size_last"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="1"
+                            app:layout_constraintStart_toEndOf="@id/txt_image_size_last_label"
+                            app:layout_constraintTop_toTopOf="@id/txt_image_size_last_label"
+                            tools:text="56 Kb" />
 
                         <TextView
                             android:id="@+id/txt_image_size_average_label"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/margin_small"
-                            android:text="@string/detection_image_size_average"
-                            app:layout_constraintEnd_toStartOf="@id/txt_inference_last"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/txt_inference_last_label" />
+                            android:text="@string/detection_average_value"
+                            app:layout_constraintStart_toStartOf="@id/txt_image_size_last_label"
+                            app:layout_constraintTop_toBottomOf="@id/txt_image_size_last_label" />
 
                         <TextView
                             android:id="@+id/txt_image_size_average"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            app:layout_constraintBottom_toBottomOf="@id/txt_image_size_average_label"
                             app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="1"
                             app:layout_constraintStart_toEndOf="@id/txt_image_size_average_label"
                             app:layout_constraintTop_toTopOf="@id/txt_image_size_average_label"
-                            tools:text="536 Kb" />
-
-                        <TextView
-                            android:id="@+id/txt_last_image_size_label"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/margin_small"
-                            android:text="@string/detection_image_size_last"
-                            app:layout_constraintEnd_toStartOf="@id/txt_inference_last"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/txt_image_size_average_label" />
-
-                        <TextView
-                            android:id="@+id/txt_last_image_size"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintBottom_toBottomOf="@id/txt_last_image_size_label"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/txt_last_image_size_label"
-                            app:layout_constraintTop_toTopOf="@id/txt_last_image_size_label"
-                            tools:text="536 Kb" />
+                            tools:text="67 Kb" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
