@@ -7,6 +7,7 @@
     <color name="black">#000</color>
     <color name="colorAccentLight">#A1FFECB3</color>
     <color name="colorGrayLabel">#3f4141</color>
+    <color name="grayLight">#bfbebc</color>
 
     <color name="colorBoxRed">#F44336</color>
     <color name="colorBoxGreen">#4CAF50</color>

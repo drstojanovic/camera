@@ -16,6 +16,7 @@
     <string name="setup_server_address">Server IP address</string>
     <string name="setup_server_port">Port</string>
 
+    <string name="detection_empty_result">No detections</string>
     <string name="detection_inference_time_average">Average inference time:</string>
     <string name="detection_inference_time_last">Last inference time:</string>
     <string name="detection_image_size_average">Average image size:</string>

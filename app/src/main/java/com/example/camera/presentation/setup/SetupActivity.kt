@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -34,12 +35,19 @@ class SetupActivity : AppCompatActivity() {
         setObservers()
     }
 
-    private fun setObservers() =
+    private fun setObservers() {
+        viewModel.isLocalInferenceLive.observe(this) { isLocalInference ->
+            if (!isLocalInference) {
+                binding.scrollCard.postDelayed({ binding.scrollCard.fullScroll(View.FOCUS_DOWN) }, 100)
+            }
+        }
         viewModel.action.observe(this) { action ->
             if (action == SetupViewModel.SetupAction.PROCEED) {
                 checkPermissionsAndProceed()
             }
         }
+    }
+
 
     private fun setVariables() {
         viewModel = ViewModelProvider(this).get(SetupViewModel::class.java)
