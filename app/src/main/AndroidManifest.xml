@@ -24,6 +24,7 @@
         tools:ignore="GoogleAppIndexingWarning,LockedOrientationActivity,UnusedAttribute">
         <activity
             android:name=".presentation.SplashActivity"
+            android:exported="true"
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
