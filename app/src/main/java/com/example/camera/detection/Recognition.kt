@@ -1,6 +1,7 @@
 package com.example.camera.detection
 
 import android.graphics.RectF
+import org.tensorflow.lite.task.vision.detector.Detection
 
 data class Recognition(
     val id: String = "",
@@ -12,3 +13,10 @@ data class Recognition(
     override fun toString(): String =
         "[$id] $title %.1f%% $location".format(confidence * 100.0f).trim()
 }
+
+fun Detection.toRecognition(index: Int) = Recognition(
+    id = index.toString(),
+    title = categories[0].label,
+    confidence = categories[0].score,
+    location = boundingBox
+)

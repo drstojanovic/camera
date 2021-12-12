@@ -3,7 +3,7 @@ package com.example.camera.processing
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.example.camera.detection.ObjectDetector
+import com.example.camera.detection.Detector
 import com.example.camera.detection.ProcessingResult
 import com.example.camera.detection.Recognition
 import io.reactivex.Single
@@ -23,13 +23,11 @@ class LocalImageProcessor(
 
     companion object {
         private const val MODEL_FILE = "detection/lite_model.tflite"
-        private const val LABELS_FILE = "labels.txt"
     }
 
-    private val detector = ObjectDetector(
+    private val detector = Detector(
         context,
         modelFileName = MODEL_FILE,
-        labelFileName = LABELS_FILE,
         scoreThreshold = settings.confidenceThreshold / 100f
     )
 
