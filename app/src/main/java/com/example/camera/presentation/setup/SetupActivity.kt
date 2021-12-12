@@ -35,6 +35,13 @@ class SetupActivity : AppCompatActivity() {
         setObservers()
     }
 
+    private fun setVariables() {
+        viewModel = ViewModelProvider(this).get(SetupViewModel::class.java)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_setup)
+        binding.lifecycleOwner = this
+        binding.vm = viewModel
+    }
+
     private fun setObservers() {
         viewModel.isLocalInferenceLive.observe(this) { isLocalInference ->
             if (!isLocalInference) {
@@ -46,14 +53,6 @@ class SetupActivity : AppCompatActivity() {
                 checkPermissionsAndProceed()
             }
         }
-    }
-
-
-    private fun setVariables() {
-        viewModel = ViewModelProvider(this).get(SetupViewModel::class.java)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_setup)
-        binding.lifecycleOwner = this
-        binding.vm = viewModel
     }
 
     private fun checkPermissionsAndProceed() =

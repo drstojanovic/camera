@@ -8,6 +8,7 @@ import android.media.Image
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -163,4 +164,9 @@ object ImageUtils {
         }
     }
 
+    fun Bitmap.getByteArray(imageQuality: Int): ByteArray =
+        ByteArrayOutputStream().let { byteArrayOutputStream ->
+            this.compress(Bitmap.CompressFormat.JPEG, imageQuality, byteArrayOutputStream)
+            byteArrayOutputStream.toByteArray()
+        }
 }

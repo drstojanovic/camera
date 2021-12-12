@@ -36,6 +36,18 @@ FLOW
 - setup image reader
 - create capture session with two surface destinations (preview and image reader) with repeating request
 
+>> ImageProcessor:
+- preprocess, process, add processing info to result (duration, size etc.)
+1. preprocess
+   - rotate image depending on device sensor orientation
+   - resize image depending on required model input size (from settings)
+2. process
+   - Local: get image bytes, call detector, filter invalid detections (by size of detection and count)
+   - Remote: get image bytes, encode them and emmit to server via socket
+3. each processor (local and remote) generates recognitionTime and imageSize. Final processing phase is to:
+   - calculate average recognition time
+   - calculate average image size
+
 CAMERA IMPROVEMENTS:
 - auto focus and brightness
 - locking the phone and restarting the app
@@ -50,3 +62,10 @@ DETECTION NOTES:
   Try to make this configurable so that can be chosen between confidence and precision.
 - in setup process add compression rate as setting. This can be used to investigate influence of image quality and size
   to detection quality and speed.
+
+CODE IMPROVEMENTS:
+- use dependency injection framework
+    - how to dynamically inject ImageProcessor?
+- create MainViewModel
+- TrackerOverlayView/cornerSize, why depends on width and height?
+- LocalImageProcessor, add option to completely disable the compression process; compare speed with and without compression

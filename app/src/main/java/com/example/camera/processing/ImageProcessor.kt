@@ -20,9 +20,9 @@ abstract class ImageProcessor(protected val settings: Settings) {
             .map { calculateStats(it) }
     }
 
-    abstract fun process(image: Bitmap): Single<ProcessingResult>
-
     open fun dispose() {}
+
+    protected abstract fun process(image: Bitmap): Single<ProcessingResult>
 
     protected open fun preprocessImage(image: Bitmap, orientation: Int): Bitmap {
         val srcWidth = if (abs(orientation) in setOf(90, 270)) image.height else image.width

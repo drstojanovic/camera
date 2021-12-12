@@ -40,7 +40,6 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
     }
 
     private lateinit var boxes: List<TrackingBox>
-    private lateinit var frameToCanvasMatrix: Matrix
     private lateinit var modelOutputToCanvasMatrix: Matrix
 
     init {
@@ -68,13 +67,6 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
     private fun Canvas.drawBorderedText(x: Float, y: Float, width: Float, height: Float, color: Int, text: String) {
         drawRect(x, y, x + width, y + height, textBackgroundPaint.withColor(color))
         drawText(text, x, y + height - 10, textPaint)
-    }
-
-    fun setFrameSize(frameSize: Size) {
-        frameToCanvasMatrix = ImageUtils.getTransformationMatrix(
-            frameSize.width, frameSize.height,
-            width, height
-        )
     }
 
     fun setModelInputSize(outputSize: Size) {

@@ -105,17 +105,17 @@ class CameraUtils(
             .apply { setOnImageAvailableListener(this@CameraUtils, imageReaderHandler) }
 
         val surface = cameraHost.provideTextureViewSurface()
-        val captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+        val captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             .apply {
                 addTarget(surface)
                 addTarget(imageReader.surface)
-            }
+            }.build()
 
         camera.createCaptureSession(
             listOf(surface, imageReader.surface),
             object : CameraCaptureSession.StateCallback() {
                 override fun onConfigured(session: CameraCaptureSession) {
-                    session.setRepeatingRequest(captureRequestBuilder.build(), null, cameraHandler)
+                    session.setRepeatingRequest(captureRequest, null, cameraHandler)
                 }
 
                 override fun onConfigureFailed(session: CameraCaptureSession) {
@@ -182,5 +182,4 @@ class CameraUtils(
         fun onImageAvailable(bitmap: Bitmap, orientation: Int)
         fun provideTextureViewSurface(): Surface
     }
-
 }
