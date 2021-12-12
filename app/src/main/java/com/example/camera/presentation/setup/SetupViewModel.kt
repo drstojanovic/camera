@@ -19,7 +19,7 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     private val settingsRepository = SettingsRepository()
     private val _settingsLive: MutableLiveData<Settings> = MutableLiveData()
     private val _isLocalInferenceLive = MutableLiveData(false)
-    private val resolutions = listOf(Size(480, 640), Size(300, 400))
+    private val resolutions = listOf(Size(512, 512), Size(300, 300))
 
     lateinit var settings: Settings
         private set

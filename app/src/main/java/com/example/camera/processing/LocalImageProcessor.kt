@@ -22,7 +22,7 @@ class LocalImageProcessor(
 ) : ImageProcessor(settings) {
 
     companion object {
-        private const val MODEL_FILE = "detection/lite_model_v7.tflite"
+        private const val MODEL_FILE = "detection/lite_model.tflite"
         private const val LABELS_FILE = "labels.txt"
     }
 

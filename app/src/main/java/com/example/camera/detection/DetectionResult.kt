@@ -8,7 +8,7 @@ import kotlin.math.min
  * Model returns map of arrays. When processing result, we always flat that first array.
  * For example, for key of 0 (location) we get this result: [ [ [1, 5, 6, 5], [22, 16, 19, 8], [12, 26, 39, 18] ] ]
  * To get bbox location for detection number 2, first we flatten the result - result[0], and then get by index 2 - result[0][2]
- *
+ * These indices (const values) were found in tflite test python script, using interpreter output result data.
  *
  * NUMBER_OF_DETECTIONS is made as constant field since tflite prefer static input/output.
  * That means that once created, tflite model always have same input/output.
@@ -20,10 +20,10 @@ private const val NUMBER_OF_DETECTIONS = 10
 class DetectionResult {
 
     companion object {
-        private const val LOCATIONS_INDEX = 0
-        private const val CLASSES_INDEX = 1
-        private const val SCORES_INDEX = 2
-        private const val COUNT_INDEX = 3
+        private const val LOCATIONS_INDEX = 1
+        private const val SCORES_INDEX = 0
+        private const val CLASSES_INDEX = 3
+        private const val COUNT_INDEX = 2
     }
 
     val valuesMap = mutableMapOf<Int, Any>().apply {
