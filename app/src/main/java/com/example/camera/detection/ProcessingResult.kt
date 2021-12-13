@@ -5,11 +5,11 @@ class ProcessingResult(
     val recognitionTime: Int,
     val imageSizeBytes: Int
 ) {
-    var avgRecognitionTime: Int = 0
-    var avgImageSize: Int = 0
+    var avgRecognitionTime: Float = 0f
+    var avgImageSize: Float = 0f
 
-    val lastImageSizeBytesString get() = "${imageSizeBytes / 1024} Kb"
-    val avgImageSizeKbString get() = "${avgImageSize / 1024} Kb"
+    val lastImageSizeBytesString get() = "%.1f Kb".format(imageSizeBytes / 1024f)
+    val avgImageSizeKbString get() = "%.1f Kb".format(avgImageSize / 1024)
     val lastRecognitionTimeString get() = "$recognitionTime ms"
-    val avgRecognitionTimeString get() = "$avgRecognitionTime ms"
+    val avgRecognitionTimeString get() = "%.1f ms".format(avgRecognitionTime)
 }

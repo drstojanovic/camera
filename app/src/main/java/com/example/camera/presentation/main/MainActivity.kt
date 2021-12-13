@@ -27,8 +27,6 @@ import com.example.camera.utils.TAG
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
-private const val RESULT_FORMAT = "%s %.2f"
-
 class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
     companion object {
@@ -40,6 +38,7 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var imageProcessor: ImageProcessor
+    private val detectionAdapter by lazy { DetectionAdapter(resources) }
     private val compositeDisposable = CompositeDisposable()
     private val cameraThread = HandlerThread("Camera Thread").apply { start() }
     private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
@@ -56,13 +55,16 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         initImageProcessor(intent.getParcelableExtra(EXTRA_SETTINGS)!!)
-        initListeners()
+        setupViews()
     }
 
-    private fun initListeners() {
+    private fun setupViews() {
         binding.textureView.surfaceTextureListener =
             OnSurfaceTextureAvailableListener { cameraUtils.setup(windowManager.defaultDisplay.rotation) }
         binding.fabCamera.setOnClickListener { saveImage() }
+        if (binding.recyclerDetections.adapter == null) {
+            binding.recyclerDetections.adapter = detectionAdapter
+        }
     }
 
     private fun initImageProcessor(settings: Settings) {
@@ -135,12 +137,7 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
     private fun displayResults(result: List<Recognition>) {
         Log.d(TAG, result.toString())
-        binding.txtResult1.text =
-            if (result.isNotEmpty()) RESULT_FORMAT.format(result[0].title, result[0].confidence * 100) else ""
-        binding.txtResult2.text =
-            if (result.size > 1) RESULT_FORMAT.format(result[1].title, result[1].confidence * 100) else ""
-        binding.txtResult3.text =
-            if (result.size > 2) RESULT_FORMAT.format(result[2].title, result[2].confidence * 100) else ""
+        detectionAdapter.setItems(result.map { it.toShortString() })
         binding.txtNoDetections.isVisible = result.isEmpty()
         binding.txtDetectionsLabel.isVisible = result.isNotEmpty()
     }

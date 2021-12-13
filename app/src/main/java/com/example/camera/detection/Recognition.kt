@@ -12,10 +12,13 @@ data class Recognition(
 
     override fun toString(): String =
         "[$id] $title %.1f%% $location".format(confidence * 100.0f).trim()
+
+    fun toShortString(): String =
+        "$id. $title %.1f%%".format(confidence * 100.0f).trim()
 }
 
 fun Detection.toRecognition(index: Int) = Recognition(
-    id = index.toString(),
+    id = (index + 1).toString(),
     title = categories[0].label,
     confidence = categories[0].score,
     location = boundingBox

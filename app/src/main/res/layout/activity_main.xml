@@ -65,35 +65,16 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/txt_result_1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/colorBoxRed"
-                        android:textStyle="bold"
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_detections"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:hasFixedSize="@{true}"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/txt_detections_label"
-                        tools:text="Zebra" />
-
-                    <TextView
-                        android:id="@+id/txt_result_2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:textColor="@color/colorBoxGreen"
-                        app:layout_constraintStart_toStartOf="@id/txt_result_1"
-                        app:layout_constraintTop_toBottomOf="@id/txt_result_1"
-                        tools:text="Pony" />
-
-                    <TextView
-                        android:id="@+id/txt_result_3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:textColor="@color/colorBoxBlue"
-                        app:layout_constraintStart_toStartOf="@id/txt_result_1"
-                        app:layout_constraintTop_toBottomOf="@id/txt_result_2"
-                        tools:text="Horse" />
+                        app:layout_constraintTop_toBottomOf="@id/txt_detections_label" />
 
                     <TextView
                         android:id="@+id/txt_no_detections"
