@@ -142,5 +142,6 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         binding.txtResult3.text =
             if (result.size > 2) RESULT_FORMAT.format(result[2].title, result[2].confidence * 100) else ""
         binding.txtNoDetections.isVisible = result.isEmpty()
+        binding.txtDetectionsLabel.isVisible = result.isNotEmpty()
     }
 }

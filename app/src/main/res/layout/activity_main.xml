@@ -25,7 +25,7 @@
             app:layout_constraintStart_toStartOf="@id/texture_view"
             app:layout_constraintTop_toTopOf="@id/texture_view" />
 
-        <ScrollView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@color/grayLight"
@@ -35,217 +35,224 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/texture_view">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_detections"
+                style="@style/CardView.Detections"
+                android:layout_marginVertical="@dimen/margin_cards"
+                android:layout_marginStart="@dimen/margin_cards"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/card_inference"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_detections"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_small"
-                    app:cardCornerRadius="4dp"
-                    app:layout_constraintBottom_toTopOf="@id/card_inference"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintWidth_percent="0.45">
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/margin_cards"
+                    android:orientation="vertical">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/txt_detections_label"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/margin_small"
-                        android:orientation="vertical">
+                        android:drawablePadding="@dimen/margin_small"
+                        android:gravity="center_vertical"
+                        android:includeFontPadding="false"
+                        android:text="@string/detection_detections"
+                        android:textStyle="bold"
+                        app:drawableStartCompat="@drawable/ic_detection"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                        <TextView
-                            android:id="@+id/txt_result_1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textStyle="bold"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            tools:text="Zebra" />
+                    <TextView
+                        android:id="@+id/txt_result_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorBoxRed"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/txt_detections_label"
+                        tools:text="Zebra" />
 
-                        <TextView
-                            android:id="@+id/txt_result_2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            app:layout_constraintStart_toStartOf="@id/txt_result_1"
-                            app:layout_constraintTop_toBottomOf="@id/txt_result_1"
-                            tools:text="Pony" />
+                    <TextView
+                        android:id="@+id/txt_result_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/colorBoxGreen"
+                        app:layout_constraintStart_toStartOf="@id/txt_result_1"
+                        app:layout_constraintTop_toBottomOf="@id/txt_result_1"
+                        tools:text="Pony" />
 
-                        <TextView
-                            android:id="@+id/txt_result_3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            app:layout_constraintStart_toStartOf="@id/txt_result_1"
-                            app:layout_constraintTop_toBottomOf="@id/txt_result_2"
-                            tools:text="Horse" />
+                    <TextView
+                        android:id="@+id/txt_result_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/colorBoxBlue"
+                        app:layout_constraintStart_toStartOf="@id/txt_result_1"
+                        app:layout_constraintTop_toBottomOf="@id/txt_result_2"
+                        tools:text="Horse" />
 
-                        <TextView
-                            android:id="@+id/txt_no_detections"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/detection_empty_result"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            tools:visibility="gone" />
+                    <TextView
+                        android:id="@+id/txt_no_detections"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/detection_empty_result"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:visibility="gone" />
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                </androidx.cardview.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_inference"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_margin="@dimen/margin_small"
-                    app:cardCornerRadius="4dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/card_image_size"
-                    app:layout_constraintHeight="wrap_content"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/card_detections">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_inference"
+                style="@style/CardView.Detections"
+                android:layout_marginHorizontal="@dimen/margin_cards"
+                android:layout_marginVertical="@dimen/margin_cards"
+                app:layout_constraintBottom_toTopOf="@id/card_image_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/card_detections"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_margin="@dimen/margin_small">
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/margin_cards">
 
-                        <TextView
-                            android:id="@+id/txt_inference_label"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:drawablePadding="@dimen/margin_small"
-                            android:gravity="center_vertical"
-                            android:includeFontPadding="false"
-                            android:text="@string/detection_inference_time"
-                            android:textStyle="bold"
-                            app:drawableStartCompat="@drawable/ic_timer"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                    <TextView
+                        android:id="@+id/txt_inference_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:drawablePadding="@dimen/margin_small"
+                        android:gravity="center_vertical"
+                        android:includeFontPadding="false"
+                        android:text="@string/detection_inference_time"
+                        android:textStyle="bold"
+                        app:drawableStartCompat="@drawable/ic_timer"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                        <TextView
-                            android:id="@+id/txt_inference_last_label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/margin_small"
-                            android:text="@string/detection_last_value"
-                            app:layout_constraintStart_toStartOf="@id/txt_inference_label"
-                            app:layout_constraintTop_toBottomOf="@id/txt_inference_label" />
+                    <TextView
+                        android:id="@+id/txt_inference_last_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:text="@string/detection_last_value"
+                        app:layout_constraintStart_toStartOf="@id/txt_inference_label"
+                        app:layout_constraintTop_toBottomOf="@id/txt_inference_label" />
 
-                        <TextView
-                            android:id="@+id/txt_inference_last"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="1"
-                            app:layout_constraintStart_toEndOf="@id/txt_inference_last_label"
-                            app:layout_constraintTop_toTopOf="@id/txt_inference_last_label"
-                            tools:text="150 ms" />
+                    <TextView
+                        android:id="@+id/txt_inference_last"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1"
+                        app:layout_constraintStart_toEndOf="@id/txt_inference_last_label"
+                        app:layout_constraintTop_toTopOf="@id/txt_inference_last_label"
+                        tools:text="150 ms" />
 
-                        <TextView
-                            android:id="@+id/txt_inference_average_label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/margin_small"
-                            android:text="@string/detection_average_value"
-                            app:layout_constraintStart_toStartOf="@id/txt_inference_last_label"
-                            app:layout_constraintTop_toBottomOf="@id/txt_inference_last_label" />
+                    <TextView
+                        android:id="@+id/txt_inference_average_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:text="@string/detection_average_value"
+                        app:layout_constraintStart_toStartOf="@id/txt_inference_last_label"
+                        app:layout_constraintTop_toBottomOf="@id/txt_inference_last_label" />
 
-                        <TextView
-                            android:id="@+id/txt_inference_average"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="1"
-                            app:layout_constraintStart_toEndOf="@id/txt_inference_average_label"
-                            app:layout_constraintTop_toTopOf="@id/txt_inference_average_label"
-                            tools:text="150 ms" />
+                    <TextView
+                        android:id="@+id/txt_inference_average"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1"
+                        app:layout_constraintStart_toEndOf="@id/txt_inference_average_label"
+                        app:layout_constraintTop_toTopOf="@id/txt_inference_average_label"
+                        tools:text="150 ms" />
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                </androidx.cardview.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_image_size"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_small"
-                    android:layout_marginEnd="@dimen/margin_small"
-                    app:cardCornerRadius="4dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/card_inference"
-                    app:layout_constraintTop_toBottomOf="@id/card_detections">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_image_size"
+                style="@style/CardView.Detections"
+                android:layout_marginHorizontal="@dimen/margin_cards"
+                android:layout_marginBottom="@dimen/margin_cards"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/card_detections"
+                app:layout_constraintTop_toBottomOf="@id/card_inference">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_margin="@dimen/margin_small">
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/margin_cards">
 
-                        <TextView
-                            android:id="@+id/txt_image_size_label"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:drawablePadding="@dimen/margin_small"
-                            android:gravity="center_vertical"
-                            android:text="@string/detection_image_size"
-                            android:textStyle="bold"
-                            app:drawableStartCompat="@drawable/ic_image"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                    <TextView
+                        android:id="@+id/txt_image_size_label"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:drawablePadding="@dimen/margin_small"
+                        android:gravity="center_vertical"
+                        android:text="@string/detection_image_size"
+                        android:textStyle="bold"
+                        app:drawableStartCompat="@drawable/ic_image"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                        <TextView
-                            android:id="@+id/txt_image_size_last_label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/margin_small"
-                            android:text="@string/detection_last_value"
-                            app:layout_constraintStart_toStartOf="@id/txt_image_size_label"
-                            app:layout_constraintTop_toBottomOf="@id/txt_image_size_label" />
+                    <TextView
+                        android:id="@+id/txt_image_size_last_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:text="@string/detection_last_value"
+                        app:layout_constraintStart_toStartOf="@id/txt_image_size_label"
+                        app:layout_constraintTop_toBottomOf="@id/txt_image_size_label" />
 
-                        <TextView
-                            android:id="@+id/txt_image_size_last"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="1"
-                            app:layout_constraintStart_toEndOf="@id/txt_image_size_last_label"
-                            app:layout_constraintTop_toTopOf="@id/txt_image_size_last_label"
-                            tools:text="56 Kb" />
+                    <TextView
+                        android:id="@+id/txt_image_size_last"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1"
+                        app:layout_constraintStart_toEndOf="@id/txt_image_size_last_label"
+                        app:layout_constraintTop_toTopOf="@id/txt_image_size_last_label"
+                        tools:text="56 Kb" />
 
-                        <TextView
-                            android:id="@+id/txt_image_size_average_label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/margin_small"
-                            android:text="@string/detection_average_value"
-                            app:layout_constraintStart_toStartOf="@id/txt_image_size_last_label"
-                            app:layout_constraintTop_toBottomOf="@id/txt_image_size_last_label" />
+                    <TextView
+                        android:id="@+id/txt_image_size_average_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:text="@string/detection_average_value"
+                        app:layout_constraintStart_toStartOf="@id/txt_image_size_last_label"
+                        app:layout_constraintTop_toBottomOf="@id/txt_image_size_last_label" />
 
-                        <TextView
-                            android:id="@+id/txt_image_size_average"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintHorizontal_bias="1"
-                            app:layout_constraintStart_toEndOf="@id/txt_image_size_average_label"
-                            app:layout_constraintTop_toTopOf="@id/txt_image_size_average_label"
-                            tools:text="67 Kb" />
+                    <TextView
+                        android:id="@+id/txt_image_size_average"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1"
+                        app:layout_constraintStart_toEndOf="@id/txt_image_size_average_label"
+                        app:layout_constraintTop_toTopOf="@id/txt_image_size_average_label"
+                        tools:text="67 Kb" />
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                </androidx.cardview.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </ScrollView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_camera"

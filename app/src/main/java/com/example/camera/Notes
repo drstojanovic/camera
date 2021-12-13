@@ -54,18 +54,18 @@ CAMERA IMPROVEMENTS:
 - start/stop threads in onResume/onPause callbacks
 - check postInferenceCallback solution for isProcessing = false flag
 
-DETECTION NOTES:
-- consider only portrait mode (for image rotation use only camera sensor rotation)
-- for now, support only case when frame size and model-input size are the same
-- check divisioning input image on tiles for small objects
-- consider approach where multiple good sequential results only count (to smooth out false positives).
-  Try to make this configurable so that can be chosen between confidence and precision.
-- in setup process add compression rate as setting. This can be used to investigate influence of image quality and size
-  to detection quality and speed.
-
 CODE IMPROVEMENTS:
 - use dependency injection framework
     - how to dynamically inject ImageProcessor?
 - create MainViewModel
 - TrackerOverlayView/cornerSize, why depends on width and height?
 - LocalImageProcessor, add option to completely disable the compression process; compare speed with and without compression
+
+TODO:
+- add number of threads setting on setup screen
+- try to make tflite model with input 300x300
+- implement static-info card about settings
+- fix layout in detection activity:
+    - Detections may be full height and other two cards on the right
+    - settings may be shown on some info button
+    - set label colors from array

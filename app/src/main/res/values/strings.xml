@@ -16,6 +16,7 @@
     <string name="setup_server_address">Server IP address</string>
     <string name="setup_server_port">Port</string>
 
+    <string name="detection_detections">Detections</string>
     <string name="detection_empty_result">No detections</string>
     <string name="detection_inference_time">Inference time</string>
     <string name="detection_image_size">Image size</string>

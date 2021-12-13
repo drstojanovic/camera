@@ -4,4 +4,5 @@
     <dimen name="margin_medium">24dp</dimen>
     <dimen name="margin_half">16dp</dimen>
     <dimen name="margin_small">8dp</dimen>
+    <dimen name="margin_cards">8dp</dimen>
 </resources>
