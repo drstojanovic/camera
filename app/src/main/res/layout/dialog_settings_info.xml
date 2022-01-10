@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="settings"
+            type="com.example.camera.presentation.main.info.SettingsInfo" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include
+            android:id="@+id/partial_resolution"
+            style="@style/SettingsInfoLabel"
+            layout="@layout/partial_setting_info"
+            app:label="@{@string/setup_image_resolution}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:value="@{settings.resolution}" />
+
+        <include
+            android:id="@+id/partial_max_detections"
+            style="@style/SettingsInfoLabel"
+            layout="@layout/partial_setting_info"
+            app:label="@{@string/setup_max_detections}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/partial_resolution"
+            app:value="@{settings.maxDetections}" />
+
+        <include
+            android:id="@+id/partial_confidence_threshold"
+            style="@style/SettingsInfoLabel"
+            layout="@layout/partial_setting_info"
+            app:label="@{@string/setup_confidence_threshold}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/partial_max_detections"
+            app:value="@{settings.confidenceThreshold}" />
+
+        <include
+            android:id="@+id/partial_image_quality"
+            style="@style/SettingsInfoLabel"
+            layout="@layout/partial_setting_info"
+            app:label="@{@string/setup_image_quality}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/partial_confidence_threshold"
+            app:value="@{settings.imageQuality}" />
+
+        <include
+            android:id="@+id/partial_inference_type"
+            style="@style/SettingsInfoLabel"
+            layout="@layout/partial_setting_info"
+            app:label="@{@string/setup_inference_type}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/partial_image_quality"
+            app:value="@{settings.inferenceType}" />
+
+        <Button
+            android:id="@+id/btn_close"
+            android:background="@drawable/bg_button_primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_half"
+            android:text="@string/close"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/partial_inference_type" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

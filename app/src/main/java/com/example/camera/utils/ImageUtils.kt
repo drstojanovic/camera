@@ -144,6 +144,7 @@ object ImageUtils {
                 outputStream = context.contentResolver.openOutputStream(imageUri)
             }
         } else {
+            @Suppress("DEPRECATION")
             val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), filename)
             outputStream = FileOutputStream(file)
         }

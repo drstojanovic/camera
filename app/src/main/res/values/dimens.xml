@@ -5,4 +5,6 @@
     <dimen name="margin_half">16dp</dimen>
     <dimen name="margin_small">8dp</dimen>
     <dimen name="margin_cards">8dp</dimen>
+
+    <dimen name="card_corner_radius">6dp</dimen>
 </resources>

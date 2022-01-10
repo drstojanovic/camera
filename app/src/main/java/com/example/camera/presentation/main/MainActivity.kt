@@ -17,6 +17,8 @@ import com.example.camera.R
 import com.example.camera.databinding.ActivityMainBinding
 import com.example.camera.detection.ProcessingResult
 import com.example.camera.detection.Recognition
+import com.example.camera.presentation.main.info.SettingsInfoDialog
+import com.example.camera.presentation.main.info.toSettingsInfo
 import com.example.camera.processing.ImageProcessor
 import com.example.camera.processing.LocalImageProcessor
 import com.example.camera.processing.RemoteImageProcessor
@@ -54,14 +56,17 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        initImageProcessor(intent.getParcelableExtra(EXTRA_SETTINGS)!!)
-        setupViews()
+        intent.getParcelableExtra<Settings>(EXTRA_SETTINGS)?.let { settings ->
+            initImageProcessor(settings)
+            setupViews(settings)
+        }
     }
 
-    private fun setupViews() {
+    private fun setupViews(settings: Settings) {
         binding.textureView.surfaceTextureListener =
             OnSurfaceTextureAvailableListener { cameraUtils.setup(windowManager.defaultDisplay.rotation) }
         binding.fabCamera.setOnClickListener { saveImage() }
+        binding.imgInfo.setOnClickListener { SettingsInfoDialog(this, settings.toSettingsInfo()).show() }
         if (binding.recyclerDetections.adapter == null) {
             binding.recyclerDetections.adapter = detectionAdapter
         }
