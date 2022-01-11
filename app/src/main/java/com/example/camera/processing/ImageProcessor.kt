@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import com.example.camera.detection.ProcessingResult
 import com.example.camera.utils.ImageUtils
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import kotlin.math.abs
 
 const val TAG = "ImageProcessor"
@@ -18,6 +19,7 @@ abstract class ImageProcessor(protected val settings: Settings) {
     fun processImage(image: Bitmap, orientation: Int): Single<ProcessingResult> {
         return process(preprocessImage(image, orientation))
             .map { calculateStats(it) }
+            .subscribeOn(Schedulers.computation())
     }
 
     open fun dispose() {}

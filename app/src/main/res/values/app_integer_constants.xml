@@ -9,4 +9,7 @@
     <integer name="image_quality_min">0</integer>
     <integer name="image_quality_max">100</integer>
     <integer name="image_quality_step_size">10</integer>
+    <integer name="threads_limit_min">1</integer>
+    <integer name="threads_limit_max">10</integer>
+    <integer name="threads_step_size">1</integer>
 </resources>

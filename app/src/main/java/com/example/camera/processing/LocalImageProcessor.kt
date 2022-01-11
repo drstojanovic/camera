@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import com.example.camera.detection.Detector
 import com.example.camera.detection.ProcessingResult
 import com.example.camera.detection.Recognition
+import com.example.camera.utils.DEFAULT_THREAD_COUNT
 import com.example.camera.utils.ImageUtils.getByteArray
 import io.reactivex.Single
 
@@ -26,7 +27,8 @@ class LocalImageProcessor(
     private val detector = Detector(
         context,
         modelFileName = MODEL_FILE,
-        scoreThreshold = settings.confidenceThreshold / 100f
+        scoreThreshold = settings.confidenceThreshold / 100f,
+        numberOfThreads = settings.threadCount ?: DEFAULT_THREAD_COUNT
     )
 
     override fun process(image: Bitmap): Single<ProcessingResult> =

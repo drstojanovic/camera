@@ -8,6 +8,7 @@ import com.squareup.moshi.JsonClass
 class SettingsRaw(
     val serverIpAddress: String? = null,
     val serverPort: String? = null,
+    val threadCount: Int? = DEFAULT_THREAD_COUNT,
     val localInference: Boolean = DEFAULTS_LOCAL_INFERENCE,
     val maxDetections: Int = DEFAULTS_MAX_DETECTIONS,
     val confidenceThreshold: Int = DEFAULTS_CONFIDENCE_THRESHOLD,
@@ -19,6 +20,7 @@ class SettingsRaw(
 fun SettingsRaw.toSettings() = Settings(
     serverIpAddress = serverIpAddress,
     serverPort = serverPort,
+    threadCount = threadCount,
     localInference = localInference,
     maxDetections = maxDetections,
     confidenceThreshold = confidenceThreshold,
@@ -30,6 +32,7 @@ fun SettingsRaw.toSettings() = Settings(
 fun Settings.toSettingsRaw() = SettingsRaw(
     serverIpAddress = serverIpAddress.orEmpty(),
     serverPort = serverPort.orEmpty(),
+    threadCount = threadCount,
     localInference = localInference,
     maxDetections = maxDetections,
     confidenceThreshold = confidenceThreshold,

@@ -20,7 +20,7 @@
             android:id="@+id/txt_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_default"
+            android:layout_marginTop="@dimen/margin_medium"
             android:fontFamily="@font/comfortaa"
             android:text="@string/app_name"
             android:textColor="@color/white"
@@ -33,10 +33,10 @@
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="@dimen/margin_default"
-            android:layout_marginTop="@dimen/margin_default"
-            android:layout_marginEnd="@dimen/margin_default"
-            android:layout_marginBottom="@dimen/margin_default"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_medium"
             app:cardBackgroundColor="#71FFFFFF"
             app:cardCornerRadius="8dp"
             app:layout_constraintBottom_toTopOf="@id/btn_proceed"
@@ -211,6 +211,22 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <com.example.camera.utils.view.SeekBarCompositeView
+                        android:id="@+id/seek_thread_number"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_medium"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/txt_inference_local"
+                        app:maxValue="@integer/threads_limit_max"
+                        app:minValue="@integer/threads_limit_min"
+                        app:progress="@{vm.settingsLive.threadCount}"
+                        app:progressListener="@{(progress) -> vm.onThreadCountChange(progress)}"
+                        app:stepSize="@integer/threads_step_size"
+                        app:text="@string/setup_number_of_threads"
+                        app:visibility="@{vm.isLocalInferenceLive}" />
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </ScrollView>
@@ -221,9 +237,9 @@
             android:id="@+id/btn_proceed"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_default"
-            android:layout_marginEnd="@dimen/margin_default"
-            android:layout_marginBottom="@dimen/margin_default"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_medium"
             android:background="@drawable/bg_button_primary"
             android:onClick="@{() -> vm.onProceedClick()}"
             android:text="@string/setup_start_detection"

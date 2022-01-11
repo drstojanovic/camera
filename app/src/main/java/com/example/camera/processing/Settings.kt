@@ -8,6 +8,7 @@ import kotlinx.parcelize.Parcelize
 data class Settings(
     var serverIpAddress: String? = null,
     var serverPort: String? = null,
+    var threadCount: Int?,
     var localInference: Boolean,
     var maxDetections: Int,
     var confidenceThreshold: Int,
@@ -22,5 +23,5 @@ data class Settings(
         get() = Size(imageWidth, imageHeight)
 
     fun toQuery(): String =
-        "maxDetections=$maxDetections&confidenceThreshold=$confidenceThreshold&imageWidth=$imageWidth&imageHeight=$imageHeight"
+        "maxDetections=$maxDetections&confidenceThreshold=$confidenceThreshold&imageQuality=$imageQuality&imageWidth=$imageWidth&imageHeight=$imageHeight"
 }

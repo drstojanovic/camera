@@ -63,9 +63,4 @@ CODE IMPROVEMENTS:
 
 TODO:
 - add number of threads setting on setup screen
-- try to make tflite model with input 300x300
-- implement static-info card about settings
-- fix layout in detection activity:
-    - Detections may be full height and other two cards on the right
-    - settings may be shown on some info button
-    - set label colors from array
+- fix freezing when minimizing and opening recent apps and back to app

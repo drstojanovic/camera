@@ -19,7 +19,12 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     private val settingsRepository = SettingsRepository()
     private val _settingsLive: MutableLiveData<Settings> = MutableLiveData()
     private val _isLocalInferenceLive = MutableLiveData(false)
-    private val resolutions = listOf(Size(512, 512), Size(300, 300))
+    private val resolutions = listOf(
+        Size(160, 160),
+        Size(300, 300),
+        Size(512, 512),
+        Size(640, 640)
+    )
 
     lateinit var settings: Settings
         private set
@@ -62,7 +67,7 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
         settings.confidenceThreshold = confidenceThreshold
     }
 
-    fun onImageQualityChange(imageQuality:Int) {
+    fun onImageQualityChange(imageQuality: Int) {
         settings.imageQuality = imageQuality
     }
 
@@ -74,6 +79,10 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     fun onRemoteInferenceSelected() {
         _isLocalInferenceLive.postValue(false)
         settings.localInference = false
+    }
+
+    fun onThreadCountChange(threadCount: Int) {
+        settings.threadCount = threadCount
     }
 
     fun onIpAddressChange(text: String) {
