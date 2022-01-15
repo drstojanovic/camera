@@ -33,7 +33,7 @@ class LocalImageProcessor(
 
     override fun process(image: Bitmap): Single<ProcessingResult> =
         Single.fromCallable {
-            val bytes = image.getByteArray(settings.imageQuality)
+            val bytes = image.getByteArray(imageQuality = settings.imageQuality)
             val processingStart = System.currentTimeMillis()
             ProcessingResult(
                 recognitions = filterInvalidDetections(

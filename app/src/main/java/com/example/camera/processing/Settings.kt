@@ -23,5 +23,5 @@ data class Settings(
         get() = Size(imageWidth, imageHeight)
 
     fun toQuery(): String =
-        "maxDetections=$maxDetections&confidenceThreshold=$confidenceThreshold&imageQuality=$imageQuality&imageWidth=$imageWidth&imageHeight=$imageHeight"
+        "maxDetections=$maxDetections&confidenceThreshold=$confidenceThreshold"
 }
