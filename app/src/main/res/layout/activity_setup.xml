@@ -211,6 +211,17 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <TextView
+                        android:id="@+id/txt_no_internet_warning"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:text="@string/setup_error_no_internet_connection"
+                        android:textColor="@color/colorBoxRed"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/text_input_ip_address"
+                        app:visibility="@{vm.showNetworkWarningLive}" />
+
                     <com.example.camera.utils.view.SeekBarCompositeView
                         android:id="@+id/seek_thread_number"
                         android:layout_width="0dp"

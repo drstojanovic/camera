@@ -5,8 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -15,6 +15,8 @@ import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.databinding.ActivitySetupBinding
 import com.example.camera.presentation.main.MainActivity
+import com.example.camera.utils.NetworkStatus
+import com.example.camera.utils.observe
 
 class SetupActivity : AppCompatActivity() {
 
@@ -27,12 +29,17 @@ class SetupActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySetupBinding
     private lateinit var viewModel: SetupViewModel
+    private val networkStatus: NetworkStatus by lazy { NetworkStatus(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setVariables()
         setObservers()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        networkStatus.dispose()
     }
 
     private fun setVariables() {
@@ -43,14 +50,11 @@ class SetupActivity : AppCompatActivity() {
     }
 
     private fun setObservers() {
-        viewModel.isLocalInferenceLive.observe(this) { isLocalInference ->
-            if (!isLocalInference) {
-                binding.scrollCard.postDelayed({ binding.scrollCard.fullScroll(View.FOCUS_DOWN) }, 100)
-            }
-        }
-        viewModel.action.observe(this) { action ->
-            if (action == SetupViewModel.SetupAction.PROCEED) {
-                checkPermissionsAndProceed()
+        observe(networkStatus.asLiveData()) { viewModel.onNetworkStatusChange(it) }
+        observe(viewModel.action) { action ->
+            when (action) {
+                SetupViewModel.SetupAction.PROCEED -> checkPermissionsAndProceed()
+                SetupViewModel.SetupAction.NO_INTERNET -> showToast(R.string.setup_error_no_internet_connection)
             }
         }
     }
@@ -72,10 +76,14 @@ class SetupActivity : AppCompatActivity() {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 proceedToCameraScreen()
             } else {
-                Toast.makeText(this, "Permission request denied!", Toast.LENGTH_LONG).show()
+                showToast(R.string.setup_error_permission_not_granted, Toast.LENGTH_LONG)
             }
         }
     }
 
     private fun proceedToCameraScreen() = startActivity(MainActivity.createIntent(viewModel.settings))
+
+    private fun showToast(@StringRes message: Int, duration: Int = Toast.LENGTH_SHORT) =
+        Toast.makeText(this, message, duration).show()
+
 }

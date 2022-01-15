@@ -3,6 +3,7 @@ package com.example.camera.presentation.setup
 import android.util.Log
 import android.util.Size
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.example.camera.presentation.base.BaseViewModel
@@ -13,12 +14,14 @@ import com.example.camera.utils.TAG
 class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
 
     enum class SetupAction {
-        PROCEED
+        PROCEED,
+        NO_INTERNET
     }
 
     private val settingsRepository = SettingsRepository()
     private val _settingsLive: MutableLiveData<Settings> = MutableLiveData()
     private val _isLocalInferenceLive = MutableLiveData(false)
+    private val _isNetworkAvailableLive = MutableLiveData<Boolean>()
     private val resolutions = listOf(
         Size(160, 160),
         Size(300, 300),
@@ -31,6 +34,10 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     val resolutionsLabels: List<String> get() = resolutions.map { "${it.width}x${it.height}" }
     val settingsLive: LiveData<Settings> = _settingsLive
     val isLocalInferenceLive: LiveData<Boolean> = _isLocalInferenceLive
+    val showNetworkWarningLive: LiveData<Boolean> = MediatorLiveData<Boolean>().apply {
+        addSource(_isLocalInferenceLive) { postValue(getNetworkWarningVisibility()) }
+        addSource(_isNetworkAvailableLive) { postValue(getNetworkWarningVisibility()) }
+    }
     val resolutionIndexLive: LiveData<Int>
         get() = Transformations.map(_settingsLive) { getSelectedResolutionIndex(it.imageWidth, it.imageHeight) }
 
@@ -94,6 +101,11 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     }
 
     fun onProceedClick() {
+        if (!settings.localInference && _isNetworkAvailableLive.value == false) {
+            setAction(SetupAction.NO_INTERNET)
+            return
+        }
+
         if (settings == settingsLive.value) {
             setAction(SetupAction.PROCEED)
             return
@@ -106,6 +118,12 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
                     Log.e(TAG, it.message ?: it.toString())
                 })
     }
+
+    fun onNetworkStatusChange(isAvailable: Boolean) =
+        _isNetworkAvailableLive.postValue(isAvailable)
+
+    private fun getNetworkWarningVisibility() =
+        _isLocalInferenceLive.value == false && _isNetworkAvailableLive.value == false
 
     private fun getSelectedResolutionIndex(imageWidth: Int, imageHeight: Int): Int =
         resolutions.indexOfFirst { it.width == imageWidth && it.height == imageHeight }

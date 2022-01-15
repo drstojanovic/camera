@@ -17,6 +17,8 @@
     <string name="setup_inference_remote">Remote</string>
     <string name="setup_server_address">Server IP address</string>
     <string name="setup_server_port">Port</string>
+    <string name="setup_error_no_internet_connection">No internet connection!</string>
+    <string name="setup_error_permission_not_granted">Camera permission not granted. Please check settings.</string>
 
     <string name="detection_detections">Detections</string>
     <string name="detection_empty_result">No detections</string>
