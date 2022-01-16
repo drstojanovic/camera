@@ -26,5 +26,7 @@
     <string name="detection_image_size">Image size</string>
     <string name="detection_average_value">Average:</string>
     <string name="detection_last_value">Last:</string>
+    <string name="detection_error">Error</string>
+    <string name="detection_error_unable_to_connect">Failed to connect to remote server.\nPlease check your settings and try again.</string>
 
 </resources>

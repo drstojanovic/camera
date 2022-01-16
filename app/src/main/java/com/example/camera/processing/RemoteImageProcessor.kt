@@ -56,7 +56,7 @@ class RemoteImageProcessor(
 
     override fun process(image: Bitmap): Single<ProcessingResult> {
         if (!socket.connected()) {
-            return Single.error(IllegalStateException("Socket disconnected"))
+            return Single.error(SocketDisconnectedException())
         }
 
         var recognitions = listOf<Recognition>()

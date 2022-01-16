@@ -19,10 +19,7 @@ import com.example.camera.detection.ProcessingResult
 import com.example.camera.detection.Recognition
 import com.example.camera.presentation.main.info.SettingsInfoDialog
 import com.example.camera.presentation.main.info.toSettingsInfo
-import com.example.camera.processing.ImageProcessor
-import com.example.camera.processing.LocalImageProcessor
-import com.example.camera.processing.RemoteImageProcessor
-import com.example.camera.processing.Settings
+import com.example.camera.processing.*
 import com.example.camera.utils.CameraUtils
 import com.example.camera.utils.OnSurfaceTextureAvailableListener
 import com.example.camera.utils.TAG
@@ -121,8 +118,12 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
                     cameraUtils.onImageProcessed()
                 },
                 { throwable ->
-                    Log.e(TAG, throwable.stackTraceToString())
+                    Log.e(TAG, throwable.message ?: throwable.toString())
                     cameraUtils.onImageProcessed()
+                    if (throwable is SocketDisconnectedException) {
+                        binding.groupCards.isVisible = false
+                        binding.cardError.isVisible = true
+                    }
                 }
             )
             .also { compositeDisposable.add(it) }
@@ -143,6 +144,8 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
     private fun displayResults(result: List<Recognition>) {
         Log.d(TAG, result.toString())
         detectionAdapter.setItems(result.map { it.toShortString() })
+        binding.groupCards.isVisible = true
+        binding.cardError.isVisible = false
         binding.txtNoDetections.isVisible = result.isEmpty()
         binding.txtDetectionsLabel.isVisible = result.isNotEmpty()
     }
