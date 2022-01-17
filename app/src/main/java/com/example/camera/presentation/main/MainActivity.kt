@@ -2,28 +2,25 @@ package com.example.camera.presentation.main
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.hardware.camera2.*
-import android.os.*
+import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import android.widget.Toast
-import android.widget.Toast.LENGTH_SHORT
-import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.databinding.ActivityMainBinding
+import com.example.camera.presentation.base.BaseActivity
 import com.example.camera.presentation.main.info.SettingsInfoDialog
 import com.example.camera.presentation.main.info.toSettingsInfo
-import com.example.camera.processing.*
+import com.example.camera.processing.Settings
 import com.example.camera.utils.CameraUtils
 import com.example.camera.utils.OnSurfaceTextureAvailableListener
 import com.example.camera.utils.TAG
 import com.example.camera.utils.observe
 
-class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
+class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraUtils.CameraEventListener {
 
     companion object {
         private const val EXTRA_SETTINGS = "settings"
@@ -32,8 +29,6 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
             Intent(CameraApp.appContext!!, MainActivity::class.java).putExtra(EXTRA_SETTINGS, settings)
     }
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var viewModel: MainViewModel
     private val detectionAdapter by lazy { DetectionAdapter(resources) }
     private val cameraThread = HandlerThread("Camera Thread").apply { start() }
     private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
@@ -46,21 +41,17 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         )
     }
 
+    override fun provideLayoutId() = R.layout.activity_main
+
+    override fun provideViewModelClass() = MainViewModel::class.java
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setVariables()
         setObservers()
         setupViews()
         intent.getParcelableExtra<Settings>(EXTRA_SETTINGS)?.let { settings ->
             viewModel.initImageProcessor(settings)
         }
-    }
-
-    private fun setVariables() {
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        binding.lifecycleOwner = this
-        binding.vm = viewModel
     }
 
     private fun setObservers() {
@@ -96,8 +87,7 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         cameraThread.quitSafely()
     }
 
-    override fun onError(text: String) =
-        Toast.makeText(this@MainActivity, text, LENGTH_SHORT).show()
+    override fun onError(text: String) = showToast(text)
 
     override fun provideTextureViewSurface() = Surface(binding.textureView.surfaceTexture)
 
@@ -119,6 +109,6 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
     private fun saveImage() {
         cameraUtils.saveImage()
-        Toast.makeText(this, "Image saved.", LENGTH_SHORT).show()
+        showToast(R.string.detection_image_saved)
     }
 }

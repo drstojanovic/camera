@@ -20,6 +20,7 @@
     <string name="setup_error_no_internet_connection">No internet connection!</string>
     <string name="setup_error_permission_not_granted">Camera permission not granted. Please check settings.</string>
 
+    <string name="detection_image_saved">Image was saved.</string>
     <string name="detection_detections">Detections</string>
     <string name="detection_empty_result">No detections</string>
     <string name="detection_inference_time">Inference time</string>

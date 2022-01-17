@@ -51,7 +51,9 @@ class RemoteImageProcessor(
     }
 
     override fun dispose() {
-        socket.close()
+        if (::socket.isInitialized) {
+            socket.close()
+        }
     }
 
     override fun process(image: Bitmap): Single<ProcessingResult> {

@@ -6,19 +6,16 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.databinding.ActivitySetupBinding
+import com.example.camera.presentation.base.BaseActivity
 import com.example.camera.presentation.main.MainActivity
 import com.example.camera.utils.NetworkStatus
 import com.example.camera.utils.observe
 
-class SetupActivity : AppCompatActivity() {
+class SetupActivity : BaseActivity<ActivitySetupBinding, SetupViewModel>() {
 
     companion object {
         private const val PERMISSIONS_REQUEST_CODE = 10
@@ -27,26 +24,20 @@ class SetupActivity : AppCompatActivity() {
         fun createIntent() = Intent(CameraApp.appContext, SetupActivity::class.java)
     }
 
-    private lateinit var binding: ActivitySetupBinding
-    private lateinit var viewModel: SetupViewModel
     private val networkStatus: NetworkStatus by lazy { NetworkStatus(this) }
+
+    override fun provideLayoutId() = R.layout.activity_setup
+
+    override fun provideViewModelClass() = SetupViewModel::class.java
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setVariables()
         setObservers()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         networkStatus.dispose()
-    }
-
-    private fun setVariables() {
-        viewModel = ViewModelProvider(this).get(SetupViewModel::class.java)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_setup)
-        binding.lifecycleOwner = this
-        binding.vm = viewModel
     }
 
     private fun setObservers() {
@@ -82,8 +73,4 @@ class SetupActivity : AppCompatActivity() {
     }
 
     private fun proceedToCameraScreen() = startActivity(MainActivity.createIntent(viewModel.settings))
-
-    private fun showToast(@StringRes message: Int, duration: Int = Toast.LENGTH_SHORT) =
-        Toast.makeText(this, message, duration).show()
-
 }
