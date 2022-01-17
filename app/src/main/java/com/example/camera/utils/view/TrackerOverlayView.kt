@@ -69,7 +69,8 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
         drawText(text, x, y + height - 10, textPaint)
     }
 
-    fun setModelInputSize(outputSize: Size) {
+    fun setModelInputSize(outputSize: Size?) {
+        outputSize ?: return
         modelOutputToCanvasMatrix =
             ImageUtils.getTransformationMatrix(
                 outputSize.width, outputSize.height,

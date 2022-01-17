@@ -10,21 +10,18 @@ import android.view.Surface
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.databinding.ActivityMainBinding
-import com.example.camera.detection.ProcessingResult
-import com.example.camera.detection.Recognition
 import com.example.camera.presentation.main.info.SettingsInfoDialog
 import com.example.camera.presentation.main.info.toSettingsInfo
 import com.example.camera.processing.*
 import com.example.camera.utils.CameraUtils
 import com.example.camera.utils.OnSurfaceTextureAvailableListener
 import com.example.camera.utils.TAG
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
+import com.example.camera.utils.observe
 
 class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
@@ -36,9 +33,8 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
     }
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var imageProcessor: ImageProcessor
+    private lateinit var viewModel: MainViewModel
     private val detectionAdapter by lazy { DetectionAdapter(resources) }
-    private val compositeDisposable = CompositeDisposable()
     private val cameraThread = HandlerThread("Camera Thread").apply { start() }
     private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
     private val cameraUtils by lazy {
@@ -52,27 +48,37 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        setVariables()
+        setObservers()
+        setupViews()
         intent.getParcelableExtra<Settings>(EXTRA_SETTINGS)?.let { settings ->
-            initImageProcessor(settings)
-            setupViews(settings)
+            viewModel.initImageProcessor(settings)
         }
     }
 
-    private fun setupViews(settings: Settings) {
+    private fun setVariables() {
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding.lifecycleOwner = this
+        binding.vm = viewModel
+    }
+
+    private fun setObservers() {
+        observe(viewModel.action) {
+            when (it) {
+                MainViewModel.MainAction.SAVE_IMAGE -> saveImage()
+                MainViewModel.MainAction.SHOW_INFO_DIALOG -> showInfoDialog()
+                MainViewModel.MainAction.PROCESSING_FINISHED -> cameraUtils.onImageProcessed()
+            }
+        }
+    }
+
+    private fun setupViews() {
         binding.textureView.surfaceTextureListener =
             OnSurfaceTextureAvailableListener { cameraUtils.setup(windowManager.defaultDisplay.rotation) }
-        binding.fabCamera.setOnClickListener { saveImage() }
-        binding.imgInfo.setOnClickListener { SettingsInfoDialog(this, settings.toSettingsInfo()).show() }
         if (binding.recyclerDetections.adapter == null) {
             binding.recyclerDetections.adapter = detectionAdapter
         }
-    }
-
-    private fun initImageProcessor(settings: Settings) {
-        imageProcessor =
-            if (settings.localInference) LocalImageProcessor(this, settings)
-            else RemoteImageProcessor(settings)
     }
 
     override fun onStop() {
@@ -88,65 +94,31 @@ class MainActivity : AppCompatActivity(), CameraUtils.CameraEventListener {
         super.onDestroy()
         imageReaderThread.quitSafely()
         cameraThread.quitSafely()
-        compositeDisposable.dispose()
-        imageProcessor.dispose()
     }
 
     override fun onError(text: String) =
         Toast.makeText(this@MainActivity, text, LENGTH_SHORT).show()
 
-    override fun provideTextureViewSurface() =
-        Surface(binding.textureView.surfaceTexture)
+    override fun provideTextureViewSurface() = Surface(binding.textureView.surfaceTexture)
 
     override fun onPreviewSizeSelected(size: Size) {
         with(binding.textureView) {
             setAspectRatio(size.height, size.width)
             surfaceTexture?.setDefaultBufferSize(size.width, size.height)
             Log.d(TAG, "Texture View preview size after applying values: $width x $height")
-            binding.viewTracker.setModelInputSize(imageProcessor.selectedInputSize)
         }
     }
 
-    override fun onImageAvailable(bitmap: Bitmap, orientation: Int) {
-        imageProcessor.processImage(bitmap, orientation)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { result: ProcessingResult ->
-                    binding.viewTracker.setData(result.recognitions)
-                    displayResults(result.recognitions)
-                    displayNumbers(result)
-                    cameraUtils.onImageProcessed()
-                },
-                { throwable ->
-                    Log.e(TAG, throwable.message ?: throwable.toString())
-                    cameraUtils.onImageProcessed()
-                    if (throwable is SocketDisconnectedException) {
-                        binding.groupCards.isVisible = false
-                        binding.cardError.isVisible = true
-                    }
-                }
-            )
-            .also { compositeDisposable.add(it) }
-    }
+    override fun onImageAvailable(bitmap: Bitmap, orientation: Int) =
+        viewModel.onImageAvailable(bitmap, orientation)
+
+    private fun showInfoDialog() =
+        intent.getParcelableExtra<Settings>(EXTRA_SETTINGS)?.let { settings ->
+            SettingsInfoDialog(this, settings.toSettingsInfo()).show()
+        }
 
     private fun saveImage() {
         cameraUtils.saveImage()
         Toast.makeText(this, "Image saved.", LENGTH_SHORT).show()
-    }
-
-    private fun displayNumbers(result: ProcessingResult) {
-        binding.txtInferenceLast.text = result.lastRecognitionTimeString
-        binding.txtInferenceAverage.text = result.avgRecognitionTimeString
-        binding.txtImageSizeLast.text = result.lastImageSizeBytesString
-        binding.txtImageSizeAverage.text = result.avgImageSizeKbString
-    }
-
-    private fun displayResults(result: List<Recognition>) {
-        Log.d(TAG, result.toString())
-        detectionAdapter.setItems(result.map { it.toShortString() })
-        binding.groupCards.isVisible = true
-        binding.cardError.isVisible = false
-        binding.txtNoDetections.isVisible = result.isEmpty()
-        binding.txtDetectionsLabel.isVisible = result.isNotEmpty()
     }
 }

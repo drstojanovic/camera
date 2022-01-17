@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="vm"
+            type="com.example.camera.presentation.main.MainViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -20,15 +27,18 @@
             android:id="@+id/view_tracker"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            app:data="@{vm.recognitionsLive}"
             app:layout_constraintBottom_toBottomOf="@id/texture_view"
             app:layout_constraintEnd_toEndOf="@id/texture_view"
             app:layout_constraintStart_toStartOf="@id/texture_view"
-            app:layout_constraintTop_toTopOf="@id/texture_view" />
+            app:layout_constraintTop_toTopOf="@id/texture_view"
+            app:modelInputSize="@{vm.selectedImageSizeLive}" />
 
         <ImageView
             android:id="@+id/img_info"
             android:layout_width="48dp"
             android:layout_height="48dp"
+            android:onClick="@{() -> vm.onShowInfoSelected()}"
             android:padding="@dimen/margin_small"
             app:layout_constraintBottom_toBottomOf="@id/texture_view"
             app:layout_constraintEnd_toEndOf="@id/texture_view"
@@ -74,18 +84,21 @@
                         app:drawableStartCompat="@drawable/ic_detection"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:visibility="@{vm.hasDataLive}" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler_detections"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         app:hasFixedSize="@{true}"
+                        app:items="@{vm.recognitionLabelsLive}"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/txt_detections_label"
+                        app:visibility="@{vm.hasDataLive}"
                         tools:listitem="@layout/item_detection" />
 
                     <TextView
@@ -97,6 +110,7 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
+                        app:visibility="@{!vm.hasDataLive}"
                         tools:visibility="gone" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -146,6 +160,7 @@
                         android:id="@+id/txt_inference_last"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="@{vm.processingResultLive.lastRecognitionTimeString}"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="1"
                         app:layout_constraintStart_toEndOf="@id/txt_inference_last_label"
@@ -165,6 +180,7 @@
                         android:id="@+id/txt_inference_average"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="@{vm.processingResultLive.avgRecognitionTimeString}"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="1"
                         app:layout_constraintStart_toEndOf="@id/txt_inference_average_label"
@@ -216,6 +232,7 @@
                         android:id="@+id/txt_image_size_last"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="@{vm.processingResultLive.lastImageSizeKbString}"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="1"
                         app:layout_constraintStart_toEndOf="@id/txt_image_size_last_label"
@@ -235,6 +252,7 @@
                         android:id="@+id/txt_image_size_average"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="@{vm.processingResultLive.avgImageSizeKbString}"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="1"
                         app:layout_constraintStart_toEndOf="@id/txt_image_size_average_label"
@@ -254,6 +272,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:visibility="@{vm.showErrorLive}"
                 tools:visibility="gone">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -296,7 +315,8 @@
                 android:id="@+id/group_cards"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:constraint_referenced_ids="card_detections,card_inference,card_image_size" />
+                app:constraint_referenced_ids="card_detections,card_inference,card_image_size"
+                app:visibility="@{!vm.showErrorLive}" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -305,6 +325,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
+            android:onClick="@{() -> vm.onSaveImageClick()}"
             android:src="@drawable/ic_camera"
             android:visibility="gone"
             app:backgroundTint="@color/colorAccent"

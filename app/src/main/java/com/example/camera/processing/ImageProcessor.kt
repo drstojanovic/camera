@@ -11,7 +11,6 @@ const val TAG = "ImageProcessor"
 
 abstract class ImageProcessor(protected val settings: Settings) {
 
-    val selectedInputSize get() = settings.imageSize
     private var sampleCount = 0
     private var avgImageSize = 0f
     private var avgRecognitionTime = 0f

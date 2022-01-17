@@ -64,6 +64,7 @@ CODE IMPROVEMENTS:
 TODO:
 - app icon
 - create MainViewModel
+- base activity
 - fix freezing when minimizing and opening recent apps and back to app
 - Remote processing:
     - internet check before start
