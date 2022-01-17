@@ -63,9 +63,6 @@ CODE IMPROVEMENTS:
 
 TODO:
 - app icon
-- create MainViewModel
-- base activity
-- empty address and port handling
 - fix freezing when minimizing and opening recent apps and back to app
 - increase number of detections to 20?
 - Remote processing:

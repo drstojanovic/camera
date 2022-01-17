@@ -2,10 +2,12 @@ package com.example.camera.presentation.setup
 
 import android.util.Log
 import android.util.Size
+import androidx.annotation.StringRes
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.example.camera.R
 import com.example.camera.presentation.base.BaseViewModel
 import com.example.camera.processing.Settings
 import com.example.camera.repository.SettingsRepository
@@ -13,9 +15,9 @@ import com.example.camera.utils.TAG
 
 class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
 
-    enum class SetupAction {
-        PROCEED,
-        NO_INTERNET
+    sealed class SetupAction {
+        object Proceed : SetupAction()
+        class Error(@StringRes val message: Int) : SetupAction()
     }
 
     private val settingsRepository = SettingsRepository()
@@ -101,22 +103,38 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     }
 
     fun onProceedClick() {
-        if (!settings.localInference && _isNetworkAvailableLive.value == false) {
-            setAction(SetupAction.NO_INTERNET)
-            return
-        }
+        if (!checkSetupValidity()) return
 
         if (settings == settingsLive.value) {
-            setAction(SetupAction.PROCEED)
-            return
+            setAction(SetupAction.Proceed)
+        } else {
+            settingsRepository.storeSettings(settings)
+                .subscribe(
+                    onComplete = { setAction(SetupAction.Proceed) },
+                    onError = {
+                        Log.e(TAG, it.message ?: it.toString())
+                    })
         }
+    }
 
-        settingsRepository.storeSettings(settings)
-            .subscribe(
-                onComplete = { setAction(SetupAction.PROCEED) },
-                onError = {
-                    Log.e(TAG, it.message ?: it.toString())
-                })
+    private fun checkSetupValidity(): Boolean {
+        if (!settings.localInference) {
+            when {
+                _isNetworkAvailableLive.value == false -> {
+                    setAction(SetupAction.Error(R.string.setup_error_no_internet_connection))
+                    return false
+                }
+                settings.serverIpAddress.isNullOrEmpty() -> {
+                    setAction(SetupAction.Error(R.string.setup_error_no_server_address))
+                    return false
+                }
+                settings.serverPort.isNullOrEmpty() -> {
+                    setAction(SetupAction.Error(R.string.setup_error_no_server_port))
+                    return false
+                }
+            }
+        }
+        return true
     }
 
     fun onNetworkStatusChange(isAvailable: Boolean) =

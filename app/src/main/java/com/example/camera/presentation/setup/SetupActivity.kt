@@ -44,8 +44,8 @@ class SetupActivity : BaseActivity<ActivitySetupBinding, SetupViewModel>() {
         observe(networkStatus.asLiveData()) { viewModel.onNetworkStatusChange(it) }
         observe(viewModel.action) { action ->
             when (action) {
-                SetupViewModel.SetupAction.PROCEED -> checkPermissionsAndProceed()
-                SetupViewModel.SetupAction.NO_INTERNET -> showToast(R.string.setup_error_no_internet_connection)
+                SetupViewModel.SetupAction.Proceed -> checkPermissionsAndProceed()
+                is SetupViewModel.SetupAction.Error -> showToast(action.message)
             }
         }
     }

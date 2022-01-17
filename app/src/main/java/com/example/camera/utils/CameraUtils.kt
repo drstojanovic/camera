@@ -90,17 +90,18 @@ class CameraUtils(
 
             override fun onError(camera: CameraDevice, error: Int) {
                 camera.close()
-                val msg = when (error) {
+                when (error) {
                     ERROR_CAMERA_DEVICE -> "Fatal (device)"
                     ERROR_CAMERA_DISABLED -> "Device policy"
                     ERROR_CAMERA_IN_USE -> "Camera in use"
                     ERROR_CAMERA_SERVICE -> "Fatal (service)"
                     ERROR_MAX_CAMERAS_IN_USE -> "Maximum cameras in use"
                     else -> "Unknown"
-                }
-                "Camera $cameraId error: ($error) $msg".let { message ->
-                    Log.e(TAG, message, RuntimeException(message))
-                    cameraHost.onError(message)
+                }.let { reason ->
+                    "Camera $cameraId error: ($error) $reason".let { message ->
+                        Log.e(TAG, message, RuntimeException(message))
+                        cameraHost.onError(message)
+                    }
                 }
             }
         }, cameraHandler)
