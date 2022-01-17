@@ -9,7 +9,7 @@ import kotlin.math.abs
 
 const val TAG = "ImageProcessor"
 
-abstract class ImageProcessor(protected val settings: Settings) {
+abstract class ImageProcessor(val settings: Settings) {
 
     private var sampleCount = 0
     private var avgImageSize = 0f

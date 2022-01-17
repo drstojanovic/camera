@@ -11,8 +11,9 @@ import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.databinding.ActivityMainBinding
 import com.example.camera.presentation.base.BaseActivity
+import com.example.camera.presentation.main.MainViewModel.MainAction
+import com.example.camera.presentation.main.info.SettingsInfo
 import com.example.camera.presentation.main.info.SettingsInfoDialog
-import com.example.camera.presentation.main.info.toSettingsInfo
 import com.example.camera.processing.Settings
 import com.example.camera.utils.CameraUtils
 import com.example.camera.utils.OnSurfaceTextureAvailableListener
@@ -48,9 +49,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
     private fun setObservers() =
         observe(viewModel.action) {
             when (it) {
-                MainViewModel.MainAction.SAVE_IMAGE -> saveImage()
-                MainViewModel.MainAction.SHOW_INFO_DIALOG -> showInfoDialog()
-                MainViewModel.MainAction.PROCESSING_FINISHED -> cameraUtils.onImageProcessed()
+                MainAction.SaveImage -> saveImage()
+                MainAction.ProcessingFinished -> cameraUtils.onImageProcessed()
+                is MainAction.ShowInfoDialog -> showInfoDialog(it.settingsInfo)
             }
         }
 
@@ -91,10 +92,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
     override fun onImageAvailable(bitmap: Bitmap, orientation: Int) =
         viewModel.onImageAvailable(bitmap, orientation)
 
-    private fun showInfoDialog() =
-        intent.getParcelableExtra<Settings>(EXTRA_SETTINGS)?.let { settings ->
-            SettingsInfoDialog(this, settings.toSettingsInfo()).show()
-        }
+    private fun showInfoDialog(settingsInfo: SettingsInfo) =
+        SettingsInfoDialog(this, settingsInfo).show()
 
     private fun saveImage() {
         cameraUtils.saveImage()

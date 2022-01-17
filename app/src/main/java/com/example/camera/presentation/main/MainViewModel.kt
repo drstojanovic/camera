@@ -11,15 +11,17 @@ import com.example.camera.detection.ProcessingResult
 import com.example.camera.detection.Recognition
 import com.example.camera.presentation.base.BaseViewModel
 import com.example.camera.presentation.base.SingleLiveEvent
+import com.example.camera.presentation.main.info.SettingsInfo
+import com.example.camera.presentation.main.info.toSettingsInfo
 import com.example.camera.processing.*
 import com.example.camera.utils.TAG
 
 class MainViewModel : BaseViewModel<MainViewModel.MainAction>() {
 
-    enum class MainAction {
-        SAVE_IMAGE,
-        SHOW_INFO_DIALOG,
-        PROCESSING_FINISHED
+    sealed class MainAction {
+        object SaveImage : MainAction()
+        object ProcessingFinished : MainAction()
+        class ShowInfoDialog(val settingsInfo: SettingsInfo) : MainAction()
     }
 
     private lateinit var imageProcessor: ImageProcessor
@@ -50,22 +52,22 @@ class MainViewModel : BaseViewModel<MainViewModel.MainAction>() {
                 onSuccess = { result: ProcessingResult ->
                     _recognitionsLive.postValue(result.recognitions)
                     _processingResultLive.postValue(result)
-                    setAction(MainAction.PROCESSING_FINISHED)
+                    setAction(MainAction.ProcessingFinished)
                     _showErrorLive.postValue(false)
                 },
                 onError = { throwable ->
                     Log.e(TAG, throwable.message ?: throwable.toString())
-                    setAction(MainAction.PROCESSING_FINISHED)
+                    setAction(MainAction.ProcessingFinished)
                     _showErrorLive.postValue(throwable is SocketDisconnectedException)
                 }
             )
     }
 
     fun onSaveImageClick() =
-        setAction(MainAction.SAVE_IMAGE)
+        setAction(MainAction.SaveImage)
 
     fun onShowInfoSelected() =
-        setAction(MainAction.SHOW_INFO_DIALOG)
+        setAction(MainAction.ShowInfoDialog(imageProcessor.settings.toSettingsInfo()))
 
     override fun onCleared() {
         super.onCleared()
