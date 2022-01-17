@@ -1,10 +1,9 @@
 package com.example.camera.presentation.main
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
 import android.util.Log
 import android.util.Size
 import android.view.Surface
@@ -30,16 +29,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
     }
 
     private val detectionAdapter by lazy { DetectionAdapter(resources) }
-    private val cameraThread = HandlerThread("Camera Thread").apply { start() }
-    private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
-    private val cameraUtils by lazy {
-        CameraUtils(
-            applicationContext = applicationContext,
-            cameraHandler = Handler(cameraThread.looper),
-            imageReaderHandler = Handler(imageReaderThread.looper),
-            cameraHost = this
-        )
-    }
+    private val cameraUtils by lazy { CameraUtils(this) }
+    override val cameraContext: Context get() = this
 
     override fun provideLayoutId() = R.layout.activity_main
 
@@ -54,7 +45,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
         }
     }
 
-    private fun setObservers() {
+    private fun setObservers() =
         observe(viewModel.action) {
             when (it) {
                 MainViewModel.MainAction.SAVE_IMAGE -> saveImage()
@@ -62,7 +53,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
                 MainViewModel.MainAction.PROCESSING_FINISHED -> cameraUtils.onImageProcessed()
             }
         }
-    }
 
     private fun setupViews() {
         binding.textureView.surfaceTextureListener =
@@ -83,8 +73,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
 
     override fun onDestroy() {
         super.onDestroy()
-        imageReaderThread.quitSafely()
-        cameraThread.quitSafely()
+        cameraUtils.dispose()
     }
 
     override fun onError(text: String) = showToast(text)

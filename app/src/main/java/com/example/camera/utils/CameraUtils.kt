@@ -8,6 +8,7 @@ import android.hardware.camera2.*
 import android.media.Image
 import android.media.ImageReader
 import android.os.Handler
+import android.os.HandlerThread
 import android.text.TextUtils
 import android.util.Log
 import android.util.Size
@@ -20,20 +21,26 @@ private val DESIRED_PREVIEW_SIZE = Size(640, 480)
 private const val MINIMAL_VALID_PREVIEW_SIZE = 320  // empiric value
 
 class CameraUtils(
-    private val applicationContext: Context,
-    private val cameraHandler: Handler,
-    private val imageReaderHandler: Handler,
     private val cameraHost: CameraEventListener
 ) : ImageReader.OnImageAvailableListener {
 
-    private var orientation: Int = 270
     private lateinit var previewSize: Size
     private lateinit var camera: CameraDevice
     private lateinit var imageReader: ImageReader
+    private var orientation: Int = 270
     private var isProcessing = false
     private var bitmap: Bitmap? = null
+    private val cameraThread = HandlerThread("Camera Thread").apply { start() }
+    private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
+    private val cameraHandler = Handler(cameraThread.looper)
+    private val imageReaderHandler = Handler(imageReaderThread.looper)
     private val cameraManager: CameraManager
-            by lazy { applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager }
+            by lazy { cameraHost.cameraContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager }
+
+    fun dispose() {
+        imageReaderThread.quitSafely()
+        cameraThread.quitSafely()
+    }
 
     fun stopPreview() {
         cameraHandler.removeCallbacksAndMessages(null)
@@ -42,7 +49,7 @@ class CameraUtils(
     }
 
     fun saveImage() {
-        ImageUtils.saveBitmap(applicationContext, bitmap, -orientation)
+        ImageUtils.saveBitmap(cameraHost.cameraContext, bitmap, -orientation)
     }
 
     fun onImageProcessed() {
@@ -177,6 +184,7 @@ class CameraUtils(
     }
 
     interface CameraEventListener {
+        val cameraContext: Context
         fun onPreviewSizeSelected(size: Size)
         fun onError(text: String)
         fun onImageAvailable(bitmap: Bitmap, orientation: Int)

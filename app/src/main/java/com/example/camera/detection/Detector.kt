@@ -24,13 +24,9 @@ class Detector(
     private var optionsBuilder: ObjectDetector.ObjectDetectorOptions.Builder = getDetectorOptions()
     private var objectDetector: ObjectDetector = initDetector()
 
-    override fun recognizeImage(bitmap: Bitmap): List<Recognition> {
-        val startTime = System.currentTimeMillis()
-        Log.d("OD - loading time:", (System.currentTimeMillis() - startTime).toString())
-        val result = objectDetector.detect(TensorImage.fromBitmap(bitmap))
-        Log.d("OD - inference time:", (System.currentTimeMillis() - startTime).toString())
-        return result.mapIndexed { index, detection -> detection.toRecognition(index) }
-    }
+    override fun recognizeImage(bitmap: Bitmap): List<Recognition> =
+        objectDetector.detect(TensorImage.fromBitmap(bitmap))
+            .mapIndexed { index, detection -> detection.toRecognition(index) }
 
     override fun setNumberOfThreads(numberOfThreads: Int) {
         optionsBuilder.setBaseOptions(BaseOptions.builder().setNumThreads(numberOfThreads).build())
