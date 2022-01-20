@@ -2,7 +2,7 @@ package com.example.camera.detection
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.Log
+import com.example.camera.utils.DEFAULTS_MAX_DETECTIONS
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.task.core.BaseOptions
@@ -15,10 +15,6 @@ class Detector(
     private val scoreThreshold: Float,
     private val numberOfThreads: Int = 4
 ) : IDetector {
-
-    companion object {
-        private const val NUMBER_OF_DETECTIONS = 10
-    }
 
     private var modelBuffer: MappedByteBuffer = FileUtil.loadMappedFile(context, modelFileName)
     private var optionsBuilder: ObjectDetector.ObjectDetectorOptions.Builder = getDetectorOptions()
@@ -43,5 +39,5 @@ class Detector(
     private fun getDetectorOptions() = ObjectDetector.ObjectDetectorOptions.builder()
         .setScoreThreshold(scoreThreshold)
         .setBaseOptions(BaseOptions.builder().setNumThreads(numberOfThreads).build())
-        .setMaxResults(NUMBER_OF_DETECTIONS)
+        .setMaxResults(DEFAULTS_MAX_DETECTIONS)
 }

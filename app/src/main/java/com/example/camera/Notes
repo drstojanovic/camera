@@ -61,12 +61,3 @@ CODE IMPROVEMENTS:
 - TrackerOverlayView/cornerSize, why depends on width and height?
 - LocalImageProcessor, add option to completely disable the compression process; compare speed with and without compression
 
-TODO:
-- app icon
-- fix freezing when minimizing and opening recent apps and back to app
-- increase number of detections to 20?
-- Remote processing:
-    - internet check before start
-    - slow-internet (warning message)
-    - error handling (show toast)
-    - reconnect option
