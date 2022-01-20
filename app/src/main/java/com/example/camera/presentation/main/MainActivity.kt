@@ -63,20 +63,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        try {
-            cameraUtils.stopPreview()
-        } catch (exc: Throwable) {
-            Log.e(TAG, "Error while closing camera: " + exc.message)
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        cameraUtils.dispose()
-    }
-
     override fun onError(text: String) = showToast(text)
 
     override fun provideTextureViewSurface() = Surface(binding.textureView.surfaceTexture)

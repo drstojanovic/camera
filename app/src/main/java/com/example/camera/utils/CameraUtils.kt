@@ -14,6 +14,8 @@ import android.util.Log
 import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import kotlin.math.max
 import kotlin.math.min
 
@@ -22,7 +24,7 @@ private const val MINIMAL_VALID_PREVIEW_SIZE = 320  // empiric value
 
 class CameraUtils(
     private val cameraHost: CameraEventListener
-) : ImageReader.OnImageAvailableListener {
+) : ImageReader.OnImageAvailableListener, DefaultLifecycleObserver {
 
     private lateinit var previewSize: Size
     private lateinit var camera: CameraDevice
@@ -30,31 +32,37 @@ class CameraUtils(
     private var orientation: Int = 270
     private var isProcessing = false
     private var bitmap: Bitmap? = null
-    private val cameraThread = HandlerThread("Camera Thread").apply { start() }
-    private val imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
-    private val cameraHandler = Handler(cameraThread.looper)
-    private val imageReaderHandler = Handler(imageReaderThread.looper)
+    private var selectedCameraId: String? = null
+    private var cameraThread: HandlerThread? = null
+    private var cameraHandler: Handler? = null
+    private var imageReaderThread: HandlerThread? = null
+    private var imageReaderHandler: Handler? = null
     private val cameraManager: CameraManager
             by lazy { cameraHost.cameraContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager }
 
-    fun dispose() {
-        imageReaderThread.quitSafely()
-        cameraThread.quitSafely()
+    init {
+        initBackgroundThreads()
+        (cameraHost as LifecycleOwner).lifecycle.addObserver(this)
     }
 
-    fun stopPreview() {
-        cameraHandler.removeCallbacksAndMessages(null)
-        imageReaderHandler.removeCallbacksAndMessages(null)
+    override fun onResume(owner: LifecycleOwner) {
+        if (cameraThread == null || cameraThread?.isAlive == false) {
+            initBackgroundThreads()
+            selectedCameraId?.let { openCamera(it) }
+        }
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
         camera.close()
-    }
-
-    fun saveImage() {
-        ImageUtils.saveBitmap(cameraHost.cameraContext, bitmap, -orientation)
+        destroyBackgroundThreads()
     }
 
     fun onImageProcessed() {
         isProcessing = false
     }
+
+    fun saveImage() =
+        ImageUtils.saveBitmap(cameraHost.cameraContext, bitmap, -orientation)
 
     fun setup(defaultDisplayOrientation: Int) =
         setupCamera(defaultDisplayOrientation)
@@ -66,6 +74,7 @@ class CameraUtils(
             return
         }
 
+        selectedCameraId = cameraId
         orientation = defaultDisplayOrientation - getSensorOrientation(cameraId)
         Log.d(TAG, "Orientation: $orientation")
         previewSize = getSmallestValidOutputSize(cameraId)
@@ -182,6 +191,31 @@ class CameraUtils(
             .sortedBy { it.width * it.height }
             .also { Log.i(TAG, TextUtils.join("\n", it)) }
             .first()
+    }
+
+    private fun initBackgroundThreads() {
+        cameraThread = HandlerThread("Camera Thread").apply { start() }
+        cameraHandler = Handler(cameraThread!!.looper)
+        imageReaderThread = HandlerThread("ImageReader Thread").apply { start() }
+        imageReaderHandler = Handler(imageReaderThread!!.looper)
+    }
+
+    private fun destroyBackgroundThreads() {
+        try {
+            cameraHandler?.removeCallbacksAndMessages(null)
+            cameraHandler = null
+            cameraThread?.quitSafely()
+            cameraThread?.join()
+            cameraThread = null
+
+            imageReaderHandler?.removeCallbacksAndMessages(null)
+            imageReaderHandler = null
+            imageReaderThread?.quitSafely()
+            imageReaderThread?.join()
+            imageReaderThread = null
+        } catch (e: InterruptedException) {
+            Log.e(TAG, "Error while stopping background thread: ${e.stackTrace}")
+        }
     }
 
     interface CameraEventListener {
