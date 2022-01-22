@@ -49,9 +49,11 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
         observe(viewModel.action) {
             when (it) {
                 MainAction.SaveImage -> saveImage()
-                MainAction.ProcessingFinished -> cameraUtils.onImageProcessed()
-                MainAction.ProcessingProblem -> showToast(R.string.detection_error_bad_connection)
                 is MainAction.ShowInfoDialog -> showInfoDialog(it.settingsInfo)
+                is MainAction.ProcessingFinished -> {
+                    cameraUtils.onImageProcessed()
+                    it.error?.let { errorMsg -> showToast(errorMsg) }
+                }
             }
         }
     }

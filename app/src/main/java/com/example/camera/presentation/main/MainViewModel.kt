@@ -22,8 +22,7 @@ class MainViewModel : BaseViewModel<MainViewModel.MainAction>() {
 
     sealed class MainAction {
         object SaveImage : MainAction()
-        object ProcessingFinished : MainAction()
-        object ProcessingProblem : MainAction()
+        class ProcessingFinished(val error: Int? = null) : MainAction()
         class ShowInfoDialog(val settingsInfo: SettingsInfo) : MainAction()
     }
 
@@ -56,12 +55,11 @@ class MainViewModel : BaseViewModel<MainViewModel.MainAction>() {
                 onSuccess = { result: ProcessingResult ->
                     _recognitionsLive.postValue(result.recognitions)
                     _processingResultLive.postValue(result)
-                    setAction(MainAction.ProcessingFinished)
+                    setAction(MainAction.ProcessingFinished())
                     _errorLive.postValue(null)
                 },
                 onError = { throwable ->
                     Log.e(TAG, throwable.message ?: throwable.toString())
-                    setAction(MainAction.ProcessingFinished)
                     handleProcessingError(throwable)
                 }
             )
@@ -78,7 +76,7 @@ class MainViewModel : BaseViewModel<MainViewModel.MainAction>() {
         if (!hasNetwork) {
             _recognitionsLive.postValue(listOf())
             _errorLive.postValue(R.string.setup_error_no_internet_connection)
-            setAction(MainAction.ProcessingFinished)
+            setAction(MainAction.ProcessingFinished())
         } else {
             _errorLive.postValue(null)
         }
@@ -90,11 +88,13 @@ class MainViewModel : BaseViewModel<MainViewModel.MainAction>() {
     }
 
     private fun handleProcessingError(throwable: Throwable) {
-        if (hasNetwork) {
-            when (throwable) {
-                is SocketDisconnectedException -> _errorLive.postValue(R.string.detection_error_unable_to_connect)
-                is TimeoutException -> setAction(MainAction.ProcessingProblem)
-            }
+        if (hasNetwork && throwable is TimeoutException) {
+            setAction(MainAction.ProcessingFinished(R.string.detection_error_bad_connection))
+        } else if (hasNetwork && throwable is SocketDisconnectedException) {
+            _errorLive.postValue(R.string.detection_error_unable_to_connect)
+            setAction(MainAction.ProcessingFinished())
+        } else {
+            setAction(MainAction.ProcessingFinished())
         }
     }
 }
