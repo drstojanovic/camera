@@ -17,7 +17,8 @@ class NetworkStatus(context: Context) : ConnectivityManager.NetworkCallback() {
         connectivityManager.registerNetworkCallback(
             NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), this
         )
-        return _networkAvailableLive.apply { postValue(false) }
+        _networkAvailableLive.postValue(false)  // doesn't receive no-internet event on start
+        return _networkAvailableLive
     }
 
     fun dispose() = connectivityManager.unregisterNetworkCallback(this)

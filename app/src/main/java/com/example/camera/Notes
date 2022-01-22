@@ -48,16 +48,26 @@ FLOW
    - calculate average recognition time
    - calculate average image size
 
+Remote image processor
+- connect to server socket with given address, port and required settings
+- before each request, check if socket is still connected (otherwise throw SocketDisconnectedException)
+- server will trigger Acknowledge block with result when processing is done
+- set request timeout (5s) because Acknowledge would not be triggered if there is a problem with connection
+- Error handling:
+    - do not allow user to start detection without address and port number
+    - if server is not running or user inserted wrong address or port, show server error
+    - do not allow user to start detection without internet connection
+    - if in the middle of detection process internet connection breaks, show internet error and try to reconnect
+    - if timeout exception occurs frame processing needs to be dropped:
+        1) if there is no internet, show No-Internet error
+        2) if there is internet connection, it's probably bad, so show Slow-Internet warning
+
 CAMERA IMPROVEMENTS:
 - auto focus and brightness
-- locking the phone and restarting the app
-- start/stop threads in onResume/onPause callbacks
 - check postInferenceCallback solution for isProcessing = false flag
 
 CODE IMPROVEMENTS:
 - use dependency injection framework
     - how to dynamically inject ImageProcessor?
-- create MainViewModel
 - TrackerOverlayView/cornerSize, why depends on width and height?
-- LocalImageProcessor, add option to completely disable the compression process; compare speed with and without compression
 

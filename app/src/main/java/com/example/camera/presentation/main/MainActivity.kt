@@ -15,10 +15,7 @@ import com.example.camera.presentation.main.MainViewModel.MainAction
 import com.example.camera.presentation.main.info.SettingsInfo
 import com.example.camera.presentation.main.info.SettingsInfoDialog
 import com.example.camera.processing.Settings
-import com.example.camera.utils.CameraUtils
-import com.example.camera.utils.OnSurfaceTextureAvailableListener
-import com.example.camera.utils.TAG
-import com.example.camera.utils.observe
+import com.example.camera.utils.*
 
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraUtils.CameraEventListener {
 
@@ -31,6 +28,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
 
     private val detectionAdapter by lazy { DetectionAdapter(resources) }
     private val cameraUtils by lazy { CameraUtils(this) }
+    private val networkStatus: NetworkStatus by lazy { NetworkStatus(this) }
     override val cameraContext: Context get() = this
 
     override fun provideLayoutId() = R.layout.activity_main
@@ -46,14 +44,17 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
         }
     }
 
-    private fun setObservers() =
+    private fun setObservers() {
+        observe(networkStatus.asLiveData()) { viewModel.onNetworkStatusChange(it) }
         observe(viewModel.action) {
             when (it) {
                 MainAction.SaveImage -> saveImage()
                 MainAction.ProcessingFinished -> cameraUtils.onImageProcessed()
+                MainAction.ProcessingProblem -> showToast(R.string.detection_error_bad_connection)
                 is MainAction.ShowInfoDialog -> showInfoDialog(it.settingsInfo)
             }
         }
+    }
 
     private fun setupViews() {
         binding.textureView.surfaceTextureListener =

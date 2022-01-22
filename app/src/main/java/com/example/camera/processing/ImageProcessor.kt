@@ -8,6 +8,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlin.math.abs
 
 const val TAG = "ImageProcessor"
+const val MAX_PROCESSING_TIME_SECONDS = 5L
 
 abstract class ImageProcessor(val settings: Settings) {
 

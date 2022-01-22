@@ -18,6 +18,7 @@ import io.socket.client.Ack
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.engineio.client.transports.WebSocket
+import java.util.concurrent.TimeUnit
 
 /**
  * https://socketio.github.io/socket.io-client-java
@@ -65,7 +66,7 @@ class RemoteImageProcessor(
         val byteArray = image.getByteArray(settings.imageQuality)
         val processingStart = System.currentTimeMillis()
 
-        return Single.create { emitter ->
+        return Single.create<ProcessingResult> { emitter ->
             socket.emit(EVENT_IMAGE, Base64.encode(byteArray, Base64.NO_WRAP), Ack { result ->
                 if (result.isNotEmpty() && result[0] != "") {
                     recognitionAdapter.fromJson(result[0].toString())?.let { recs ->
@@ -80,6 +81,6 @@ class RemoteImageProcessor(
                     )
                 )
             })
-        }
+        }.timeout(MAX_PROCESSING_TIME_SECONDS, TimeUnit.SECONDS)
     }
 }

@@ -18,6 +18,11 @@ fun View.bindVisibility(isVisible: Boolean) {
     this.isVisible = isVisible
 }
 
+@BindingAdapter("android:text")
+fun TextView.bindNullableStringResource(resource: Int?) {
+    resource?.let { setText(it) } ?: run { text = "" }
+}
+
 @BindingAdapter("onTextChange")
 fun EditText.bindTextChangeListener(textChangeListener: StringActionListener?) {
     doOnTextChanged { text, _, _, _ -> textChangeListener?.onAction(text?.toString() ?: "") }
