@@ -1,6 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorPrimary">#607D8B</color>
+    <color name="colorPrimaryDark">#455A64</color>
+    <color name="colorAccent">#FBC02D</color>
+    <color name="white">#FFF</color>
+    <color name="black">#000</color>
+    <color name="colorAccentLight">#A1FFECB3</color>
+    <color name="colorGrayLabel">#3f4141</color>
+    <color name="grayLight">#bfbebc</color>
+
+    <color name="colorBoxRed">#F44336</color>
+    <color name="colorBoxGreen">#4CAF50</color>
+    <color name="colorBoxBlue">#2196F3</color>
+    <color name="colorBoxTeal">#009688</color>
+    <color name="colorBoxCyan">#00BCD4</color>
+    <color name="colorBoxPurple">#9C27B0</color>
+    <color name="colorBoxDeepPurple">#673AB7</color>
+    <color name="colorBoxLightGreen">#8BC34A</color>
+    <color name="colorBoxOrange">#FF9800</color>
+    <color name="colorDeepOrange">#FF5722</color>
+    <color name="colorBoxPink">#E91E63</color>
+    <color name="colorBoxPurpleLight">#6262FD</color>
+
+    <array name="bbox_colors">
+        <item>@color/colorBoxRed</item>
+        <item>@color/colorBoxGreen</item>
+        <item>@color/colorBoxBlue</item>
+        <item>@color/colorBoxTeal</item>
+        <item>@color/colorBoxCyan</item>
+        <item>@color/colorBoxPurple</item>
+        <item>@color/colorBoxDeepPurple</item>
+        <item>@color/colorBoxLightGreen</item>
+        <item>@color/colorBoxOrange</item>
+        <item>@color/colorBoxPink</item>
+        <item>@color/colorBoxPurpleLight</item>
+        <item>@color/colorDeepOrange</item>
+    </array>
+
 </resources>

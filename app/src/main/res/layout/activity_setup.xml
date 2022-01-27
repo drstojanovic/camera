@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.example.camera.presentation.setup.SetupViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/traffic">
+
+        <TextView
+            android:id="@+id/txt_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:fontFamily="@font/comfortaa"
+            android:text="@string/app_name"
+            android:textColor="@color/white"
+            android:textSize="36sp"
+            android:transitionName="@string/transition_name_logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_medium"
+            app:cardBackgroundColor="#71FFFFFF"
+            app:cardCornerRadius="8dp"
+            app:layout_constraintBottom_toTopOf="@id/btn_proceed"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txt_logo">
+
+            <ScrollView
+                android:id="@+id/scroll_card"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/margin_half"
+                    app:layout_constraintTop_toBottomOf="@id/txt_logo">
+
+                    <TextView
+                        android:id="@+id/txt_resolution"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:text="@string/setup_image_resolution"
+                        android:textColor="@color/colorGrayLabel"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Spinner
+                        android:id="@+id/spinner_resolution"
+                        style="@style/ValueComponentStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:items="@{vm.resolutionsLabels}"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/txt_resolution"
+                        app:onItemSelected="@{(position) -> vm.onResolutionSelected(position)}"
+                        app:selectedIndex="@{vm.resolutionIndexLive}"
+                        tools:listitem="@android:layout/simple_spinner_item" />
+
+                    <com.example.camera.utils.view.SeekBarCompositeView
+                        android:id="@+id/seek_max_detections"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_default"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/txt_resolution"
+                        app:maxValue="@integer/detection_limit_max"
+                        app:minValue="@integer/detection_limit_min"
+                        app:progress="@{vm.settingsLive.maxDetections}"
+                        app:progressListener="@{(progress) -> vm.onMaxDetectionLimitChange(progress)}"
+                        app:stepSize="@integer/detection_step_size"
+                        app:text="@string/setup_max_detections" />
+
+                    <com.example.camera.utils.view.SeekBarCompositeView
+                        android:id="@+id/seek_confidence_threshold"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_medium"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/seek_max_detections"
+                        app:maxValue="@integer/confidence_limit_max"
+                        app:minValue="@integer/confidence_limit_min"
+                        app:progress="@{vm.settingsLive.confidenceThreshold}"
+                        app:progressListener="@{(progress) -> vm.onConfidenceThresholdChange(progress)}"
+                        app:stepSize="@integer/confidence_step_size"
+                        app:text="@string/setup_confidence_threshold" />
+
+                    <com.example.camera.utils.view.SeekBarCompositeView
+                        android:id="@+id/seek_image_quality"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_medium"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/seek_confidence_threshold"
+                        app:maxValue="@integer/image_quality_max"
+                        app:minValue="@integer/image_quality_min"
+                        app:progress="@{vm.settingsLive.imageQuality}"
+                        app:progressListener="@{(progress) -> vm.onImageQualityChange(progress)}"
+                        app:stepSize="@integer/image_quality_step_size"
+                        app:text="@string/setup_image_quality" />
+
+                    <TextView
+                        android:id="@+id/txt_inference_type"
+                        style="@style/TextLabelStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_medium"
+                        android:text="@string/setup_inference_type"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/seek_image_quality" />
+
+                    <TextView
+                        android:id="@+id/txt_inference_local"
+                        style="@style/SwitchButtonStyle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_half"
+                        android:layout_marginEnd="8dp"
+                        android:onClick="@{() -> vm.onLocalInferenceSelected()}"
+                        android:text="@string/setup_inference_local"
+                        android:textAlignment="center"
+                        app:layout_constraintEnd_toStartOf="@id/txt_inference_remote"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/txt_inference_type"
+                        app:selected="@{vm.isLocalInferenceLive}" />
+
+                    <TextView
+                        android:id="@+id/txt_inference_remote"
+                        style="@style/SwitchButtonStyle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:onClick="@{() -> vm.onRemoteInferenceSelected()}"
+                        android:text="@string/setup_inference_remote"
+                        android:textAlignment="center"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/txt_inference_local"
+                        app:layout_constraintTop_toTopOf="@id/txt_inference_local"
+                        app:selected="@{!vm.isLocalInferenceLive}" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/text_input_ip_address"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_medium"
+                        android:layout_marginEnd="@dimen/margin_default"
+                        android:theme="@style/TextInputLayoutAppearance"
+                        app:layout_constraintEnd_toStartOf="@id/text_input_port"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/txt_inference_remote"
+                        app:visibility="@{!vm.isLocalInferenceLive}">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="0,1,2,3,4,5,6,7,8,9,."
+                            android:hint="@string/setup_server_address"
+                            android:imeOptions="actionNext"
+                            android:importantForAutofill="no"
+                            android:inputType="number"
+                            android:maxLength="15"
+                            android:text="@{vm.settingsLive.serverIpAddress}"
+                            app:onTextChange="@{(text) -> vm.onIpAddressChange(text)}" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/text_input_port"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:theme="@style/TextInputLayoutAppearance"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/text_input_ip_address"
+                        app:layout_constraintTop_toTopOf="@id/text_input_ip_address"
+                        app:visibility="@{!vm.isLocalInferenceLive}">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:digits="0,1,2,3,4,5,6,7,8,9,."
+                            android:hint="@string/setup_server_port"
+                            android:imeOptions="actionDone"
+                            android:importantForAutofill="no"
+                            android:inputType="number"
+                            android:maxLength="5"
+                            android:text="@{vm.settingsLive.serverPort}"
+                            app:onTextChange="@{(text) -> vm.onPortChange(text)}" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/txt_no_internet_warning"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:text="@string/setup_error_no_internet_connection"
+                        android:textColor="@color/colorBoxRed"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/text_input_ip_address"
+                        app:visibility="@{vm.showNetworkWarningLive}" />
+
+                    <com.example.camera.utils.view.SeekBarCompositeView
+                        android:id="@+id/seek_thread_number"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_medium"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/txt_inference_local"
+                        app:maxValue="@integer/threads_limit_max"
+                        app:minValue="@integer/threads_limit_min"
+                        app:progress="@{vm.settingsLive.threadCount}"
+                        app:progressListener="@{(progress) -> vm.onThreadCountChange(progress)}"
+                        app:stepSize="@integer/threads_step_size"
+                        app:text="@string/setup_number_of_threads"
+                        app:visibility="@{vm.isLocalInferenceLive}" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </ScrollView>
+
+        </androidx.cardview.widget.CardView>
+
+        <Button
+            android:id="@+id/btn_proceed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:background="@drawable/bg_button_primary"
+            android:onClick="@{() -> vm.onProceedClick()}"
+            android:text="@string/setup_start_detection"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

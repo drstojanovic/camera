@@ -19,9 +19,14 @@ Problems and fixes:
     Problem was resolved by adding ImageReader as class field.
     Solution: https://stackoverflow.com/a/33468855/8177021
 
+- Slow rendering and lagging after few seconds
+    This behaviour was spotted when using SurfaceView from official Camera2Basic google example. Even when low image resolution
+    is set, there was still lagging visible on my phone (not emulator). Lag was not found on official TensorFlowLite Android example.
+    They were actually using default TextureView and most importantly, there was setting of default buffer size:
+    textureView.surfaceTexture.setDefaultBufferSize(previewSize.width, previewSize.height)
 
 
-Flow
+FLOW
 - set callback on SurfacePreview; when surface is created, setup camera
 - get camera id by matching conditions (lens, orientation..)
 - get output size (regarding selected camera and desired resolution)
@@ -30,3 +35,39 @@ Flow
 - open camera using camera handler
 - setup image reader
 - create capture session with two surface destinations (preview and image reader) with repeating request
+
+>> ImageProcessor:
+- preprocess, process, add processing info to result (duration, size etc.)
+1. preprocess
+   - rotate image depending on device sensor orientation
+   - resize image depending on required model input size (from settings)
+2. process
+   - Local: get image bytes, call detector, filter invalid detections (by size of detection and count)
+   - Remote: get image bytes, encode them and emmit to server via socket
+3. each processor (local and remote) generates recognitionTime and imageSize. Final processing phase is to:
+   - calculate average recognition time
+   - calculate average image size
+
+Remote image processor
+- connect to server socket with given address, port and required settings
+- before each request, check if socket is still connected (otherwise throw SocketDisconnectedException)
+- server will trigger Acknowledge block with result when processing is done
+- set request timeout (5s) because Acknowledge would not be triggered if there is a problem with connection
+- Error handling:
+    - do not allow user to start detection without address and port number
+    - if server is not running or user inserted wrong address or port, show server error
+    - do not allow user to start detection without internet connection
+    - if in the middle of detection process internet connection breaks, show internet error and try to reconnect
+    - if timeout exception occurs frame processing needs to be dropped:
+        1) if there is no internet, show No-Internet error
+        2) if there is internet connection, it's probably bad, so show Slow-Internet warning
+
+CAMERA IMPROVEMENTS:
+- auto focus and brightness
+- check postInferenceCallback solution for isProcessing = false flag
+
+CODE IMPROVEMENTS:
+- use dependency injection framework
+    - how to dynamically inject ImageProcessor?
+- TrackerOverlayView/cornerSize, why depends on width and height?
+

@@ -1,3 +1,36 @@
 <resources>
-    <string name="app_name">Camera</string>
+    <string name="app_name">Traffic Assistant</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="close">Close</string>
+
+    <string name="transition_name_logo">Logo</string>
+
+    <string name="setup_start_detection">Start detection</string>
+    <string name="setup_image_resolution">Image resolution:</string>
+    <string name="setup_max_detections">Maximal detections:</string>
+    <string name="setup_confidence_threshold">Confidence threshold:</string>
+    <string name="setup_inference_type">Inference type:</string>
+    <string name="setup_image_quality">Image quality</string>
+    <string name="setup_number_of_threads">Number of threads:</string>
+    <string name="setup_inference_local">Local</string>
+    <string name="setup_inference_remote">Remote</string>
+    <string name="setup_server_address">Server IP address</string>
+    <string name="setup_server_port">Port</string>
+    <string name="setup_error_permission_not_granted">Camera permission not granted. Please check settings.</string>
+    <string name="setup_error_no_internet_connection">No internet connection!</string>
+    <string name="setup_error_no_server_address">Please specify server ip address.</string>
+    <string name="setup_error_no_server_port">Please specify port for server application.</string>
+
+    <string name="detection_image_saved">Image was saved.</string>
+    <string name="detection_detections">Detections</string>
+    <string name="detection_empty_result">No detections</string>
+    <string name="detection_inference_time">Inference time</string>
+    <string name="detection_image_size">Image size</string>
+    <string name="detection_average_value">Average:</string>
+    <string name="detection_last_value">Last:</string>
+    <string name="detection_error">Error</string>
+    <string name="detection_error_unable_to_connect">Failed to connect to remote server.\nPlease check your settings and try again.</string>
+    <string name="detection_error_bad_connection">Detection too slow! Check your internet signal.</string>
+
 </resources>
