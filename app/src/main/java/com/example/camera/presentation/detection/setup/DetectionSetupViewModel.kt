@@ -1,4 +1,4 @@
-package com.example.camera.presentation.detection_setup
+package com.example.camera.presentation.detection.setup
 
 import android.util.Log
 import android.util.Size

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.example.camera.presentation.classification.ClassificationViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.example.camera.utils.view.AutoFitTextureView
+            android:id="@+id/texture_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.7"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.example.camera.utils.view.TrackerOverlayView
+            android:id="@+id/view_tracker"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/texture_view"
+            app:layout_constraintEnd_toEndOf="@id/texture_view"
+            app:layout_constraintStart_toStartOf="@id/texture_view"
+            app:layout_constraintTop_toTopOf="@id/texture_view" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
