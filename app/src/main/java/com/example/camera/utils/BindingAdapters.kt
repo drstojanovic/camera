@@ -6,7 +6,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.camera.presentation.main.DetectionAdapter
+import com.example.camera.presentation.detection.DetectionAdapter
 
 @BindingAdapter("selected")
 fun View.bindSelectionState(isSelected: Boolean) {

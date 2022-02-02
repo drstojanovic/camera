@@ -7,7 +7,7 @@
 
         <variable
             name="vm"
-            type="com.example.camera.presentation.main.MainViewModel" />
+            type="com.example.camera.presentation.detection.DetectionViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

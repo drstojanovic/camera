@@ -1,4 +1,4 @@
-package com.example.camera.presentation.main.info
+package com.example.camera.presentation.detection.info
 
 import com.example.camera.processing.Settings
 

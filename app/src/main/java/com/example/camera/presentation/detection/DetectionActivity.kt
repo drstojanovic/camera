@@ -1,4 +1,4 @@
-package com.example.camera.presentation.main
+package com.example.camera.presentation.detection
 
 import android.content.Context
 import android.content.Intent
@@ -9,21 +9,21 @@ import android.util.Size
 import android.view.Surface
 import com.example.camera.CameraApp
 import com.example.camera.R
-import com.example.camera.databinding.ActivityMainBinding
+import com.example.camera.databinding.ActivityDetectionBinding
 import com.example.camera.presentation.base.BaseActivity
-import com.example.camera.presentation.main.MainViewModel.MainAction
-import com.example.camera.presentation.main.info.SettingsInfo
-import com.example.camera.presentation.main.info.SettingsInfoDialog
+import com.example.camera.presentation.detection.DetectionViewModel.DetectionAction
+import com.example.camera.presentation.detection.info.SettingsInfo
+import com.example.camera.presentation.detection.info.SettingsInfoDialog
 import com.example.camera.processing.Settings
 import com.example.camera.utils.*
 
-class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraUtils.CameraEventListener {
+class DetectionActivity : BaseActivity<ActivityDetectionBinding, DetectionViewModel>(), CameraUtils.CameraEventListener {
 
     companion object {
         private const val EXTRA_SETTINGS = "settings"
 
         fun createIntent(settings: Settings) =
-            Intent(CameraApp.appContext!!, MainActivity::class.java).putExtra(EXTRA_SETTINGS, settings)
+            Intent(CameraApp.appContext!!, DetectionActivity::class.java).putExtra(EXTRA_SETTINGS, settings)
     }
 
     private val detectionAdapter by lazy { DetectionAdapter(resources) }
@@ -31,9 +31,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
     private val networkStatus: NetworkStatus by lazy { NetworkStatus(this) }
     override val cameraContext: Context get() = this
 
-    override fun provideLayoutId() = R.layout.activity_main
+    override fun provideLayoutId() = R.layout.activity_detection
 
-    override fun provideViewModelClass() = MainViewModel::class.java
+    override fun provideViewModelClass() = DetectionViewModel::class.java
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,9 +48,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(), CameraU
         observe(networkStatus.asLiveData()) { viewModel.onNetworkStatusChange(it) }
         observe(viewModel.action) {
             when (it) {
-                MainAction.SaveImage -> saveImage()
-                is MainAction.ShowInfoDialog -> showInfoDialog(it.settingsInfo)
-                is MainAction.ProcessingFinished -> {
+                DetectionAction.SaveImage -> saveImage()
+                is DetectionAction.ShowInfoDialog -> showInfoDialog(it.settingsInfo)
+                is DetectionAction.ProcessingFinished -> {
                     cameraUtils.onImageProcessed()
                     it.error?.let { errorMsg -> showToast(errorMsg) }
                 }

@@ -1,4 +1,4 @@
-package com.example.camera.presentation.setup
+package com.example.camera.presentation.detection_setup
 
 import android.Manifest
 import android.content.Intent
@@ -9,26 +9,26 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.example.camera.CameraApp
 import com.example.camera.R
-import com.example.camera.databinding.ActivitySetupBinding
+import com.example.camera.databinding.ActivityDetectionSetupBinding
 import com.example.camera.presentation.base.BaseActivity
-import com.example.camera.presentation.main.MainActivity
+import com.example.camera.presentation.detection.DetectionActivity
 import com.example.camera.utils.NetworkStatus
 import com.example.camera.utils.observe
 
-class SetupActivity : BaseActivity<ActivitySetupBinding, SetupViewModel>() {
+class DetectionSetupActivity : BaseActivity<ActivityDetectionSetupBinding, DetectionSetupViewModel>() {
 
     companion object {
         private const val PERMISSIONS_REQUEST_CODE = 10
         private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
 
-        fun createIntent() = Intent(CameraApp.appContext, SetupActivity::class.java)
+        fun createIntent() = Intent(CameraApp.appContext, DetectionSetupActivity::class.java)
     }
 
     private val networkStatus: NetworkStatus by lazy { NetworkStatus(this) }
 
-    override fun provideLayoutId() = R.layout.activity_setup
+    override fun provideLayoutId() = R.layout.activity_detection_setup
 
-    override fun provideViewModelClass() = SetupViewModel::class.java
+    override fun provideViewModelClass() = DetectionSetupViewModel::class.java
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,8 +44,8 @@ class SetupActivity : BaseActivity<ActivitySetupBinding, SetupViewModel>() {
         observe(networkStatus.asLiveData()) { viewModel.onNetworkStatusChange(it) }
         observe(viewModel.action) { action ->
             when (action) {
-                SetupViewModel.SetupAction.Proceed -> checkPermissionsAndProceed()
-                is SetupViewModel.SetupAction.Error -> showToast(action.message)
+                DetectionSetupViewModel.SetupAction.Proceed -> checkPermissionsAndProceed()
+                is DetectionSetupViewModel.SetupAction.Error -> showToast(action.message)
             }
         }
     }
@@ -72,5 +72,5 @@ class SetupActivity : BaseActivity<ActivitySetupBinding, SetupViewModel>() {
         }
     }
 
-    private fun proceedToCameraScreen() = startActivity(MainActivity.createIntent(viewModel.settings))
+    private fun proceedToCameraScreen() = startActivity(DetectionActivity.createIntent(viewModel.settings))
 }

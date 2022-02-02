@@ -6,7 +6,7 @@
 
         <variable
             name="settings"
-            type="com.example.camera.presentation.main.info.SettingsInfo" />
+            type="com.example.camera.presentation.detection.info.SettingsInfo" />
 
     </data>
 

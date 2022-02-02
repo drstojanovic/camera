@@ -1,4 +1,4 @@
-package com.example.camera.presentation.main.info
+package com.example.camera.presentation.detection.info
 
 import android.app.Dialog
 import android.content.Context

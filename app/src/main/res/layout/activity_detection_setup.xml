@@ -7,7 +7,7 @@
 
         <variable
             name="vm"
-            type="com.example.camera.presentation.setup.SetupViewModel" />
+            type="com.example.camera.presentation.detection_setup.DetectionSetupViewModel" />
 
     </data>
 

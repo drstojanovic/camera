@@ -1,7 +1,7 @@
 package com.example.camera.processing
 
 import android.graphics.Bitmap
-import com.example.camera.detection.ProcessingResult
+import com.example.camera.processing.detection.ProcessingResult
 import com.example.camera.utils.ImageUtils
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers

@@ -3,9 +3,9 @@ package com.example.camera.processing
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.example.camera.detection.Detector
-import com.example.camera.detection.ProcessingResult
-import com.example.camera.detection.Recognition
+import com.example.camera.processing.detection.Detector
+import com.example.camera.processing.detection.ProcessingResult
+import com.example.camera.processing.detection.Recognition
 import com.example.camera.utils.DEFAULT_THREAD_COUNT
 import com.example.camera.utils.ImageUtils.getByteArray
 import io.reactivex.Single

@@ -1,4 +1,4 @@
-package com.example.camera.detection
+package com.example.camera.processing.detection
 
 class ProcessingResult(
     val recognitions: List<Recognition>,

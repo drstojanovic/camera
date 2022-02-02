@@ -4,10 +4,10 @@ import android.graphics.Bitmap
 import android.util.Base64
 import android.util.Log
 import androidx.lifecycle.LifecycleObserver
-import com.example.camera.detection.ProcessingResult
-import com.example.camera.detection.Recognition
-import com.example.camera.detection.RecognitionRaw
-import com.example.camera.detection.toRecognition
+import com.example.camera.processing.detection.ProcessingResult
+import com.example.camera.processing.detection.Recognition
+import com.example.camera.processing.detection.RecognitionRaw
+import com.example.camera.processing.detection.toRecognition
 import com.example.camera.utils.EVENT_IMAGE
 import com.example.camera.utils.ImageUtils.getByteArray
 import com.squareup.moshi.JsonAdapter

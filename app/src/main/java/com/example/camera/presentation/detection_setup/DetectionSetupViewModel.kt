@@ -1,4 +1,4 @@
-package com.example.camera.presentation.setup
+package com.example.camera.presentation.detection_setup
 
 import android.util.Log
 import android.util.Size
@@ -13,7 +13,7 @@ import com.example.camera.processing.Settings
 import com.example.camera.repository.SettingsRepository
 import com.example.camera.utils.TAG
 
-class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
+class DetectionSetupViewModel : BaseViewModel<DetectionSetupViewModel.SetupAction>() {
 
     sealed class SetupAction {
         object Proceed : SetupAction()

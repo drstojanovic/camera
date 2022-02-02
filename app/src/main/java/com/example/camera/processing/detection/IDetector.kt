@@ -1,4 +1,4 @@
-package com.example.camera.detection
+package com.example.camera.processing.detection
 
 import android.graphics.Bitmap
 

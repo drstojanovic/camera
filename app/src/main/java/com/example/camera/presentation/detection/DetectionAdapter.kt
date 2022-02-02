@@ -1,4 +1,4 @@
-package com.example.camera.presentation.main
+package com.example.camera.presentation.detection
 
 import android.annotation.SuppressLint
 import android.content.res.Resources
