@@ -1,6 +1,7 @@
 package com.example.camera.utils
 
 const val EVENT_IMAGE = "image"
+const val EVENT_CLASSIFY_CARS = "classify_cars"
 
 const val SHARED_PREFS_SETTINGS = "settings"
 

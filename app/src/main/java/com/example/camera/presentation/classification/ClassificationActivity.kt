@@ -10,6 +10,8 @@ import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.databinding.ActivityClassificationBinding
 import com.example.camera.presentation.base.BaseActivity
+import com.example.camera.presentation.classification.ClassificationViewModel.ClassificationAction
+import com.example.camera.processing.Settings
 import com.example.camera.utils.*
 
 class ClassificationActivity : BaseActivity<ActivityClassificationBinding, ClassificationViewModel>(),
@@ -31,6 +33,12 @@ class ClassificationActivity : BaseActivity<ActivityClassificationBinding, Class
         super.onCreate(savedInstanceState)
         setupViews()
         setObservers()
+        viewModel.init(
+            Settings(
+                "192.168.0.23", "9990", 4, true, 10, 0, 100,
+                512, 512
+            )
+        )
     }
 
     private fun setupViews() {
@@ -40,6 +48,14 @@ class ClassificationActivity : BaseActivity<ActivityClassificationBinding, Class
 
     private fun setObservers() {
         observe(networkStatus.asLiveData()) { viewModel.onNetworkStatusChange(it) }
+        observe(viewModel.action) {
+            when (it) {
+                is ClassificationAction.ProcessingFinished -> {
+                    cameraUtils.onImageProcessed()
+                    it.error?.let { errorMsg -> showToast(errorMsg) }
+                }
+            }
+        }
     }
 
     override fun onError(text: String) = showToast(text)

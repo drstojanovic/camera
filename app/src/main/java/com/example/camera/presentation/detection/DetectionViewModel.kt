@@ -8,13 +8,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.example.camera.CameraApp
 import com.example.camera.R
-import com.example.camera.processing.detection.ProcessingResult
-import com.example.camera.processing.detection.Recognition
 import com.example.camera.presentation.base.BaseViewModel
 import com.example.camera.presentation.base.SingleLiveEvent
 import com.example.camera.presentation.detection.info.SettingsInfo
 import com.example.camera.presentation.detection.info.toSettingsInfo
 import com.example.camera.processing.*
+import com.example.camera.processing.detection.*
 import com.example.camera.utils.TAG
 import java.util.concurrent.TimeoutException
 
@@ -26,15 +25,15 @@ class DetectionViewModel : BaseViewModel<DetectionViewModel.DetectionAction>() {
         class ShowInfoDialog(val settingsInfo: SettingsInfo) : DetectionAction()
     }
 
-    private lateinit var imageProcessor: ImageProcessor
+    private lateinit var objectDetector: ObjectDetector
     private var hasNetwork = false
     private val _recognitionsLive = MutableLiveData<List<Recognition>>(listOf())
     private val _selectedImageSizeLive = SingleLiveEvent<Size>()
-    private val _processingResultLive = MutableLiveData<ProcessingResult>()
+    private val _processingResultLive = MutableLiveData<DetectionResult>()
     private val _errorLive = SingleLiveEvent<Int?>()
 
     val selectedImageSizeLive: LiveData<Size> get() = _selectedImageSizeLive
-    val processingResultLive: LiveData<ProcessingResult> get() = _processingResultLive
+    val detectionResultLive: LiveData<DetectionResult> get() = _processingResultLive
     val errorLive: LiveData<Int?> get() = _errorLive
     val recognitionsLive: LiveData<List<Recognition>> = _recognitionsLive
     val recognitionLabelsLive: LiveData<List<String>> =
@@ -43,16 +42,16 @@ class DetectionViewModel : BaseViewModel<DetectionViewModel.DetectionAction>() {
         Transformations.map(_recognitionsLive) { it.isNotEmpty() }
 
     fun initImageProcessor(settings: Settings) {
-        imageProcessor =
-            if (settings.localInference) LocalImageProcessor(CameraApp.appContext!!, settings)
-            else RemoteImageProcessor(settings)
+        objectDetector =
+            if (settings.localInference) LocalObjectDetector(CameraApp.appContext!!, settings)
+            else RemoteObjectDetector(settings)
         _selectedImageSizeLive.postValue(settings.imageSize)
     }
 
     fun onImageAvailable(bitmap: Bitmap, orientation: Int) {
-        imageProcessor.processImage(bitmap, orientation)
+        objectDetector.processImage(bitmap, orientation)
             .subscribe(
-                onSuccess = { result: ProcessingResult ->
+                onSuccess = { result: DetectionResult ->
                     _recognitionsLive.postValue(result.recognitions)
                     _processingResultLive.postValue(result)
                     setAction(DetectionAction.ProcessingFinished())
@@ -69,7 +68,7 @@ class DetectionViewModel : BaseViewModel<DetectionViewModel.DetectionAction>() {
         setAction(DetectionAction.SaveImage)
 
     fun onShowInfoSelected() =
-        setAction(DetectionAction.ShowInfoDialog(imageProcessor.settings.toSettingsInfo()))
+        setAction(DetectionAction.ShowInfoDialog(objectDetector.settings.toSettingsInfo()))
 
     fun onNetworkStatusChange(hasNetwork: Boolean) {
         this.hasNetwork = hasNetwork
@@ -84,7 +83,7 @@ class DetectionViewModel : BaseViewModel<DetectionViewModel.DetectionAction>() {
 
     override fun onCleared() {
         super.onCleared()
-        imageProcessor.dispose()
+        objectDetector.dispose()
     }
 
     private fun handleProcessingError(throwable: Throwable) {
