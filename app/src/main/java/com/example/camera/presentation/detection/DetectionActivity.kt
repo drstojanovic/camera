@@ -17,7 +17,8 @@ import com.example.camera.presentation.detection.info.SettingsInfoDialog
 import com.example.camera.processing.Settings
 import com.example.camera.utils.*
 
-class DetectionActivity : BaseActivity<ActivityDetectionBinding, DetectionViewModel>(), CameraUtils.CameraEventListener {
+class DetectionActivity : BaseActivity<ActivityDetectionBinding, DetectionViewModel>(),
+    CameraUtils.CameraEventListener {
 
     companion object {
         private const val EXTRA_SETTINGS = "settings"
@@ -60,7 +61,7 @@ class DetectionActivity : BaseActivity<ActivityDetectionBinding, DetectionViewMo
 
     private fun setupViews() {
         binding.textureView.surfaceTextureListener =
-            OnSurfaceTextureAvailableListener { cameraUtils.setup(windowManager.defaultDisplay.rotation) }
+            OnSurfaceTextureAvailableListener { cameraUtils.setup(displayCompat.rotation) }
         if (binding.recyclerDetections.adapter == null) {
             binding.recyclerDetections.adapter = detectionAdapter
         }

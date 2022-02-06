@@ -38,18 +38,15 @@
             android:name=".presentation.mode.ModeActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.example.camera.presentation.classification.setup.ClassificationSetupActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".presentation.classification.ClassificationActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="com.example.camera.presentation.detection.setup.DetectionSetupActivity"
+            android:name="com.example.camera.presentation.setup.SetupActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".presentation.detection.DetectionActivity"
             android:clearTaskOnLaunch="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".presentation.classification.ClassificationActivity"
             android:screenOrientation="portrait" />
     </application>
 

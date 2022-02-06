@@ -14,7 +14,7 @@ class SettingsInfo(
 fun Settings.toSettingsInfo() = SettingsInfo(
     resolution = imageSize.toString(),
     maxDetections = maxDetections.toString(),
-    confidenceThreshold = confidenceThreshold.toString(),
+    confidenceThreshold = detectionThreshold.toString(),
     imageQuality = imageQuality.toString(),
     inferenceType = if (localInference) "Local" else "Remote",
     serverAddress = serverAddressFull

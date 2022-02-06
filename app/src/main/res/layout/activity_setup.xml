@@ -7,7 +7,7 @@
 
         <variable
             name="vm"
-            type="com.example.camera.presentation.detection.setup.DetectionSetupViewModel" />
+            type="com.example.camera.presentation.setup.SetupViewModel" />
 
     </data>
 
@@ -93,7 +93,7 @@
                         app:text="@string/setup_max_detections" />
 
                     <com.example.camera.utils.view.SeekBarCompositeView
-                        android:id="@+id/seek_confidence_threshold"
+                        android:id="@+id/seek_detection_threshold"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/margin_medium"
@@ -102,10 +102,25 @@
                         app:layout_constraintTop_toBottomOf="@id/seek_max_detections"
                         app:maxValue="@integer/confidence_limit_max"
                         app:minValue="@integer/confidence_limit_min"
-                        app:progress="@{vm.settingsLive.confidenceThreshold}"
-                        app:progressListener="@{(progress) -> vm.onConfidenceThresholdChange(progress)}"
+                        app:progress="@{vm.settingsLive.detectionThreshold}"
+                        app:progressListener="@{(progress) -> vm.onDetectionThresholdChange(progress)}"
                         app:stepSize="@integer/confidence_step_size"
-                        app:text="@string/setup_confidence_threshold" />
+                        app:text="@string/classification_setup_detection_threshold" />
+
+                    <com.example.camera.utils.view.SeekBarCompositeView
+                        android:id="@+id/seek_classification_threshold"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin_medium"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/seek_detection_threshold"
+                        app:maxValue="@integer/confidence_limit_max"
+                        app:minValue="@integer/confidence_limit_min"
+                        app:progress="@{vm.settingsLive.classificationThreshold}"
+                        app:progressListener="@{(progress) -> vm.onClassificationThresholdChange(progress)}"
+                        app:stepSize="@integer/confidence_step_size"
+                        app:text="@string/classification_setup_classification_threshold" />
 
                     <com.example.camera.utils.view.SeekBarCompositeView
                         android:id="@+id/seek_image_quality"
@@ -114,7 +129,7 @@
                         android:layout_marginTop="@dimen/margin_medium"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/seek_confidence_threshold"
+                        app:layout_constraintTop_toBottomOf="@id/seek_classification_threshold"
                         app:maxValue="@integer/image_quality_max"
                         app:minValue="@integer/image_quality_min"
                         app:progress="@{vm.settingsLive.imageQuality}"
@@ -237,6 +252,21 @@
                         app:stepSize="@integer/threads_step_size"
                         app:text="@string/setup_number_of_threads"
                         app:visibility="@{vm.isLocalInferenceLive}" />
+
+                    <androidx.constraintlayout.widget.Group
+                        android:id="@+id/group_classification_specifics"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:constraint_referenced_ids="seek_classification_threshold"
+                        app:visibility="@{vm.classificationModeLive}"
+                        tools:visibility="gone" />
+
+                    <androidx.constraintlayout.widget.Group
+                        android:id="@+id/group_detection_specifics"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:constraint_referenced_ids="txt_inference_type, txt_inference_local, txt_inference_remote"
+                        app:visibility="@{!vm.classificationModeLive}" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

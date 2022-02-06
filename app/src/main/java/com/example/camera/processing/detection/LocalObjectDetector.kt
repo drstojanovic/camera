@@ -23,7 +23,7 @@ class LocalObjectDetector(
     private val detector = Detector(
         context,
         modelFileName = MODEL_FILE,
-        scoreThreshold = settings.confidenceThreshold / 100f,
+        scoreThreshold = settings.detectionThreshold / 100f,
         numberOfThreads = settings.threadCount ?: DEFAULT_THREAD_COUNT
     )
 

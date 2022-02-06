@@ -18,7 +18,11 @@ class ClassificationActivity : BaseActivity<ActivityClassificationBinding, Class
     CameraUtils.CameraEventListener {
 
     companion object {
-        fun createIntent() = Intent(CameraApp.appContext, ClassificationActivity::class.java)
+        private const val EXTRA_SETTINGS = "extra_settings"
+
+        fun createIntent(settings: Settings) =
+            Intent(CameraApp.appContext, ClassificationActivity::class.java)
+                .putExtra(EXTRA_SETTINGS, settings)
     }
 
     private val cameraUtils by lazy { CameraUtils(this) }
@@ -33,17 +37,14 @@ class ClassificationActivity : BaseActivity<ActivityClassificationBinding, Class
         super.onCreate(savedInstanceState)
         setupViews()
         setObservers()
-        viewModel.init(
-            Settings(
-                "192.168.0.23", "9990", 4, true, 10, 0, 100,
-                512, 512
-            )
-        )
+        intent.getParcelableExtra<Settings>(EXTRA_SETTINGS)?.let { settings ->
+            viewModel.init(settings)
+        }
     }
 
     private fun setupViews() {
         binding.textureView.surfaceTextureListener =
-            OnSurfaceTextureAvailableListener { cameraUtils.setup(windowManager.defaultDisplay.rotation) }
+            OnSurfaceTextureAvailableListener { cameraUtils.setup(displayCompat.rotation) }
     }
 
     private fun setObservers() {

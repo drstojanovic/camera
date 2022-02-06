@@ -6,10 +6,9 @@ import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.databinding.ActivityModeChooserBinding
 import com.example.camera.presentation.base.BaseActivity
-import com.example.camera.presentation.classification.ClassificationActivity
-import com.example.camera.presentation.detection.setup.DetectionSetupActivity
-import com.example.camera.utils.observe
 import com.example.camera.presentation.mode.ModeViewModel.ModeAction
+import com.example.camera.presentation.setup.SetupActivity
+import com.example.camera.utils.observe
 
 class ModeActivity : BaseActivity<ActivityModeChooserBinding, ModeViewModel>() {
 
@@ -27,9 +26,9 @@ class ModeActivity : BaseActivity<ActivityModeChooserBinding, ModeViewModel>() {
         observe(viewModel.action) {
             when (it) {
                 ModeAction.CAR_BRAND_CLASSIFICATION ->
-                    startActivity(ClassificationActivity.createIntent())
+                    startActivity(SetupActivity.createIntent(classificationMode = true))
                 ModeAction.DETECTION ->
-                    startActivity(DetectionSetupActivity.createIntent())
+                    startActivity(SetupActivity.createIntent())
             }
         }
     }

@@ -1,14 +1,25 @@
 package com.example.camera.utils
 
+import android.app.Activity
 import android.graphics.Paint
+import android.os.Build
 import android.util.TypedValue
+import android.view.Display
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import io.reactivex.Single
 
-val Any.TAG
+val Any.TAG: String
     get() = this::class.java.simpleName
+
+val Activity.displayCompat: Display
+    get() = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+        @Suppress("DEPRECATION")
+        this.windowManager.defaultDisplay
+    } else {
+        this.display!!
+    }
 
 fun View.spToPx(sp: Int): Float =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp.toFloat(), resources.displayMetrics)

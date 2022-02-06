@@ -36,4 +36,8 @@
     <string name="mode_chooser_classification">Car Brand Classification</string>
     <string name="mode_chooser_detection">Traffic Object Detection</string>
 
+    <string name="classification_setup_detection_threshold">Detection confidence threshold:</string>
+    <string name="classification_setup_classification_threshold">Classification confidence threshold:</string>
+    <string name="classification_setup_start">Start</string>
+
 </resources>

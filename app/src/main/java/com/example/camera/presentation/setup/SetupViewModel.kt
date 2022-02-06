@@ -1,4 +1,4 @@
-package com.example.camera.presentation.detection.setup
+package com.example.camera.presentation.setup
 
 import android.util.Log
 import android.util.Size
@@ -8,22 +8,25 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.example.camera.R
+import com.example.camera.domain.GetSettings
+import com.example.camera.domain.StoreSettings
 import com.example.camera.presentation.base.BaseViewModel
 import com.example.camera.processing.Settings
-import com.example.camera.repository.SettingsRepository
 import com.example.camera.utils.TAG
 
-class DetectionSetupViewModel : BaseViewModel<DetectionSetupViewModel.SetupAction>() {
+class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
 
     sealed class SetupAction {
         object Proceed : SetupAction()
         class Error(@StringRes val message: Int) : SetupAction()
     }
 
-    private val settingsRepository = SettingsRepository()
+    private val getSettings = GetSettings()
+    private val storeSettings = StoreSettings()
     private val _settingsLive: MutableLiveData<Settings> = MutableLiveData()
     private val _isLocalInferenceLive = MutableLiveData(false)
     private val _isNetworkAvailableLive = MutableLiveData<Boolean>()
+    private val _classificationModeLive = MutableLiveData<Boolean>()
     private val resolutions = listOf(
         Size(160, 160),
         Size(300, 300),
@@ -33,6 +36,7 @@ class DetectionSetupViewModel : BaseViewModel<DetectionSetupViewModel.SetupActio
 
     lateinit var settings: Settings
         private set
+    val classificationModeLive: LiveData<Boolean> get() = _classificationModeLive
     val resolutionsLabels: List<String> get() = resolutions.map { "${it.width}x${it.height}" }
     val settingsLive: LiveData<Settings> = _settingsLive
     val isLocalInferenceLive: LiveData<Boolean> = _isLocalInferenceLive
@@ -43,12 +47,13 @@ class DetectionSetupViewModel : BaseViewModel<DetectionSetupViewModel.SetupActio
     val resolutionIndexLive: LiveData<Int>
         get() = Transformations.map(_settingsLive) { getSelectedResolutionIndex(it.imageWidth, it.imageHeight) }
 
-    init {
-        getStoredSettings()
+    fun init(classificationMode: Boolean) {
+        _classificationModeLive.postValue(classificationMode)
+        getStoredSettings(classificationMode)
     }
 
-    private fun getStoredSettings() =
-        settingsRepository.getSettings()
+    private fun getStoredSettings(isClassification: Boolean) =
+        getSettings.execute(isClassification)
             .subscribe(
                 onSuccess = {
                     this.settings = it.copy()
@@ -58,6 +63,9 @@ class DetectionSetupViewModel : BaseViewModel<DetectionSetupViewModel.SetupActio
                 onError = {
                     Log.e(TAG, it.message ?: it.toString())
                 })
+
+    fun onNetworkStatusChange(isAvailable: Boolean) =
+        _isNetworkAvailableLive.postValue(isAvailable)
 
     fun onResolutionSelected(index: Int) {
         if (index !in resolutions.indices) return
@@ -72,8 +80,12 @@ class DetectionSetupViewModel : BaseViewModel<DetectionSetupViewModel.SetupActio
         settings.maxDetections = detectionLimit
     }
 
-    fun onConfidenceThresholdChange(confidenceThreshold: Int) {
-        settings.confidenceThreshold = confidenceThreshold
+    fun onDetectionThresholdChange(confidenceThreshold: Int) {
+        settings.detectionThreshold = confidenceThreshold
+    }
+
+    fun onClassificationThresholdChange(confidenceThreshold: Int) {
+        settings.classificationThreshold = confidenceThreshold
     }
 
     fun onImageQualityChange(imageQuality: Int) {
@@ -108,7 +120,7 @@ class DetectionSetupViewModel : BaseViewModel<DetectionSetupViewModel.SetupActio
         if (settings == settingsLive.value) {
             setAction(SetupAction.Proceed)
         } else {
-            settingsRepository.storeSettings(settings)
+            storeSettings.execute(settings, _classificationModeLive.value ?: false)
                 .subscribe(
                     onComplete = { setAction(SetupAction.Proceed) },
                     onError = {
@@ -136,9 +148,6 @@ class DetectionSetupViewModel : BaseViewModel<DetectionSetupViewModel.SetupActio
         }
         return true
     }
-
-    fun onNetworkStatusChange(isAvailable: Boolean) =
-        _isNetworkAvailableLive.postValue(isAvailable)
 
     private fun getNetworkWarningVisibility() =
         _isLocalInferenceLive.value == false && _isNetworkAvailableLive.value == false
