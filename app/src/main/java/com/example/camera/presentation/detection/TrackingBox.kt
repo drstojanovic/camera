@@ -4,9 +4,14 @@ import android.graphics.RectF
 
 class TrackingBox(
     val location: RectF,
-    val confidence: Float,
-    val title: String,
-    val color: Int
+    val color: Int,
+    confidence: Float,
+    title: String
 ) {
-    val description: String = "$title %.1f%%".format(confidence)
+    val description: String =
+        if (confidence != 0f) {
+            "$title %.1f%%".format(confidence).trim()
+        } else {
+            title.trim()
+        }
 }

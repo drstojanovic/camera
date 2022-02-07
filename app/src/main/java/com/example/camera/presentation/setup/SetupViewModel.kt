@@ -34,7 +34,7 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
         Size(640, 640)
     )
 
-    lateinit var settings: Settings
+    var settings: Settings? = null
         private set
     val classificationModeLive: LiveData<Boolean> get() = _classificationModeLive
     val resolutionsLabels: List<String> get() = resolutions.map { "${it.width}x${it.height}" }
@@ -71,47 +71,47 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
         if (index !in resolutions.indices) return
 
         resolutions[index].let { size ->
-            settings.imageWidth = size.width
-            settings.imageHeight = size.height
+            settings?.imageWidth = size.width
+            settings?.imageHeight = size.height
         }
     }
 
     fun onMaxDetectionLimitChange(detectionLimit: Int) {
-        settings.maxDetections = detectionLimit
+        settings?.maxDetections = detectionLimit
     }
 
     fun onDetectionThresholdChange(confidenceThreshold: Int) {
-        settings.detectionThreshold = confidenceThreshold
+        settings?.detectionThreshold = confidenceThreshold
     }
 
     fun onClassificationThresholdChange(confidenceThreshold: Int) {
-        settings.classificationThreshold = confidenceThreshold
+        settings?.classificationThreshold = confidenceThreshold
     }
 
     fun onImageQualityChange(imageQuality: Int) {
-        settings.imageQuality = imageQuality
+        settings?.imageQuality = imageQuality
     }
 
     fun onLocalInferenceSelected() {
         _isLocalInferenceLive.postValue(true)
-        settings.localInference = true
+        settings?.localInference = true
     }
 
     fun onRemoteInferenceSelected() {
         _isLocalInferenceLive.postValue(false)
-        settings.localInference = false
+        settings?.localInference = false
     }
 
     fun onThreadCountChange(threadCount: Int) {
-        settings.threadCount = threadCount
+        settings?.threadCount = threadCount
     }
 
     fun onIpAddressChange(text: String) {
-        settings.serverIpAddress = text
+        settings?.serverIpAddress = text
     }
 
     fun onPortChange(text: String) {
-        settings.serverPort = text
+        settings?.serverPort = text
     }
 
     fun onProceedClick() {
@@ -120,27 +120,29 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
         if (settings == settingsLive.value) {
             setAction(SetupAction.Proceed)
         } else {
-            storeSettings.execute(settings, _classificationModeLive.value ?: false)
-                .subscribe(
-                    onComplete = { setAction(SetupAction.Proceed) },
-                    onError = {
-                        Log.e(TAG, it.message ?: it.toString())
-                    })
+            settings?.let {
+                storeSettings.execute(it, _classificationModeLive.value ?: false)
+                    .subscribe(
+                        onComplete = { setAction(SetupAction.Proceed) },
+                        onError = { throwable ->
+                            Log.e(TAG, throwable.message ?: throwable.toString())
+                        })
+            }
         }
     }
 
     private fun checkSetupValidity(): Boolean {
-        if (!settings.localInference) {
+        if (settings?.localInference == false) {
             when {
                 _isNetworkAvailableLive.value == false -> {
                     setAction(SetupAction.Error(R.string.setup_error_no_internet_connection))
                     return false
                 }
-                settings.serverIpAddress.isNullOrEmpty() -> {
+                settings?.serverIpAddress.isNullOrEmpty() -> {
                     setAction(SetupAction.Error(R.string.setup_error_no_server_address))
                     return false
                 }
-                settings.serverPort.isNullOrEmpty() -> {
+                settings?.serverPort.isNullOrEmpty() -> {
                     setAction(SetupAction.Error(R.string.setup_error_no_server_port))
                     return false
                 }

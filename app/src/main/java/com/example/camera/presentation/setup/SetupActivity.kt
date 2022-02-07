@@ -78,11 +78,13 @@ class SetupActivity : BaseActivity<ActivitySetupBinding, SetupViewModel>() {
         }
     }
 
-    private fun proceedToCameraScreen() = startActivity(
-        if (intent.getBooleanExtra(EXTRA_CLASSIFICATION_MODE, false)) {
-            ClassificationActivity.createIntent(viewModel.settings)
-        } else {
-            DetectionActivity.createIntent(viewModel.settings)
-        }
-    )
+    private fun proceedToCameraScreen() = viewModel.settings?.let { settings ->
+        startActivity(
+            if (intent.getBooleanExtra(EXTRA_CLASSIFICATION_MODE, false)) {
+                ClassificationActivity.createIntent(settings)
+            } else {
+                DetectionActivity.createIntent(settings)
+            }
+        )
+    }
 }

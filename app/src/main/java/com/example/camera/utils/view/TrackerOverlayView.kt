@@ -87,9 +87,9 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
 
             TrackingBox(
                 location = mappedLocation,
+                color = availableColors[index],
                 confidence = recognition.confidence,
-                title = recognition.title,
-                color = availableColors[index]
+                title = recognition.title
             )
         }
 
