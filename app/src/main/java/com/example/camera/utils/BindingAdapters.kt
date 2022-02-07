@@ -29,7 +29,7 @@ fun EditText.bindTextChangeListener(textChangeListener: StringActionListener?) {
 }
 
 @BindingAdapter(value = ["items", "selectedIndex", "onItemSelected"], requireAll = false)
-fun Spinner.bindSpinnerItems(items: List<String>, selectedIndex: Int, onItemSelected: ActionListener?) {
+fun Spinner.bindSpinnerItems(items: List<String>, selectedIndex: Int?, onItemSelected: ActionListener?) {
     adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, items).apply {
         setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
     }
@@ -39,7 +39,7 @@ fun Spinner.bindSpinnerItems(items: List<String>, selectedIndex: Int, onItemSele
             onItemSelected?.onAction(position)
         }
     }
-    setSelection(selectedIndex)
+    selectedIndex?.let { setSelection(it) }
 }
 
 @BindingAdapter(value = ["min", "max", "step", "progress", "onProgressChange"], requireAll = false)

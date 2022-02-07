@@ -48,8 +48,8 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
         get() = Transformations.map(_settingsLive) { getSelectedResolutionIndex(it.imageWidth, it.imageHeight) }
 
     fun init(classificationMode: Boolean) {
-        _classificationModeLive.postValue(classificationMode)
         getStoredSettings(classificationMode)
+        _classificationModeLive.postValue(classificationMode)
     }
 
     private fun getStoredSettings(isClassification: Boolean) =

@@ -27,10 +27,12 @@
             android:id="@+id/view_tracker"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            app:data="@{vm.classifiedObjectsLive}"
             app:layout_constraintBottom_toBottomOf="@id/texture_view"
             app:layout_constraintEnd_toEndOf="@id/texture_view"
             app:layout_constraintStart_toStartOf="@id/texture_view"
-            app:layout_constraintTop_toTopOf="@id/texture_view" />
+            app:layout_constraintTop_toTopOf="@id/texture_view"
+            app:modelInputSize="@{vm.selectedImageSizeLive}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -64,17 +64,28 @@
             app:layout_constraintTop_toBottomOf="@id/partial_image_quality"
             app:value="@{settings.inferenceType}" />
 
+        <include
+            android:id="@+id/partial_server_address"
+            style="@style/SettingsInfoLabel"
+            layout="@layout/partial_setting_info"
+            app:label="@{@string/setup_server_address}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/partial_inference_type"
+            app:value="@{settings.serverAddress}"
+            app:visibility="@{settings.showAddress}" />
+
         <Button
             android:id="@+id/btn_close"
-            android:background="@drawable/bg_button_primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_half"
+            android:background="@drawable/bg_button_primary"
             android:text="@string/close"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/partial_inference_type" />
+            app:layout_constraintTop_toBottomOf="@id/partial_server_address" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -1,6 +1,7 @@
 package com.example.camera.processing.detection
 
 import android.graphics.RectF
+import com.example.camera.processing.classification.ClassificationResult
 import org.tensorflow.lite.task.vision.detector.Detection
 
 data class Recognition(
@@ -29,4 +30,11 @@ fun RecognitionRaw.toRecognition(index: Int) = Recognition(
     title = title,
     confidence = confidence,
     location = RectF(location[0], location[1], location[2], location[3])
+)
+
+fun ClassificationResult.toRecognition() = Recognition(
+    id = id,
+    title = classifications[0].title,
+    confidence = classifications[0].confidence,
+    location = location
 )

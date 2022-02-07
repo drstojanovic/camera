@@ -78,8 +78,8 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
             )
     }
 
-    fun setData(list: List<Recognition>) {
-        if (!this::modelOutputToCanvasMatrix.isInitialized) return
+    fun setData(list: List<Recognition>?) {
+        if (list == null || !this::modelOutputToCanvasMatrix.isInitialized) return
 
         boxes = list.mapIndexed { index, recognition ->
             val mappedLocation = RectF(recognition.location)

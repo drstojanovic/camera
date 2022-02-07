@@ -13,6 +13,9 @@ import com.example.camera.utils.EVENT_CLASSIFY_CARS
 import com.example.camera.utils.ImageUtils.getByteArray
 import com.example.camera.utils.filterItems
 import com.example.camera.utils.mapItems
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import io.reactivex.Single
 
 class CarsClassifier(
@@ -22,6 +25,8 @@ class CarsClassifier(
 ) : MultipleObjectClassifier(settings) {
 
     private val socketManager: SocketManager = SocketManager(settings.serverAddressFull, settings.toQuery())
+    private val classificationAdapter: JsonAdapter<List<ClassificationResultRaw>> = Moshi.Builder().build()
+        .adapter(Types.newParameterizedType(List::class.java, ClassificationResultRaw::class.java))
 
     override fun dispose() {
         socketManager.dispose()
@@ -33,19 +38,31 @@ class CarsClassifier(
             .filterItems { it.title.trim() == "car" }
             .mapItems { it.location }
             .map { getImageCrops(image, it) }
-            .mapItems { it.getEncodedBytes() }
             .flatMap { uploadCropsForClassification(it) }
 
-    private fun getImageCrops(image: Bitmap, boundingBoxes: List<RectF>): List<Bitmap> =
+    private fun getImageCrops(image: Bitmap, boundingBoxes: List<RectF>): List<ImageCrop> =
         boundingBoxes.map { box ->
-            Bitmap.createBitmap(image, box.left.toInt(), box.top.toInt(), box.width().toInt(), box.height().toInt())
+            ImageCrop(
+                location = box,
+                encodedBytes =
+                Bitmap.createBitmap(image, box.left.toInt(), box.top.toInt(), box.width().toInt(), box.height().toInt())
+                    .getEncodedBytes()
+            )
         }
 
     private fun Bitmap.getEncodedBytes(): ByteArray =
         ImagePreprocessor.encodeBytes(this.getByteArray(settings.imageQuality))
 
-    private fun uploadCropsForClassification(crops: List<ByteArray>) =
-        socketManager.emitEvent(EVENT_CLASSIFY_CARS, *crops.toTypedArray())
-            .doOnSuccess { Log.d("sentic", "RESULT: $it") }
-            .map { listOf(ClassificationResult(classifications = listOf(), location = RectF())) }
+    private fun uploadCropsForClassification(crops: List<ImageCrop>): Single<List<ClassificationResult>> =
+        socketManager.emitEvent(EVENT_CLASSIFY_CARS, *(crops.map { it.encodedBytes }.toTypedArray()))
+            .map { result ->
+                Log.d("sentic", "result: ${result[0]}")
+                if (result.isNotEmpty() && result[0] != "") {
+                    classificationAdapter.fromJson(result[0].toString())?.let { classifications ->
+                        classifications.mapIndexed { index, classificationRaw ->
+                            classificationRaw.toClassificationResult(index, crops[index].location)
+                        }
+                    }
+                } else listOf()
+            }
 }
