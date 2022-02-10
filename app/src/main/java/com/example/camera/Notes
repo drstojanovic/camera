@@ -74,3 +74,4 @@ CODE IMPROVEMENTS:
 Classification screen:
 - add list with details (for each detection show classes up to 3 maybe)
 - add pause
+- add settings-info dialog

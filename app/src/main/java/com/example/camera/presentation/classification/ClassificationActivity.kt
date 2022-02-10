@@ -10,7 +10,7 @@ import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.databinding.ActivityClassificationBinding
 import com.example.camera.presentation.base.BaseActivity
-import com.example.camera.presentation.classification.ClassificationViewModel.ClassificationAction
+import com.example.camera.presentation.classification.ClassificationViewModel.ClassificationAction.*
 import com.example.camera.processing.Settings
 import com.example.camera.utils.*
 
@@ -55,7 +55,9 @@ class ClassificationActivity : BaseActivity<ActivityClassificationBinding, Class
         observe(networkStatus.asLiveData()) { viewModel.onNetworkStatusChange(it) }
         observe(viewModel.action) {
             when (it) {
-                is ClassificationAction.ProcessingFinished -> {
+                PauseProcessing -> cameraUtils.freezeCameraPreview()
+                ResumeProcessing -> cameraUtils.startCameraPreview()
+                is ProcessingFinished -> {
                     cameraUtils.onImageProcessed()
                     it.error?.let { errorMsg -> showToast(errorMsg) }
                 }

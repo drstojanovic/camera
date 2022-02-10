@@ -37,6 +37,7 @@ class CameraUtils(
     private var cameraHandler: Handler? = null
     private var imageReaderThread: HandlerThread? = null
     private var imageReaderHandler: Handler? = null
+    private var session: CameraCaptureSession? = null
     private val cameraManager: CameraManager
             by lazy { cameraHost.cameraContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager }
 
@@ -63,6 +64,16 @@ class CameraUtils(
 
     fun saveImage() =
         ImageUtils.saveBitmap(cameraHost.cameraContext, bitmap, -orientation)
+
+    fun freezeCameraPreview() =
+        session?.stopRepeating()
+
+    fun startCameraPreview() {
+        isProcessing = false
+        session?.setRepeatingRequest(
+            getCaptureRequest(surface = cameraHost.provideTextureViewSurface()), null, cameraHandler
+        )
+    }
 
     fun setup(defaultDisplayOrientation: Int) =
         setupCamera(defaultDisplayOrientation)
@@ -122,16 +133,13 @@ class CameraUtils(
             .apply { setOnImageAvailableListener(this@CameraUtils, imageReaderHandler) }
 
         val surface = cameraHost.provideTextureViewSurface()
-        val captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-            .apply {
-                addTarget(surface)
-                addTarget(imageReader.surface)
-            }.build()
+        val captureRequest = getCaptureRequest(surface)
 
         camera.createCaptureSession(
             listOf(surface, imageReader.surface),
             object : CameraCaptureSession.StateCallback() {
                 override fun onConfigured(session: CameraCaptureSession) {
+                    this@CameraUtils.session = session
                     session.setRepeatingRequest(captureRequest, null, cameraHandler)
                 }
 
@@ -141,6 +149,13 @@ class CameraUtils(
             }, cameraHandler
         )
     }
+
+    private fun getCaptureRequest(surface: Surface) =
+        camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+            .apply {
+                addTarget(surface)
+                addTarget(imageReader.surface)
+            }.build()
 
     override fun onImageAvailable(reader: ImageReader?) {
         var image: Image? = null

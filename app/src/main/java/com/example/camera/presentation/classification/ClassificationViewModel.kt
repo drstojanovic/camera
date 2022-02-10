@@ -21,12 +21,15 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
 
     sealed class ClassificationAction {
         class ProcessingFinished(val error: Int? = null) : ClassificationAction()
+        object PauseProcessing : ClassificationAction()
+        object ResumeProcessing : ClassificationAction()
     }
 
     private lateinit var multipleObjectClassifier: MultipleObjectClassifier
     private val _selectedImageSizeLive = SingleLiveEvent<Size>()
     private val _classificationResultLive = MutableLiveData<List<ClassificationResultView>>()
     private val colors = CameraApp.appContext?.resources?.getIntArray(R.array.bbox_colors)
+    private var isPaused = false
 
     val selectedImageSizeLive: LiveData<Size> get() = _selectedImageSizeLive
     val classifiedObjectsLive: LiveData<List<ClassificationResultView>> = _classificationResultLive
@@ -39,6 +42,8 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
     }
 
     fun onImageAvailable(bitmap: Bitmap, orientation: Int) {
+        if (isPaused) return
+
         multipleObjectClassifier.processImage(bitmap, orientation)
             .subscribe(
                 onSuccess = {
@@ -53,6 +58,11 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
                     setAction(ClassificationAction.ProcessingFinished())
                 }
             )
+    }
+
+    fun onPlayPauseClick() {
+        setAction(if (isPaused) ClassificationAction.ResumeProcessing else ClassificationAction.PauseProcessing)
+        isPaused = !isPaused
     }
 
     fun onNetworkStatusChange(hasNetwork: Boolean) {
