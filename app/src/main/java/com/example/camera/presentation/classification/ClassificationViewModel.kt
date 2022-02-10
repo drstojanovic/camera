@@ -28,10 +28,12 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
     private lateinit var multipleObjectClassifier: MultipleObjectClassifier
     private val _selectedImageSizeLive = SingleLiveEvent<Size>()
     private val _classificationResultLive = MutableLiveData<List<ClassificationResultView>>()
+    private val _fabIconLive = MutableLiveData(R.drawable.ic_pause)
     private val colors = CameraApp.appContext?.resources?.getIntArray(R.array.bbox_colors)
     private var isPaused = false
 
     val selectedImageSizeLive: LiveData<Size> get() = _selectedImageSizeLive
+    val fabIconLive: LiveData<Int> get() = _fabIconLive
     val classifiedObjectsLive: LiveData<List<ClassificationResultView>> = _classificationResultLive
     val detectedObjectsLive: LiveData<List<Recognition>> =
         Transformations.map(_classificationResultLive) { resultList -> resultList.map { it.toRecognition() } }
@@ -61,8 +63,9 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
     }
 
     fun onPlayPauseClick() {
-        setAction(if (isPaused) ClassificationAction.ResumeProcessing else ClassificationAction.PauseProcessing)
         isPaused = !isPaused
+        setAction(if (isPaused) ClassificationAction.PauseProcessing else ClassificationAction.ResumeProcessing)
+        _fabIconLive.postValue(if (isPaused) R.drawable.ic_play else R.drawable.ic_pause)
     }
 
     fun onNetworkStatusChange(hasNetwork: Boolean) {

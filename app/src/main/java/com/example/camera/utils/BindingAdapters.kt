@@ -2,6 +2,7 @@ package com.example.camera.utils
 
 import android.view.View
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
@@ -28,6 +29,11 @@ fun TextView.bindNullableStringResource(resource: Int?) {
 @BindingAdapter("onTextChange")
 fun EditText.bindTextChangeListener(textChangeListener: StringActionListener?) {
     doOnTextChanged { text, _, _, _ -> textChangeListener?.onAction(text?.toString() ?: "") }
+}
+
+@BindingAdapter("srcCompat")
+fun ImageView.bindResourceCompat(resId: Int?) {
+    resId?.let { setImageDrawable(ContextCompat.getDrawable(context, it)) }
 }
 
 @BindingAdapter(value = ["items", "selectedIndex", "onItemSelected"], requireAll = false)
