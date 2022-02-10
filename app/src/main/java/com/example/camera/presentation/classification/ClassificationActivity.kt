@@ -25,6 +25,7 @@ class ClassificationActivity : BaseActivity<ActivityClassificationBinding, Class
                 .putExtra(EXTRA_SETTINGS, settings)
     }
 
+    private val adapter by lazy { ClassificationAdapter() }
     private val cameraUtils by lazy { CameraUtils(this) }
     private val networkStatus: NetworkStatus by lazy { NetworkStatus(this) }
     override val cameraContext get() = this
@@ -45,6 +46,9 @@ class ClassificationActivity : BaseActivity<ActivityClassificationBinding, Class
     private fun setupViews() {
         binding.textureView.surfaceTextureListener =
             OnSurfaceTextureAvailableListener { cameraUtils.setup(displayCompat.rotation) }
+        if (binding.recyclerDetections.adapter == null) {
+            binding.recyclerDetections.adapter = adapter
+        }
     }
 
     private fun setObservers() {

@@ -71,3 +71,6 @@ CODE IMPROVEMENTS:
     - how to dynamically inject ImageProcessor?
 - TrackerOverlayView/cornerSize, why depends on width and height?
 
+Classification screen:
+- add list with details (for each detection show classes up to 3 maybe)
+- add pause

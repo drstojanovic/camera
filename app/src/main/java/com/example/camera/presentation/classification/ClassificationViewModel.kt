@@ -7,11 +7,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.example.camera.CameraApp
+import com.example.camera.R
 import com.example.camera.presentation.base.BaseViewModel
 import com.example.camera.presentation.base.SingleLiveEvent
 import com.example.camera.processing.Settings
 import com.example.camera.processing.classification.CarsClassifier
-import com.example.camera.processing.classification.ClassificationResult
 import com.example.camera.processing.classification.MultipleObjectClassifier
 import com.example.camera.processing.detection.Recognition
 import com.example.camera.processing.detection.toRecognition
@@ -25,11 +25,12 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
 
     private lateinit var multipleObjectClassifier: MultipleObjectClassifier
     private val _selectedImageSizeLive = SingleLiveEvent<Size>()
-    private val _classificationResultLive = MutableLiveData<List<ClassificationResult>>()
+    private val _classificationResultLive = MutableLiveData<List<ClassificationResultView>>()
+    private val colors = CameraApp.appContext?.resources?.getIntArray(R.array.bbox_colors)
 
     val selectedImageSizeLive: LiveData<Size> get() = _selectedImageSizeLive
-    val classificationResultLive: LiveData<List<ClassificationResult>> = _classificationResultLive
-    val classifiedObjectsLive: LiveData<List<Recognition>> =
+    val classifiedObjectsLive: LiveData<List<ClassificationResultView>> = _classificationResultLive
+    val detectedObjectsLive: LiveData<List<Recognition>> =
         Transformations.map(_classificationResultLive) { resultList -> resultList.map { it.toRecognition() } }
 
     fun init(settings: Settings) {
@@ -41,7 +42,10 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
         multipleObjectClassifier.processImage(bitmap, orientation)
             .subscribe(
                 onSuccess = {
-                    _classificationResultLive.postValue(it)
+                    colors?.let { colors ->
+                        it.mapIndexed { index, result -> result.toClassificationResultView(colors[index]) }
+                            .also { _classificationResultLive.postValue(it) }
+                    }
                     setAction(ClassificationAction.ProcessingFinished())
                 },
                 onError = { throwable ->

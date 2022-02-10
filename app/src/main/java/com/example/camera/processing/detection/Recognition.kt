@@ -1,7 +1,7 @@
 package com.example.camera.processing.detection
 
 import android.graphics.RectF
-import com.example.camera.processing.classification.ClassificationResult
+import com.example.camera.presentation.classification.ClassificationResultView
 import com.example.camera.utils.UNKNOWN_CLASSIFICATION_CONFIDENCE
 import com.example.camera.utils.UNKNOWN_CLASSIFICATION_LABEL
 import org.tensorflow.lite.task.vision.detector.Detection
@@ -38,9 +38,9 @@ fun RecognitionRaw.toRecognition(index: Int) = Recognition(
     location = RectF(location[0], location[1], location[2], location[3])
 )
 
-fun ClassificationResult.toRecognition() = Recognition(
+fun ClassificationResultView.toRecognition() = Recognition(
     id = id,
-    title = if (classifications.isNotEmpty()) classifications[0].title else UNKNOWN_CLASSIFICATION_LABEL,
-    confidence = if (classifications.isNotEmpty()) classifications[0].confidence else UNKNOWN_CLASSIFICATION_CONFIDENCE,
+    title = resultPrimary?.title ?: UNKNOWN_CLASSIFICATION_LABEL,
+    confidence = resultPrimary?.confidence ?: UNKNOWN_CLASSIFICATION_CONFIDENCE,
     location = location
 )
