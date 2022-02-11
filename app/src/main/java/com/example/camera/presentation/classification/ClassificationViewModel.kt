@@ -10,6 +10,8 @@ import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.presentation.base.BaseViewModel
 import com.example.camera.presentation.base.SingleLiveEvent
+import com.example.camera.presentation.detection.info.SettingsInfo
+import com.example.camera.presentation.detection.info.toSettingsInfo
 import com.example.camera.processing.Settings
 import com.example.camera.processing.classification.CarsClassifier
 import com.example.camera.processing.classification.MultipleObjectClassifier
@@ -20,9 +22,10 @@ import com.example.camera.utils.TAG
 class ClassificationViewModel : BaseViewModel<ClassificationViewModel.ClassificationAction>() {
 
     sealed class ClassificationAction {
-        class ProcessingFinished(val error: Int? = null) : ClassificationAction()
         object PauseProcessing : ClassificationAction()
         object ResumeProcessing : ClassificationAction()
+        class ProcessingFinished(val error: Int? = null) : ClassificationAction()
+        class ShowInfoDialog(val settingsInfo: SettingsInfo) : ClassificationAction()
     }
 
     private lateinit var multipleObjectClassifier: MultipleObjectClassifier
@@ -61,6 +64,10 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
                 }
             )
     }
+
+    fun onShowInfoSelected() = setAction(
+        ClassificationAction.ShowInfoDialog(multipleObjectClassifier.settings.toSettingsInfo(isClassification = true))
+    )
 
     fun onPlayPauseClick() {
         isPaused = !isPaused

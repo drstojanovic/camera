@@ -6,7 +6,7 @@ import com.example.camera.processing.Settings
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 
-abstract class MultipleObjectClassifier(protected val settings: Settings) {
+abstract class MultipleObjectClassifier(val settings: Settings) {
 
     open fun prepareImage(image: Bitmap, orientation: Int) =
         ImagePreprocessor.setSizeAndOrientation(image, orientation, settings.imageWidth, settings.imageHeight)

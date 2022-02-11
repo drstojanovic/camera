@@ -11,6 +11,7 @@ import com.example.camera.R
 import com.example.camera.databinding.ActivityClassificationBinding
 import com.example.camera.presentation.base.BaseActivity
 import com.example.camera.presentation.classification.ClassificationViewModel.ClassificationAction.*
+import com.example.camera.presentation.detection.info.SettingsInfoDialog
 import com.example.camera.processing.Settings
 import com.example.camera.utils.*
 
@@ -61,6 +62,8 @@ class ClassificationActivity : BaseActivity<ActivityClassificationBinding, Class
                     cameraUtils.onImageProcessed()
                     it.error?.let { errorMsg -> showToast(errorMsg) }
                 }
+                is ShowInfoDialog ->
+                    SettingsInfoDialog(this, it.settingsInfo).show()
             }
         }
     }
