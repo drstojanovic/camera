@@ -12,6 +12,7 @@ import com.example.camera.presentation.base.BaseViewModel
 import com.example.camera.presentation.base.SingleLiveEvent
 import com.example.camera.presentation.detection.info.SettingsInfo
 import com.example.camera.presentation.detection.info.toSettingsInfo
+import com.example.camera.processing.CarNotDetectedException
 import com.example.camera.processing.Settings
 import com.example.camera.processing.SocketDisconnectedException
 import com.example.camera.processing.classification.CarsClassifier
@@ -93,11 +94,20 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
     }
 
     private fun handleProcessingError(throwable: Throwable) {
-        if (hasNetwork && throwable is TimeoutException) {
-            setAction(ClassificationAction.ProcessingFinished(R.string.detection_error_bad_connection))
-        } else if (hasNetwork && throwable is SocketDisconnectedException) {
-            _errorLive.postValue(R.string.detection_error_unable_to_connect)
-            setAction(ClassificationAction.ProcessingFinished())
+        //todo: other error while internet is available????!!!!
+        if (hasNetwork) {
+            when (throwable) {
+                is CarNotDetectedException -> {
+                    _errorLive.postValue(R.string.classification_error_no_cars_detected)
+                    setAction(ClassificationAction.ProcessingFinished())
+                }
+                is SocketDisconnectedException -> {
+                    _errorLive.postValue(R.string.detection_error_unable_to_connect)
+                    setAction(ClassificationAction.ProcessingFinished())
+                }
+                is TimeoutException ->
+                    setAction(ClassificationAction.ProcessingFinished(R.string.detection_error_bad_connection))
+            }
         } else {
             setAction(ClassificationAction.ProcessingFinished())
         }

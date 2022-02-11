@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.RectF
 import android.util.Log
+import com.example.camera.processing.CarNotDetectedException
 import com.example.camera.processing.ImagePreprocessor
 import com.example.camera.processing.Settings
 import com.example.camera.processing.SocketManager
@@ -36,6 +37,7 @@ class CarsClassifier(
     override fun process(image: Bitmap): Single<List<ClassificationResult>> =
         objectDetector.detectObjects(image.getByteArray(settings.imageQuality))
             .filterItems { it.title.trim() == "car" }
+            .map { it.ifEmpty { throw CarNotDetectedException() } }
             .mapItems { it.location }
             .map { getImageCrops(image, it) }
             .flatMap { uploadCropsForClassification(it) }

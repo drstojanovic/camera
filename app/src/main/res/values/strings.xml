@@ -39,5 +39,6 @@
     <string name="classification_setup_detection_threshold">Detection confidence threshold:</string>
     <string name="classification_setup_classification_threshold">Classification confidence threshold:</string>
     <string name="classification_setup_start">Start</string>
+    <string name="classification_error_no_cars_detected">No cars detected</string>
 
 </resources>
