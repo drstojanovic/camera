@@ -2,8 +2,6 @@ package com.example.camera.processing.detection
 
 import android.graphics.RectF
 import com.example.camera.presentation.classification.ClassificationResultView
-import com.example.camera.utils.UNKNOWN_CLASSIFICATION_CONFIDENCE
-import com.example.camera.utils.UNKNOWN_CLASSIFICATION_LABEL
 import org.tensorflow.lite.task.vision.detector.Detection
 
 data class Recognition(
@@ -24,11 +22,16 @@ data class Recognition(
         }
 }
 
-fun Detection.toRecognition(index: Int) = Recognition(
+fun Detection.toRecognition(index: Int, width: Float, height: Float) = Recognition(
     id = (index + 1).toString(),
     title = categories[0].label,
     confidence = categories[0].score * 100,
-    location = boundingBox
+    location = RectF(
+        if (boundingBox.left > 0) boundingBox.left else 0f,
+        if (boundingBox.top > 0) boundingBox.top else 0f,
+        if (boundingBox.right < width) boundingBox.right else width,
+        if (boundingBox.bottom < height) boundingBox.bottom else height
+    )
 )
 
 fun RecognitionRaw.toRecognition(index: Int) = Recognition(
@@ -40,7 +43,7 @@ fun RecognitionRaw.toRecognition(index: Int) = Recognition(
 
 fun ClassificationResultView.toRecognition() = Recognition(
     id = id,
-    title = resultPrimary?.title ?: UNKNOWN_CLASSIFICATION_LABEL,
-    confidence = resultPrimary?.confidence ?: UNKNOWN_CLASSIFICATION_CONFIDENCE,
+    title = resultPrimary.title,
+    confidence = resultPrimary.confidence,
     location = location
 )

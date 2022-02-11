@@ -34,6 +34,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/txt_result_main"
                 app:visibility="@{data.resultPrimary != null}"
+                tools:backgroundTint="@color/colorBoxRed"
                 tools:text="76.3%" />
 
             <TextView
@@ -42,13 +43,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_small"
                 android:text="@{data.resultPrimary.title}"
+                android:textColor="@{data.color}"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/txt_primary_result_confidence"
                 app:layout_constraintTop_toTopOf="parent"
-                app:visibility="@{data.resultPrimary != null}"
                 tools:text="Audi S4 Sedan 2012"
-                tools:textColor="@color/colorAccent" />
+                tools:textColor="@color/colorBoxRed" />
 
             <TextView
                 android:id="@+id/txt_secondary_result_confidence"
@@ -62,6 +63,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/txt_result_second"
                 app:visibility="@{data.resultSecondary != null}"
+                tools:backgroundTint="@color/colorBoxRed"
                 tools:text="76.3%" />
 
             <TextView
@@ -90,6 +92,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/txt_result_third"
                 app:visibility="@{data.resultTertiary != null}"
+                tools:backgroundTint="@color/colorBoxRed"
                 tools:text="76.3%" />
 
             <TextView

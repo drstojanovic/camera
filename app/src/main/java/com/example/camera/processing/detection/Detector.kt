@@ -22,7 +22,7 @@ class Detector(
 
     override fun recognizeImage(bitmap: Bitmap): List<Recognition> =
         objectDetector.detect(TensorImage.fromBitmap(bitmap))
-            .mapIndexed { index, detection -> detection.toRecognition(index) }
+            .mapIndexed { i, result -> result.toRecognition(i, bitmap.width.toFloat(), bitmap.height.toFloat()) }
 
     override fun setNumberOfThreads(numberOfThreads: Int) {
         optionsBuilder.setBaseOptions(BaseOptions.builder().setNumThreads(numberOfThreads).build())
