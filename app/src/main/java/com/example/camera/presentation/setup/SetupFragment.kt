@@ -7,12 +7,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.camera.R
 import com.example.camera.databinding.FragmentSetupBinding
 import com.example.camera.presentation.base.BaseFragment
-import com.example.camera.presentation.classification.ClassificationActivity
-import com.example.camera.presentation.detection.DetectionActivity
 import com.example.camera.presentation.setup.SetupViewModel.SetupAction
 import com.example.camera.utils.NetworkStatus
 import com.example.camera.utils.observe
@@ -77,11 +76,11 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
     }
 
     private fun proceedToCameraScreen() = viewModel.settings?.let { settings ->
-        startActivity(
+        findNavController().navigate(
             if (args.isClassificationMode) {
-                ClassificationActivity.createIntent(settings)
+                SetupFragmentDirections.actionSetupFragmentToClassificationFragment(settings)
             } else {
-                DetectionActivity.createIntent(settings)
+                SetupFragmentDirections.actionSetupFragmentToDetectionFragment(settings)
             }
         )
     }

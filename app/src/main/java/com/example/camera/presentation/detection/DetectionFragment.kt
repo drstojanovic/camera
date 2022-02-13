@@ -1,48 +1,39 @@
 package com.example.camera.presentation.detection
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import com.example.camera.CameraApp
+import android.view.View
+import androidx.navigation.fragment.navArgs
 import com.example.camera.R
-import com.example.camera.databinding.ActivityDetectionBinding
-import com.example.camera.presentation.base.BaseActivity
+import com.example.camera.databinding.FragmentDetectionBinding
+import com.example.camera.presentation.base.BaseFragment
 import com.example.camera.presentation.detection.DetectionViewModel.DetectionAction
 import com.example.camera.presentation.detection.info.SettingsInfo
 import com.example.camera.presentation.detection.info.SettingsInfoDialog
-import com.example.camera.processing.Settings
 import com.example.camera.utils.*
 
-class DetectionActivity : BaseActivity<ActivityDetectionBinding, DetectionViewModel>(),
+class DetectionFragment : BaseFragment<FragmentDetectionBinding, DetectionViewModel>(),
     CameraUtils.CameraEventListener {
 
-    companion object {
-        private const val EXTRA_SETTINGS = "settings"
-
-        fun createIntent(settings: Settings) =
-            Intent(CameraApp.appContext!!, DetectionActivity::class.java).putExtra(EXTRA_SETTINGS, settings)
-    }
-
+    private val args: DetectionFragmentArgs by navArgs()
     private val detectionAdapter by lazy { DetectionAdapter(resources) }
     private val cameraUtils by lazy { CameraUtils(this) }
-    private val networkStatus: NetworkStatus by lazy { NetworkStatus(this) }
-    override val cameraContext: Context get() = this
+    private val networkStatus: NetworkStatus by lazy { NetworkStatus(context) }
+    override val cameraContext: Context get() = requireContext()
 
-    override fun provideLayoutId() = R.layout.activity_detection
+    override fun provideLayoutId() = R.layout.fragment_detection
 
     override fun provideViewModelClass() = DetectionViewModel::class.java
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setObservers()
         setupViews()
-        intent.getParcelableExtra<Settings>(EXTRA_SETTINGS)?.let { settings ->
-            viewModel.initImageProcessor(settings)
-        }
+        viewModel.initImageProcessor(args.settings)
     }
 
     private fun setObservers() {
@@ -60,8 +51,9 @@ class DetectionActivity : BaseActivity<ActivityDetectionBinding, DetectionViewMo
     }
 
     private fun setupViews() {
-        binding.textureView.surfaceTextureListener =
-            OnSurfaceTextureAvailableListener { cameraUtils.setup(displayCompat.rotation) }
+        displayCompat?.rotation?.let {
+            binding.textureView.surfaceTextureListener = OnSurfaceTextureAvailableListener { cameraUtils.setup(it) }
+        }
         if (binding.recyclerDetections.adapter == null) {
             binding.recyclerDetections.adapter = detectionAdapter
         }
@@ -83,7 +75,7 @@ class DetectionActivity : BaseActivity<ActivityDetectionBinding, DetectionViewMo
         viewModel.onImageAvailable(bitmap, orientation)
 
     private fun showInfoDialog(settingsInfo: SettingsInfo) =
-        SettingsInfoDialog(this, settingsInfo).show()
+        context?.let { SettingsInfoDialog(it, settingsInfo).show() }
 
     private fun saveImage() {
         cameraUtils.saveImage()

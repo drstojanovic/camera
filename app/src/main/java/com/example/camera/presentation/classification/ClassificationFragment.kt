@@ -1,52 +1,43 @@
 package com.example.camera.presentation.classification
 
-import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import com.example.camera.CameraApp
+import android.view.View
+import androidx.navigation.fragment.navArgs
 import com.example.camera.R
-import com.example.camera.databinding.ActivityClassificationBinding
-import com.example.camera.presentation.base.BaseActivity
+import com.example.camera.databinding.FragmentClassificationBinding
+import com.example.camera.presentation.base.BaseFragment
 import com.example.camera.presentation.classification.ClassificationViewModel.ClassificationAction.*
 import com.example.camera.presentation.detection.info.SettingsInfoDialog
-import com.example.camera.processing.Settings
 import com.example.camera.utils.*
 
-class ClassificationActivity : BaseActivity<ActivityClassificationBinding, ClassificationViewModel>(),
+class ClassificationFragment : BaseFragment<FragmentClassificationBinding, ClassificationViewModel>(),
     CameraUtils.CameraEventListener {
 
-    companion object {
-        private const val EXTRA_SETTINGS = "extra_settings"
-
-        fun createIntent(settings: Settings) =
-            Intent(CameraApp.appContext, ClassificationActivity::class.java)
-                .putExtra(EXTRA_SETTINGS, settings)
-    }
-
+    private val args: ClassificationFragmentArgs by navArgs()
     private val adapter by lazy { ClassificationAdapter() }
     private val cameraUtils by lazy { CameraUtils(this) }
-    private val networkStatus: NetworkStatus by lazy { NetworkStatus(this) }
-    override val cameraContext get() = this
+    private val networkStatus: NetworkStatus by lazy { NetworkStatus(context) }
+    override val cameraContext get() = requireContext()
 
-    override fun provideLayoutId() = R.layout.activity_classification
+    override fun provideLayoutId() = R.layout.fragment_classification
 
     override fun provideViewModelClass() = ClassificationViewModel::class.java
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupViews()
         setObservers()
-        intent.getParcelableExtra<Settings>(EXTRA_SETTINGS)?.let { settings ->
-            viewModel.init(settings)
-        }
+        viewModel.init(args.settings)
     }
 
     private fun setupViews() {
-        binding.textureView.surfaceTextureListener =
-            OnSurfaceTextureAvailableListener { cameraUtils.setup(displayCompat.rotation) }
+        displayCompat?.rotation?.let {
+            binding.textureView.surfaceTextureListener = OnSurfaceTextureAvailableListener { cameraUtils.setup(it) }
+        }
         if (binding.recyclerDetections.adapter == null) {
             binding.recyclerDetections.adapter = adapter
         }
@@ -62,8 +53,9 @@ class ClassificationActivity : BaseActivity<ActivityClassificationBinding, Class
                     cameraUtils.onImageProcessed()
                     it.error?.let { errorMsg -> showToast(errorMsg) }
                 }
-                is ShowInfoDialog ->
-                    SettingsInfoDialog(this, it.settingsInfo).show()
+                is ShowInfoDialog -> context?.let { ctx ->
+                    SettingsInfoDialog(ctx, it.settingsInfo).show()
+                }
             }
         }
     }

@@ -22,7 +22,32 @@
         <argument
             android:name="isClassificationMode"
             android:defaultValue="false"
-            app:argType="boolean"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_setupFragment_to_detectionFragment"
+            app:destination="@id/detectionFragment" />
+        <action
+            android:id="@+id/action_setupFragment_to_classificationFragment"
+            app:destination="@id/classificationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detectionFragment"
+        android:name="com.example.camera.presentation.detection.DetectionFragment"
+        android:label="DetectionFragment"
+        tools:layout="@layout/fragment_detection">
+        <argument
+            android:name="settings"
+            app:argType="com.example.camera.processing.Settings"
+            app:nullable="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/classificationFragment"
+        android:name="com.example.camera.presentation.classification.ClassificationFragment"
+        android:label="ClassificationFragment"
+        tools:layout="@layout/fragment_detection">
+        <argument
+            android:name="settings"
+            app:argType="com.example.camera.processing.Settings"
             app:nullable="false" />
     </fragment>
 </navigation>

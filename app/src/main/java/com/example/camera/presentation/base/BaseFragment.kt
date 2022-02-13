@@ -29,9 +29,11 @@ abstract class BaseFragment<BindingT : ViewDataBinding, ViewModelT : BaseViewMod
 
     abstract fun provideViewModelClass(): Class<ViewModelT>
 
-    protected fun showToast(@StringRes message: Int, duration: Int = Toast.LENGTH_SHORT) =
+    protected fun showToast(@StringRes message: Int, duration: Int = Toast.LENGTH_SHORT) {
         context?.let { Toast.makeText(it, message, duration).show() }
+    }
 
-    protected fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT) =
+    protected fun showToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
         context?.let { Toast.makeText(it, message, duration).show() }
+    }
 }

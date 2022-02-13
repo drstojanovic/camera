@@ -33,13 +33,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".presentation.detection.DetectionActivity"
-            android:clearTaskOnLaunch="true"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".presentation.classification.ClassificationActivity"
-            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

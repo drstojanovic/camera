@@ -15,11 +15,13 @@ class AppModeFragment : BaseFragment<FragmentModeChooserBinding, AppModeViewMode
 
     override fun provideViewModelClass() = AppModeViewModel::class.java
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?){
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         observe(viewModel.action) {
             when (it) {
                 ModeAction.CAR_BRAND_CLASSIFICATION ->
-                    findNavController().navigate(AppModeFragmentDirections.actionAppModeFragmentToSetupFragment()) //todo:add argument here
+                    findNavController().navigate(
+                        AppModeFragmentDirections.actionAppModeFragmentToSetupFragment(isClassificationMode = true)
+                    )
                 ModeAction.DETECTION ->
                     findNavController().navigate(AppModeFragmentDirections.actionAppModeFragmentToSetupFragment())
             }
