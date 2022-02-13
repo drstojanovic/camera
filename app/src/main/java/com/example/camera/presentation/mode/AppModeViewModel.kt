@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.camera.presentation.base.BaseViewModel
 
-class ModeViewModel : BaseViewModel<ModeViewModel.ModeAction>() {
+class AppModeViewModel : BaseViewModel<AppModeViewModel.ModeAction>() {
 
     enum class ModeAction {
         CAR_BRAND_CLASSIFICATION,

@@ -7,7 +7,7 @@
 
         <variable
             name="vm"
-            type="com.example.camera.presentation.mode.ModeViewModel" />
+            type="com.example.camera.presentation.mode.AppModeViewModel" />
 
     </data>
 
