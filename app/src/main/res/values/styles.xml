@@ -7,8 +7,9 @@
         <item name="windowActionBarOverlay">true</item>
     </style>
 
-    <style name="SplashTheme" parent="AppTheme">
-        <item name="android:background">@drawable/traffic</item>
+    <style name="SplashTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/colorPrimaryDark</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
     </style>
 
     <style name="TextLabelStyle">
