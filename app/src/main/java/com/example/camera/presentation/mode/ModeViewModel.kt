@@ -13,19 +13,19 @@ class ModeViewModel : BaseViewModel<ModeViewModel.ModeAction>() {
         DETECTION
     }
 
-    private val _selectedImageLive = MutableLiveData(R.drawable.drawing_with_classifications2)
+    private val _selectedImageLive = MutableLiveData(R.drawable.drawing_with_classifications_accent2)
 
     val selectedImageLive: LiveData<Int> get() = _selectedImageLive
     val classificationSelected: LiveData<Boolean> =
-        Transformations.map(_selectedImageLive) { it == R.drawable.drawing_with_classifications2 }
+        Transformations.map(_selectedImageLive) { it == R.drawable.drawing_with_classifications_accent2 }
     val detectionSelected: LiveData<Boolean> =
-        Transformations.map(_selectedImageLive) { it == R.drawable.drawing_with_detections3 }
+        Transformations.map(_selectedImageLive) { it == R.drawable.drawing_with_detections3_acent2 }
 
     fun onCarClassificationSelected() =
-        _selectedImageLive.postValue(R.drawable.drawing_with_classifications2)
+        _selectedImageLive.postValue(R.drawable.drawing_with_classifications_accent2)
 
     fun onObjectDetectionSelected() =
-        _selectedImageLive.postValue(R.drawable.drawing_with_detections3)
+        _selectedImageLive.postValue(R.drawable.drawing_with_detections3_acent2)
 
     fun onProceedButtonClick() =
         setAction(
