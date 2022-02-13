@@ -35,6 +35,7 @@
 
     <string name="mode_chooser_classification">Car Brand Classification</string>
     <string name="mode_chooser_detection">Traffic Object Detection</string>
+    <string name="mode_description">Please choose how you would like to use the app.</string>
 
     <string name="classification_setup_detection_threshold">Detection confidence threshold:</string>
     <string name="classification_setup_classification_threshold">Classification confidence threshold:</string>
