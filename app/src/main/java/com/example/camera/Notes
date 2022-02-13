@@ -73,6 +73,4 @@ CODE IMPROVEMENTS:
 
 Classification screen:
 - create data layer and organize architecture better
-- multiple cars classification is slow and lagging
-- check color (third should be blue)
 - not resuming after error (no internet, no cars...)

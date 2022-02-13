@@ -36,6 +36,9 @@
     <string name="mode_chooser_classification">Car Brand Classification</string>
     <string name="mode_chooser_detection">Traffic Object Detection</string>
     <string name="mode_description">Please choose how you would like to use the app.</string>
+    <string name="mode_description_classification">Detect cars and find their brands among over 100 most popular ones.</string>
+    <string name="mode_description_detection">Able to detect 5 types of object in traffic:\nCar, Truck, Bus, Biker and Pedestrian</string>
+    <string name="mode_proceed">Continue</string>
 
     <string name="classification_setup_detection_threshold">Detection confidence threshold:</string>
     <string name="classification_setup_classification_threshold">Classification confidence threshold:</string>

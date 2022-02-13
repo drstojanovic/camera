@@ -16,6 +16,17 @@
         android:layout_height="match_parent"
         android:background="@drawable/traffic">
 
+        <ImageView
+            android:id="@+id/img_logo"
+            android:layout_width="92dp"
+            android:layout_height="92dp"
+            android:layout_marginBottom="@dimen/margin_half"
+            android:src="@drawable/ic_launcher_foreground"
+            app:layout_constraintBottom_toTopOf="@id/txt_logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="ContentDescription" />
+
         <TextView
             android:id="@+id/txt_logo"
             android:layout_width="wrap_content"
@@ -26,34 +37,22 @@
             android:textColor="@color/white"
             android:textSize="36sp"
             android:transitionName="@string/transition_name_logo"
+            app:layout_constraintBottom_toTopOf="@+id/card_options"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/img_demo"
-            android:layout_width="0dp"
-            android:layout_height="300dp"
-            android:layout_margin="@dimen/margin_medium"
-            android:layout_marginTop="68dp"
-            app:layout_constrainedHeight="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txt_logo"
-            app:srcCompat="@{vm.selectedImageLive}"
-            tools:ignore="ContentDescription"
-            tools:src="@tools:sample/backgrounds/scenic" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5" />
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/card_options"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_medium"
             app:cardBackgroundColor="#71FFFFFF"
             app:cardCornerRadius="8dp"
             app:layout_constraintBottom_toTopOf="@id/btn_detection"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/img_demo">
+            app:layout_constraintStart_toStartOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -63,7 +62,7 @@
                     android:id="@+id/txt_description"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_half"
+                    android:layout_margin="@dimen/margin_medium"
                     android:text="@string/mode_description"
                     android:textColor="@color/black"
                     android:textSize="16sp"
@@ -75,6 +74,8 @@
                     android:id="@+id/radio_group"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_medium"
+                    android:layout_marginBottom="@dimen/margin_medium"
                     android:paddingStart="@dimen/margin_half"
                     android:paddingEnd="@dimen/margin_half"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -83,21 +84,41 @@
                     app:layout_constraintTop_toBottomOf="@id/txt_description">
 
                     <RadioButton
+                        android:id="@+id/radio_detection"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:buttonTint="@color/colorAccent"
-                        android:checked="@{vm.classificationSelected}"
-                        android:onClick="@{() -> vm.onCarClassificationSelected()}"
-                        android:text="@string/mode_chooser_classification" />
+                        android:checked="@{vm.selectedDetectionLive}"
+                        android:onClick="@{() -> vm.onObjectDetectionSelected()}"
+                        android:text="@string/mode_chooser_detection"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_default"
+                        android:labelFor="@id/radio_detection"
+                        android:onClick="@{() -> vm.onObjectDetectionSelected()}"
+                        android:text="@string/mode_description_detection" />
 
                     <RadioButton
+                        android:id="@+id/radio_classification"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/margin_half"
                         android:buttonTint="@color/colorAccent"
-                        android:checked="@{vm.detectionSelected}"
-                        android:onClick="@{() -> vm.onObjectDetectionSelected()}"
-                        android:text="@string/mode_chooser_detection" />
+                        android:checked="@{!vm.selectedDetectionLive}"
+                        android:onClick="@{() -> vm.onCarClassificationSelected()}"
+                        android:text="@string/mode_chooser_classification"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_default"
+                        android:labelFor="@id/radio_classification"
+                        android:onClick="@{() -> vm.onCarClassificationSelected()}"
+                        android:text="@string/mode_description_classification" />
 
                 </RadioGroup>
 
@@ -115,7 +136,7 @@
             android:layout_marginBottom="@dimen/margin_medium"
             android:background="@drawable/bg_button_primary"
             android:onClick="@{() -> vm.onProceedButtonClick()}"
-            android:text="@string/setup_start_detection"
+            android:text="@string/mode_proceed"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
