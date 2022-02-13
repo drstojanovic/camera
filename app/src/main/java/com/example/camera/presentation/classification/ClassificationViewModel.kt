@@ -94,7 +94,6 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
     }
 
     private fun handleProcessingError(throwable: Throwable) {
-        //todo: other error while internet is available????!!!!
         if (hasNetwork) {
             when (throwable) {
                 is CarNotDetectedException -> {
@@ -107,6 +106,8 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
                 }
                 is TimeoutException ->
                     setAction(ClassificationAction.ProcessingFinished(R.string.detection_error_bad_connection))
+                else ->
+                    setAction(ClassificationAction.ProcessingFinished())
             }
         } else {
             setAction(ClassificationAction.ProcessingFinished())

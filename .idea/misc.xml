@@ -23,10 +23,12 @@
         <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/activity_mode_chooser.xml" value="0.3546875" />
         <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/activity_setup.xml" value="0.3546875" />
         <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/dialog_settings_info.xml" value="0.3546875" />
+        <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/fragment_classification.xml" value="0.3546875" />
+        <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/fragment_detection.xml" value="0.3546875" />
         <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/fragment_mode_chooser.xml" value="0.3546875" />
         <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/item_classification.xml" value="0.2966417910447761" />
         <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/item_detection.xml" value="0.3546875" />
-        <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/partial_processing_error_card.xml" value="0.3546875" />
+        <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/partial_processing_error_card.xml" value="0.26576576576576577" />
         <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/partial_setting_info.xml" value="0.3546875" />
         <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/layout/view_seek_bar_composite.xml" value="0.3546875" />
         <entry key="..\:/Development/Android/Personal/camera/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.37083333333333335" />
