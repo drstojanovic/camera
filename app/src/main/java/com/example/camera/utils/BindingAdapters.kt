@@ -50,30 +50,6 @@ fun Spinner.bindSpinnerItems(items: List<String>, selectedIndex: Int?, onItemSel
     selectedIndex?.let { setSelection(it) }
 }
 
-@BindingAdapter(value = ["min", "max", "step", "progress", "onProgressChange"], requireAll = false)
-fun SeekBar.bindSlideListener(
-    min: Int,
-    max: Int,
-    step: Int?,
-    progress: Int?,
-    onProgressChangeListener: ActionListener
-) {
-    val nnStep = step ?: 1
-    val realProgress = progress?.let { (it - min) / nnStep } ?: 0
-    val realMax = (max - min) / nnStep
-    val realMin = min / nnStep
-
-    setMax(realMax)
-    this.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-        override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-        override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
-        override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-            onProgressChangeListener.onAction((progress + realMin) * nnStep)
-        }
-    })
-    setProgress(realProgress)
-}
-
 @BindingAdapter("items")
 fun RecyclerView.bindItems(items: List<String>) {
     (adapter as DetectionAdapter).setItems(items)

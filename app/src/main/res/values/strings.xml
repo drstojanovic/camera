@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">Traffic Assistant</string>
-    <string name="cancel">Cancel</string>
-    <string name="save">Save</string>
     <string name="close">Close</string>
 
     <string name="transition_name_logo">Logo</string>
@@ -42,7 +40,6 @@
 
     <string name="classification_setup_detection_threshold">Detection confidence threshold:</string>
     <string name="classification_setup_classification_threshold">Classification confidence threshold:</string>
-    <string name="classification_setup_start">Start</string>
     <string name="classification_error_no_cars_detected">No cars detected</string>
 
 </resources>

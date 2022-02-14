@@ -6,8 +6,8 @@ import android.util.AttributeSet
 import android.util.Size
 import android.widget.FrameLayout
 import com.example.camera.R
-import com.example.camera.processing.detection.Recognition
 import com.example.camera.presentation.detection.TrackingBox
+import com.example.camera.processing.detection.Recognition
 import com.example.camera.utils.ImageUtils
 import com.example.camera.utils.spToPx
 import com.example.camera.utils.withColor

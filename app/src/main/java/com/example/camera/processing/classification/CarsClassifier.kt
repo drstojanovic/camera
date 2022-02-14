@@ -3,7 +3,6 @@ package com.example.camera.processing.classification
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.RectF
-import android.util.Log
 import com.example.camera.processing.CarNotDetectedException
 import com.example.camera.processing.ImagePreprocessor
 import com.example.camera.processing.Settings
@@ -58,7 +57,6 @@ class CarsClassifier(
     private fun uploadCropsForClassification(crops: List<ImageCrop>): Single<List<ClassificationResult>> =
         socketManager.emitEvent(EVENT_CLASSIFY_CARS, *(crops.map { it.encodedBytes }.toTypedArray()))
             .map { result ->
-                Log.d("sentic", "result: ${result[0]}")
                 if (result.isNotEmpty() && result[0] != "") {
                     classificationAdapter.fromJson(result[0].toString())?.let { classifications ->
                         classifications.mapIndexed { index, classificationRaw ->

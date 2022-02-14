@@ -12,7 +12,8 @@ import com.example.camera.presentation.base.BaseViewModel
 import com.example.camera.presentation.base.SingleLiveEvent
 import com.example.camera.presentation.detection.info.SettingsInfo
 import com.example.camera.presentation.detection.info.toSettingsInfo
-import com.example.camera.processing.*
+import com.example.camera.processing.Settings
+import com.example.camera.processing.SocketDisconnectedException
 import com.example.camera.processing.detection.*
 import com.example.camera.utils.TAG
 import java.util.concurrent.TimeoutException
