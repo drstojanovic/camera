@@ -35,6 +35,7 @@ class AppModeFragment : BaseFragment<FragmentModeChooserBinding, AppModeViewMode
 
     private fun getTransitionExtras() = FragmentNavigatorExtras(
         binding.txtLogo to binding.txtLogo.transitionName,
-        binding.cardOptions to binding.cardOptions.transitionName
+        binding.cardOptions to binding.cardOptions.transitionName,
+        binding.imgLogo to binding.imgLogo.transitionName
     )
 }
