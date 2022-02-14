@@ -6,6 +6,7 @@ import android.util.Size
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.presentation.base.BaseViewModel
@@ -20,6 +21,9 @@ import com.example.camera.processing.classification.MultipleObjectClassifier
 import com.example.camera.processing.detection.Recognition
 import com.example.camera.processing.detection.toRecognition
 import com.example.camera.utils.TAG
+import com.example.camera.utils.collect
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeoutException
 
 class ClassificationViewModel : BaseViewModel<ClassificationViewModel.ClassificationAction>() {
@@ -52,14 +56,14 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
         _selectedImageSizeLive.postValue(settings.imageSize)
     }
 
-    fun onImageAvailable(bitmap: Bitmap, orientation: Int) {
-        if (isPaused) return
+    fun onImageAvailable(bitmap: Bitmap, orientation: Int) = viewModelScope.launch {
+        if (isPaused) return@launch
 
         multipleObjectClassifier.processImage(bitmap, orientation)
-            .subscribe(
-                onSuccess = {
+            .collect(
+                onSuccess = { result ->
                     colors?.let { colors ->
-                        it.mapIndexed { index, result -> result.toClassificationResultView(colors[index]) }
+                        result?.mapIndexed { index, result -> result.toClassificationResultView(colors[index]) }
                             .also { _classificationResultLive.postValue(it) }
                     }
                     setAction(ClassificationAction.ProcessingFinished())
@@ -104,7 +108,7 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
                     _errorLive.postValue(R.string.detection_error_unable_to_connect)
                     setAction(ClassificationAction.ProcessingFinished())
                 }
-                is TimeoutException ->
+                is TimeoutCancellationException ->
                     setAction(ClassificationAction.ProcessingFinished(R.string.detection_error_bad_connection))
                 else ->
                     setAction(ClassificationAction.ProcessingFinished())

@@ -15,6 +15,7 @@ import com.example.camera.presentation.detection.DetectionViewModel.DetectionAct
 import com.example.camera.presentation.detection.info.SettingsInfo
 import com.example.camera.presentation.detection.info.SettingsInfoDialog
 import com.example.camera.utils.*
+import kotlinx.coroutines.Job
 
 class DetectionFragment : BaseFragment<FragmentDetectionBinding, DetectionViewModel>(),
     CameraUtils.CameraEventListener {
@@ -71,8 +72,9 @@ class DetectionFragment : BaseFragment<FragmentDetectionBinding, DetectionViewMo
         }
     }
 
-    override fun onImageAvailable(bitmap: Bitmap, orientation: Int) =
+    override fun onImageAvailable(bitmap: Bitmap, orientation: Int) {
         viewModel.onImageAvailable(bitmap, orientation)
+    }
 
     private fun showInfoDialog(settingsInfo: SettingsInfo) =
         context?.let { SettingsInfoDialog(it, settingsInfo).show() }

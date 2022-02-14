@@ -5,7 +5,7 @@ import com.example.camera.repository.SettingsRepository
 
 class StoreSettings {
 
-    fun execute(settings: Settings, isClassification: Boolean) = if (isClassification) {
+    suspend fun execute(settings: Settings, isClassification: Boolean) = if (isClassification) {
         SettingsRepository.storeClassificationSettings(settings)
     } else {
         SettingsRepository.storeDetectionSettings(settings)

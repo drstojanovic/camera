@@ -4,11 +4,12 @@ import android.graphics.Bitmap
 import com.example.camera.processing.ImagePreprocessor
 import com.example.camera.processing.Settings
 import com.example.camera.utils.ImageUtils.getByteArray
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import com.example.camera.utils.tryToExecute
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 const val TAG = "ImageProcessor"
-const val MAX_PROCESSING_TIME_SECONDS = 5L
+const val MAX_PROCESSING_TIME_MILLIS = 5000L
 
 abstract class ObjectDetector(val settings: Settings) {
 
@@ -20,22 +21,24 @@ abstract class ObjectDetector(val settings: Settings) {
      * Called for raw (non-preprocessed) bitmap just taken from camera.
      * Here, before detection itself, bitmap is properly resized and rotated.
      */
-    fun processImage(image: Bitmap, orientation: Int): Single<DetectionResult> {
-        var bytes: ByteArray = byteArrayOf()
-        val processingStart = System.currentTimeMillis()
+    suspend fun processImage(image: Bitmap, orientation: Int): Result<DetectionResult> =
+        withContext(Dispatchers.Default) {
+            var bytes: ByteArray
+            val processingStart = System.currentTimeMillis()
 
-        return Single.fromCallable { preprocessImage(image, orientation) }
-            .map { bitmap -> bitmap.getByteArray(imageQuality = settings.imageQuality).also { bytes = it } }
-            .flatMap { imageBytes -> detectObjects(imageBytes) }
-            .map { generateProcessingResult(it, bytes.size, processingStart) }
-            .subscribeOn(Schedulers.computation())
-    }
+            tryToExecute {
+                preprocessImage(image, orientation)
+                    .let { bitmap -> bitmap.getByteArray(imageQuality = settings.imageQuality).also { bytes = it } }
+                    .let { imageBytes -> detectObjects(imageBytes) }
+                    .let { generateProcessingResult(it, bytes.size, processingStart) }
+            }
+        }
 
     /**
      * Called for image bytes got from bitmap.
      * Here, it is considered that image(bytes) is previously preprocessed (orientation, size).
      */
-    abstract fun detectObjects(imageBytes: ByteArray): Single<List<Recognition>>
+    abstract suspend fun detectObjects(imageBytes: ByteArray): List<Recognition>
 
     open fun dispose() {}
 

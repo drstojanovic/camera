@@ -6,16 +6,20 @@ import android.util.Size
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import com.example.camera.CameraApp
 import com.example.camera.R
 import com.example.camera.presentation.base.BaseViewModel
 import com.example.camera.presentation.base.SingleLiveEvent
 import com.example.camera.presentation.detection.info.SettingsInfo
 import com.example.camera.presentation.detection.info.toSettingsInfo
-import com.example.camera.processing.*
+import com.example.camera.processing.Settings
+import com.example.camera.processing.SocketDisconnectedException
 import com.example.camera.processing.detection.*
 import com.example.camera.utils.TAG
-import java.util.concurrent.TimeoutException
+import com.example.camera.utils.collect
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.launch
 
 class DetectionViewModel : BaseViewModel<DetectionViewModel.DetectionAction>() {
 
@@ -48,11 +52,11 @@ class DetectionViewModel : BaseViewModel<DetectionViewModel.DetectionAction>() {
         _selectedImageSizeLive.postValue(settings.imageSize)
     }
 
-    fun onImageAvailable(bitmap: Bitmap, orientation: Int) {
+    fun onImageAvailable(bitmap: Bitmap, orientation: Int) =viewModelScope.launch {
         objectDetector.processImage(bitmap, orientation)
-            .subscribe(
-                onSuccess = { result: DetectionResult ->
-                    _recognitionsLive.postValue(result.recognitions)
+            .collect(
+                onSuccess = { result: DetectionResult? ->
+                    _recognitionsLive.postValue(result?.recognitions)
                     _processingResultLive.postValue(result)
                     setAction(DetectionAction.ProcessingFinished())
                     _errorLive.postValue(null)
@@ -87,7 +91,7 @@ class DetectionViewModel : BaseViewModel<DetectionViewModel.DetectionAction>() {
     }
 
     private fun handleProcessingError(throwable: Throwable) {
-        if (hasNetwork && throwable is TimeoutException) {
+        if (hasNetwork && throwable is TimeoutCancellationException) {
             setAction(DetectionAction.ProcessingFinished(R.string.detection_error_bad_connection))
         } else if (hasNetwork && throwable is SocketDisconnectedException) {
             _errorLive.postValue(R.string.detection_error_unable_to_connect)

@@ -8,7 +8,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import io.reactivex.Single
+import java.lang.Exception
 
 val Any.TAG: String
     get() = this::class.java.simpleName
@@ -31,8 +31,16 @@ fun <T> LifecycleOwner.observe(liveData: LiveData<T>, action: (T) -> Unit) {
     liveData.observe(this) { action.invoke(it) }
 }
 
-fun <T, R> Single<List<T>>.mapItems(mapper: ((T) -> R)): Single<List<R>> =
-    this.map { list -> list.map { mapper.invoke(it) } }
+suspend fun <T> tryToExecute(block: suspend () -> T): Result<T> =
+    try {
+        Result.success(block.invoke())
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
 
-fun <T> Single<List<T>>.filterItems(predicate: ((T) -> Boolean)): Single<List<T>> =
-    this.map { list -> list.filter(predicate) }
+suspend fun <T> Result<T>.collect(onSuccess: (T?) -> Unit, onError: (e: Throwable) -> Unit) =
+    if (this.isSuccess) {
+        onSuccess.invoke(this.getOrNull())
+    } else {
+        onError.invoke(this.exceptionOrNull()!!)
+    }

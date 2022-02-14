@@ -8,7 +8,6 @@ import com.example.camera.utils.EVENT_IMAGE
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import io.reactivex.Single
 
 /**
  * Socket.io docs
@@ -25,13 +24,12 @@ class RemoteObjectDetector(
 
     override fun dispose() = socketManager.dispose()
 
-    override fun detectObjects(imageBytes: ByteArray): Single<List<Recognition>> =
+    override suspend fun detectObjects(imageBytes: ByteArray): List<Recognition> =
         socketManager.emitEvent(EVENT_IMAGE, ImagePreprocessor.encodeBytes(imageBytes))
-            .map { result ->
-                if (result.isNotEmpty() && result[0] != "") {
-                    recognitionAdapter.fromJson(result[0].toString())?.let { recs ->
-                        recs.mapIndexed { index, r -> r.toRecognition(index) }
-                    }
+            .let { result ->
+                if (result.isNullOrEmpty() && result[0] != "") {
+                    recognitionAdapter.fromJson(result[0].toString())
+                        ?.let { recs -> recs.mapIndexed { index, r -> r.toRecognition(index) } }!!
                 } else listOf()
             }
 }

@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import kotlin.coroutines.suspendCoroutine
 import kotlin.math.max
 
 // This value is 2 ^ 18 - 1, and is used to clamp the RGB values before their ranges
@@ -165,9 +166,11 @@ object ImageUtils {
         }
     }
 
-    fun Bitmap.getByteArray(imageQuality: Int): ByteArray =
-        ByteArrayOutputStream().let { byteArrayOutputStream ->
-            this.compress(Bitmap.CompressFormat.JPEG, imageQuality, byteArrayOutputStream)
-            byteArrayOutputStream.toByteArray()
+    suspend fun Bitmap.getByteArray(imageQuality: Int): ByteArray =
+        suspendCoroutine {
+            ByteArrayOutputStream().let { byteArrayOutputStream ->
+                this.compress(Bitmap.CompressFormat.JPEG, imageQuality, byteArrayOutputStream)
+                it.resumeWith(Result.success(byteArrayOutputStream.toByteArray()))
+            }
         }
 }

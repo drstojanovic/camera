@@ -3,16 +3,15 @@ package com.example.camera.presentation.setup
 import android.util.Log
 import android.util.Size
 import androidx.annotation.StringRes
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.example.camera.R
 import com.example.camera.domain.GetSettings
 import com.example.camera.domain.StoreSettings
 import com.example.camera.presentation.base.BaseViewModel
 import com.example.camera.processing.Settings
 import com.example.camera.utils.TAG
+import com.example.camera.utils.collect
+import kotlinx.coroutines.launch
 
 class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
 
@@ -52,17 +51,18 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
         _classificationModeLive.postValue(classificationMode)
     }
 
-    private fun getStoredSettings(isClassification: Boolean) =
+    private fun getStoredSettings(isClassification: Boolean) = viewModelScope.launch {
         getSettings.execute(isClassification)
-            .subscribe(
+            .collect(
                 onSuccess = {
-                    this.settings = it.copy()
+                    this@SetupViewModel.settings = it?.copy()
                     _settingsLive.postValue(it)
-                    _isLocalInferenceLive.postValue(it.localInference)
+                    _isLocalInferenceLive.postValue(it?.localInference)
                 },
                 onError = {
                     Log.e(TAG, it.message ?: it.toString())
                 })
+    }
 
     fun onNetworkStatusChange(isAvailable: Boolean) =
         _isNetworkAvailableLive.postValue(isAvailable)
@@ -121,12 +121,14 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
             setAction(SetupAction.Proceed)
         } else {
             settings?.let {
-                storeSettings.execute(it, _classificationModeLive.value ?: false)
-                    .subscribe(
-                        onComplete = { setAction(SetupAction.Proceed) },
-                        onError = { throwable ->
-                            Log.e(TAG, throwable.message ?: throwable.toString())
-                        })
+                viewModelScope.launch {
+                    storeSettings.execute(it, _classificationModeLive.value ?: false)
+                        .collect(
+                            onSuccess = { setAction(SetupAction.Proceed) },
+                            onError = { throwable ->
+                                Log.e(TAG, throwable.message ?: throwable.toString())
+                            })
+                }
             }
         }
     }

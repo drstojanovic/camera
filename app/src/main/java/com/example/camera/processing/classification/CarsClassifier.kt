@@ -12,12 +12,9 @@ import com.example.camera.processing.detection.LocalObjectDetector
 import com.example.camera.processing.detection.ObjectDetector
 import com.example.camera.utils.EVENT_CLASSIFY_CARS
 import com.example.camera.utils.ImageUtils.getByteArray
-import com.example.camera.utils.filterItems
-import com.example.camera.utils.mapItems
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import io.reactivex.Single
 
 class CarsClassifier(
     context: Context,
@@ -34,15 +31,15 @@ class CarsClassifier(
         objectDetector.dispose()
     }
 
-    override fun process(image: Bitmap): Single<List<ClassificationResult>> =
+    override suspend fun process(image: Bitmap): List<ClassificationResult> =
         objectDetector.detectObjects(image.getByteArray(settings.imageQuality))
-            .filterItems { it.title.trim() == "car" }
-            .map { it.ifEmpty { throw CarNotDetectedException() } }
-            .mapItems { it.location }
-            .map { getImageCrops(image, it) }
-            .flatMap { uploadCropsForClassification(it) }
+            .filter { it.title.trim() == "car" }
+            .let { it.ifEmpty { throw CarNotDetectedException() } }
+            .map { it.location }
+            .let { getImageCrops(image, it) }
+            .let { uploadCropsForClassification(it) }
 
-    private fun getImageCrops(image: Bitmap, boundingBoxes: List<RectF>): List<ImageCrop> =
+    private suspend fun getImageCrops(image: Bitmap, boundingBoxes: List<RectF>): List<ImageCrop> =
         boundingBoxes.map { box ->
             ImageCrop(
                 location = box,
@@ -52,19 +49,19 @@ class CarsClassifier(
             )
         }
 
-    private fun Bitmap.getEncodedBytes(): ByteArray =
+    private suspend fun Bitmap.getEncodedBytes(): ByteArray =
         ImagePreprocessor.encodeBytes(this.getByteArray(settings.imageQuality))
 
-    private fun uploadCropsForClassification(crops: List<ImageCrop>): Single<List<ClassificationResult>> =
+    private suspend fun uploadCropsForClassification(crops: List<ImageCrop>): List<ClassificationResult> =
         socketManager.emitEvent(EVENT_CLASSIFY_CARS, *(crops.map { it.encodedBytes }.toTypedArray()))
-            .map { result ->
+            .let { result ->
                 Log.d("sentic", "result: ${result[0]}")
-                if (result.isNotEmpty() && result[0] != "") {
+                if (result.isNullOrEmpty() && result[0] != "") {
                     classificationAdapter.fromJson(result[0].toString())?.let { classifications ->
                         classifications.mapIndexed { index, classificationRaw ->
                             classificationRaw.toClassificationResult(index, crops[index].location)
                         }
-                    }
+                    }!!     //todo:check
                 } else listOf()
             }
 }

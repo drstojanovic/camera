@@ -1,13 +1,18 @@
 package com.example.camera.processing
 
 import android.util.Log
-import com.example.camera.processing.detection.MAX_PROCESSING_TIME_SECONDS
+import com.example.camera.processing.detection.MAX_PROCESSING_TIME_MILLIS
 import com.example.camera.processing.detection.TAG
-import io.reactivex.Single
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.engineio.client.transports.WebSocket
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class SocketManager(
     private val serverAddress: String,
@@ -43,15 +48,21 @@ class SocketManager(
         }
     }
 
-    fun emitEvent(event: String, vararg args: Any): Single<Array<Any>> =
-        if (isConnected) {
-            Single.create<Array<Any>> { emitter ->
+    suspend fun emitEvent(event: String, vararg args: Any): Array<Any> = withContext(Dispatchers.IO) {
+        val deferred = async { execute(event, args) }
+        withTimeout(MAX_PROCESSING_TIME_MILLIS) { deferred.await() }
+    }
+
+    private suspend fun execute(event: String, vararg args: Any): Array<Any> =
+        suspendCoroutine { continuation ->
+            if (isConnected) {
                 socket.emit(event, args) { result ->
-                    result?.let { emitter.onSuccess(it) }
-                        ?: emitter.onError(RuntimeException("Socket returned null for result"))
+                    result
+                        ?.let { continuation.resume(it) }
+                        ?: continuation.resumeWithException(RuntimeException("Socket returned null for result"))
                 }
-            }.timeout(MAX_PROCESSING_TIME_SECONDS, TimeUnit.SECONDS)
-        } else {
-            Single.error(SocketDisconnectedException())
+            } else {
+                continuation.resumeWithException(SocketDisconnectedException())
+            }
         }
 }

@@ -72,6 +72,7 @@ class ClassificationFragment : BaseFragment<FragmentClassificationBinding, Class
         }
     }
 
-    override fun onImageAvailable(bitmap: Bitmap, orientation: Int) =
+    override fun onImageAvailable(bitmap: Bitmap, orientation: Int) {
         viewModel.onImageAvailable(bitmap, orientation)
+    }
 }

@@ -3,20 +3,23 @@ package com.example.camera.processing.classification
 import android.graphics.Bitmap
 import com.example.camera.processing.ImagePreprocessor
 import com.example.camera.processing.Settings
-import io.reactivex.Single
-import io.reactivex.schedulers.Schedulers
+import com.example.camera.utils.tryToExecute
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 abstract class MultipleObjectClassifier(val settings: Settings) {
 
-    open fun prepareImage(image: Bitmap, orientation: Int) =
+    open suspend fun prepareImage(image: Bitmap, orientation: Int) =
         ImagePreprocessor.setSizeAndOrientation(image, orientation, settings.imageWidth, settings.imageHeight)
 
-    fun processImage(image: Bitmap, orientation: Int): Single<List<ClassificationResult>> =
-        Single.fromCallable { prepareImage(image, orientation) }
-            .flatMap { process(it) }
-            .subscribeOn(Schedulers.io())
+    suspend fun processImage(image: Bitmap, orientation: Int): Result<List<ClassificationResult>> =
+        withContext(Dispatchers.Default) {
+            tryToExecute {
+                process(prepareImage(image, orientation))
+            }
+        }
 
-    protected abstract fun process(image: Bitmap): Single<List<ClassificationResult>>
+    protected abstract suspend fun process(image: Bitmap): List<ClassificationResult>
 
     abstract fun dispose()
 }
