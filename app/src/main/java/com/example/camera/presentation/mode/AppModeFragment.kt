@@ -2,6 +2,7 @@ package com.example.camera.presentation.mode
 
 import android.os.Bundle
 import android.view.View
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import com.example.camera.R
 import com.example.camera.databinding.FragmentModeChooserBinding
@@ -20,11 +21,20 @@ class AppModeFragment : BaseFragment<FragmentModeChooserBinding, AppModeViewMode
             when (it) {
                 ModeAction.CAR_BRAND_CLASSIFICATION ->
                     findNavController().navigate(
-                        AppModeFragmentDirections.actionAppModeFragmentToSetupFragment(isClassificationMode = true)
+                        AppModeFragmentDirections.actionAppModeFragmentToSetupFragment(isClassificationMode = true),
+                        getTransitionExtras()
                     )
                 ModeAction.DETECTION ->
-                    findNavController().navigate(AppModeFragmentDirections.actionAppModeFragmentToSetupFragment())
+                    findNavController().navigate(
+                        AppModeFragmentDirections.actionAppModeFragmentToSetupFragment(),
+                        getTransitionExtras()
+                    )
             }
         }
     }
+
+    private fun getTransitionExtras() = FragmentNavigatorExtras(
+        binding.txtLogo to binding.txtLogo.transitionName,
+        binding.cardOptions to binding.cardOptions.transitionName
+    )
 }

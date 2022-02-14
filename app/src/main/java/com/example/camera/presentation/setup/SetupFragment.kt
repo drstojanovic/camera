@@ -4,11 +4,14 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.transition.ChangeBounds
 import com.example.camera.R
 import com.example.camera.databinding.FragmentSetupBinding
 import com.example.camera.presentation.base.BaseFragment
@@ -29,6 +32,11 @@ class SetupFragment : BaseFragment<FragmentSetupBinding, SetupViewModel>() {
     override fun provideLayoutId() = R.layout.fragment_setup
 
     override fun provideViewModelClass() = SetupViewModel::class.java
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        sharedElementEnterTransition = ChangeBounds()
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -48,6 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_medium"
+            android:transitionName="@string/transition_name_card_container"
             app:cardBackgroundColor="#71FFFFFF"
             app:cardCornerRadius="8dp"
             app:layout_constraintBottom_toTopOf="@id/btn_detection"

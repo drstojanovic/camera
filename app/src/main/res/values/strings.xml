@@ -3,6 +3,7 @@
     <string name="close">Close</string>
 
     <string name="transition_name_logo">Logo</string>
+    <string name="transition_name_card_container">Card</string>
 
     <string name="setup_start_detection">Start detection</string>
     <string name="setup_image_resolution">Image resolution:</string>

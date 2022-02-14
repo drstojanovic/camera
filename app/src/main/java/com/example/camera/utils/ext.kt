@@ -27,8 +27,8 @@ fun View.spToPx(sp: Int): Float =
 fun Paint.withColor(color: Int) =
     this.apply { setColor(color) }
 
-fun <T> LifecycleOwner.observe(liveData: LiveData<T>, action: (T) -> Unit) {
-    liveData.observe(this) { action.invoke(it) }
+fun <T> Fragment.observe(liveData: LiveData<T>, action: (T) -> Unit) {
+    liveData.observe(viewLifecycleOwner) { action.invoke(it) }
 }
 
 fun <T, R> Single<List<T>>.mapItems(mapper: ((T) -> R)): Single<List<R>> =
