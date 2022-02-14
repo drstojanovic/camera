@@ -73,4 +73,4 @@ CODE IMPROVEMENTS:
 
 Classification screen:
 - create data layer and organize architecture better
-- not resuming after error (no internet, no cars...)
+- no-cars exception freezes last bbox

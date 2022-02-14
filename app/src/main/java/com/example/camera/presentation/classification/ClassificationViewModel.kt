@@ -94,6 +94,7 @@ class ClassificationViewModel : BaseViewModel<ClassificationViewModel.Classifica
     }
 
     private fun handleProcessingError(throwable: Throwable) {
+        _classificationResultLive.postValue(listOf())
         if (hasNetwork) {
             when (throwable) {
                 is CarNotDetectedException -> {
