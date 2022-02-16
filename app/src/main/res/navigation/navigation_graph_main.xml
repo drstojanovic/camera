@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph_main"
+    app:startDestination="@id/appModeFragment">
+
+    <fragment
+        android:id="@+id/appModeFragment"
+        android:name="com.example.camera.presentation.mode.AppModeFragment"
+        android:label="AppModeFragment"
+        tools:layout="@layout/fragment_mode_chooser">
+        <action
+            android:id="@+id/action_appModeFragment_to_setupFragment"
+            app:destination="@id/setupFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/setupFragment"
+        android:name="com.example.camera.presentation.setup.SetupFragment"
+        android:label="SetupFragment"
+        tools:layout="@layout/fragment_setup">
+        <argument
+            android:name="isClassificationMode"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_setupFragment_to_detectionFragment"
+            app:destination="@id/detectionFragment" />
+        <action
+            android:id="@+id/action_setupFragment_to_classificationFragment"
+            app:destination="@id/classificationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detectionFragment"
+        android:name="com.example.camera.presentation.detection.DetectionFragment"
+        android:label="DetectionFragment"
+        tools:layout="@layout/fragment_detection">
+        <argument
+            android:name="settings"
+            app:argType="com.example.camera.processing.Settings"
+            app:nullable="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/classificationFragment"
+        android:name="com.example.camera.presentation.classification.ClassificationFragment"
+        android:label="ClassificationFragment"
+        tools:layout="@layout/fragment_detection">
+        <argument
+            android:name="settings"
+            app:argType="com.example.camera.processing.Settings"
+            app:nullable="false" />
+    </fragment>
+</navigation>

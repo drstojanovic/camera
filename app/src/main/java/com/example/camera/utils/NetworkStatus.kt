@@ -8,20 +8,20 @@ import android.net.NetworkRequest
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
-class NetworkStatus(context: Context) : ConnectivityManager.NetworkCallback() {
+class NetworkStatus(context: Context?) : ConnectivityManager.NetworkCallback() {
 
-    private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private val connectivityManager = context?.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
     private val _networkAvailableLive = MutableLiveData<Boolean>()
 
     fun asLiveData(): LiveData<Boolean> {
-        connectivityManager.registerNetworkCallback(
+        connectivityManager?.registerNetworkCallback(
             NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), this
         )
         _networkAvailableLive.postValue(false)  // doesn't receive no-internet event on start
         return _networkAvailableLive
     }
 
-    fun dispose() = connectivityManager.unregisterNetworkCallback(this)
+    fun dispose() = connectivityManager?.unregisterNetworkCallback(this)
 
     override fun onAvailable(network: Network) = _networkAvailableLive.postValue(true)
 

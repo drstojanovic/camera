@@ -8,9 +8,10 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.example.camera.R
+import com.example.camera.domain.GetSettings
+import com.example.camera.domain.StoreSettings
 import com.example.camera.presentation.base.BaseViewModel
 import com.example.camera.processing.Settings
-import com.example.camera.repository.SettingsRepository
 import com.example.camera.utils.TAG
 
 class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
@@ -20,10 +21,12 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
         class Error(@StringRes val message: Int) : SetupAction()
     }
 
-    private val settingsRepository = SettingsRepository()
+    private val getSettings = GetSettings()
+    private val storeSettings = StoreSettings()
     private val _settingsLive: MutableLiveData<Settings> = MutableLiveData()
     private val _isLocalInferenceLive = MutableLiveData(false)
     private val _isNetworkAvailableLive = MutableLiveData<Boolean>()
+    private val _classificationModeLive = MutableLiveData<Boolean>()
     private val resolutions = listOf(
         Size(160, 160),
         Size(300, 300),
@@ -31,8 +34,9 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
         Size(640, 640)
     )
 
-    lateinit var settings: Settings
+    var settings: Settings? = null
         private set
+    val classificationModeLive: LiveData<Boolean> get() = _classificationModeLive
     val resolutionsLabels: List<String> get() = resolutions.map { "${it.width}x${it.height}" }
     val settingsLive: LiveData<Settings> = _settingsLive
     val isLocalInferenceLive: LiveData<Boolean> = _isLocalInferenceLive
@@ -43,12 +47,13 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
     val resolutionIndexLive: LiveData<Int>
         get() = Transformations.map(_settingsLive) { getSelectedResolutionIndex(it.imageWidth, it.imageHeight) }
 
-    init {
-        getStoredSettings()
+    fun init(classificationMode: Boolean) {
+        getStoredSettings(classificationMode)
+        _classificationModeLive.postValue(classificationMode)
     }
 
-    private fun getStoredSettings() =
-        settingsRepository.getSettings()
+    private fun getStoredSettings(isClassification: Boolean) =
+        getSettings.execute(isClassification)
             .subscribe(
                 onSuccess = {
                     this.settings = it.copy()
@@ -59,47 +64,54 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
                     Log.e(TAG, it.message ?: it.toString())
                 })
 
+    fun onNetworkStatusChange(isAvailable: Boolean) =
+        _isNetworkAvailableLive.postValue(isAvailable)
+
     fun onResolutionSelected(index: Int) {
         if (index !in resolutions.indices) return
 
         resolutions[index].let { size ->
-            settings.imageWidth = size.width
-            settings.imageHeight = size.height
+            settings?.imageWidth = size.width
+            settings?.imageHeight = size.height
         }
     }
 
     fun onMaxDetectionLimitChange(detectionLimit: Int) {
-        settings.maxDetections = detectionLimit
+        settings?.maxDetections = detectionLimit
     }
 
-    fun onConfidenceThresholdChange(confidenceThreshold: Int) {
-        settings.confidenceThreshold = confidenceThreshold
+    fun onDetectionThresholdChange(confidenceThreshold: Int) {
+        settings?.detectionThreshold = confidenceThreshold
+    }
+
+    fun onClassificationThresholdChange(confidenceThreshold: Int) {
+        settings?.classificationThreshold = confidenceThreshold
     }
 
     fun onImageQualityChange(imageQuality: Int) {
-        settings.imageQuality = imageQuality
+        settings?.imageQuality = imageQuality
     }
 
     fun onLocalInferenceSelected() {
         _isLocalInferenceLive.postValue(true)
-        settings.localInference = true
+        settings?.localInference = true
     }
 
     fun onRemoteInferenceSelected() {
         _isLocalInferenceLive.postValue(false)
-        settings.localInference = false
+        settings?.localInference = false
     }
 
     fun onThreadCountChange(threadCount: Int) {
-        settings.threadCount = threadCount
+        settings?.threadCount = threadCount
     }
 
     fun onIpAddressChange(text: String) {
-        settings.serverIpAddress = text
+        settings?.serverIpAddress = text
     }
 
     fun onPortChange(text: String) {
-        settings.serverPort = text
+        settings?.serverPort = text
     }
 
     fun onProceedClick() {
@@ -108,27 +120,29 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
         if (settings == settingsLive.value) {
             setAction(SetupAction.Proceed)
         } else {
-            settingsRepository.storeSettings(settings)
-                .subscribe(
-                    onComplete = { setAction(SetupAction.Proceed) },
-                    onError = {
-                        Log.e(TAG, it.message ?: it.toString())
-                    })
+            settings?.let {
+                storeSettings.execute(it, _classificationModeLive.value ?: false)
+                    .subscribe(
+                        onComplete = { setAction(SetupAction.Proceed) },
+                        onError = { throwable ->
+                            Log.e(TAG, throwable.message ?: throwable.toString())
+                        })
+            }
         }
     }
 
     private fun checkSetupValidity(): Boolean {
-        if (!settings.localInference) {
+        if (settings?.localInference == false) {
             when {
                 _isNetworkAvailableLive.value == false -> {
                     setAction(SetupAction.Error(R.string.setup_error_no_internet_connection))
                     return false
                 }
-                settings.serverIpAddress.isNullOrEmpty() -> {
+                settings?.serverIpAddress.isNullOrEmpty() -> {
                     setAction(SetupAction.Error(R.string.setup_error_no_server_address))
                     return false
                 }
-                settings.serverPort.isNullOrEmpty() -> {
+                settings?.serverPort.isNullOrEmpty() -> {
                     setAction(SetupAction.Error(R.string.setup_error_no_server_port))
                     return false
                 }
@@ -136,9 +150,6 @@ class SetupViewModel : BaseViewModel<SetupViewModel.SetupAction>() {
         }
         return true
     }
-
-    fun onNetworkStatusChange(isAvailable: Boolean) =
-        _isNetworkAvailableLive.postValue(isAvailable)
 
     private fun getNetworkWarningVisibility() =
         _isLocalInferenceLive.value == false && _isNetworkAvailableLive.value == false

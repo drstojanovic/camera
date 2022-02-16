@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.example.camera.presentation.classification.ClassificationViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.example.camera.utils.view.AutoFitTextureView
+            android:id="@+id/texture_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.7"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.example.camera.utils.view.TrackerOverlayView
+            android:id="@+id/view_tracker"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:data="@{vm.detectedObjectsLive}"
+            app:layout_constraintBottom_toBottomOf="@id/texture_view"
+            app:layout_constraintEnd_toEndOf="@id/texture_view"
+            app:layout_constraintStart_toStartOf="@id/texture_view"
+            app:layout_constraintTop_toTopOf="@id/texture_view"
+            app:modelInputSize="@{vm.selectedImageSizeLive}" />
+
+        <ImageView
+            android:id="@+id/img_info"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:onClick="@{() -> vm.onShowInfoSelected()}"
+            android:padding="@dimen/margin_small"
+            app:layout_constraintBottom_toBottomOf="@id/texture_view"
+            app:layout_constraintEnd_toEndOf="@id/texture_view"
+            app:srcCompat="@drawable/ic_info"
+            app:tint="@color/white"
+            tools:ignore="ContentDescription" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_detections"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:classifications="@{vm.classifiedObjectsLive}"
+            app:hasFixedSize="@{true}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/texture_view"
+            app:layout_constraintWidth_percent="1"
+            tools:listitem="@layout/item_classification" />
+
+        <include
+            layout="@layout/partial_processing_error_card"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="4dp"
+            app:errorDescription="@{vm.errorLive}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/texture_view"
+            tools:visibility="gone" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_small"
+            android:backgroundTint="@color/colorAccent"
+            android:onClick="@{() -> vm.onPlayPauseClick()}"
+            app:borderWidth="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@{vm.fabIconLive}"
+            tools:ignore="ContentDescription"
+            tools:src="@drawable/ic_pause" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

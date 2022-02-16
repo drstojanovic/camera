@@ -2,11 +2,14 @@ package com.example.camera.utils
 
 import android.view.View
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.camera.presentation.main.DetectionAdapter
+import com.example.camera.presentation.classification.ClassificationAdapter
+import com.example.camera.presentation.classification.ClassificationResultView
+import com.example.camera.presentation.detection.DetectionAdapter
 
 @BindingAdapter("selected")
 fun View.bindSelectionState(isSelected: Boolean) {
@@ -28,8 +31,13 @@ fun EditText.bindTextChangeListener(textChangeListener: StringActionListener?) {
     doOnTextChanged { text, _, _, _ -> textChangeListener?.onAction(text?.toString() ?: "") }
 }
 
+@BindingAdapter("srcCompat")
+fun ImageView.bindResourceCompat(resId: Int?) {
+    resId?.let { setImageDrawable(ContextCompat.getDrawable(context, it)) }
+}
+
 @BindingAdapter(value = ["items", "selectedIndex", "onItemSelected"], requireAll = false)
-fun Spinner.bindSpinnerItems(items: List<String>, selectedIndex: Int, onItemSelected: ActionListener?) {
+fun Spinner.bindSpinnerItems(items: List<String>, selectedIndex: Int?, onItemSelected: ActionListener?) {
     adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, items).apply {
         setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
     }
@@ -39,36 +47,17 @@ fun Spinner.bindSpinnerItems(items: List<String>, selectedIndex: Int, onItemSele
             onItemSelected?.onAction(position)
         }
     }
-    setSelection(selectedIndex)
-}
-
-@BindingAdapter(value = ["min", "max", "step", "progress", "onProgressChange"], requireAll = false)
-fun SeekBar.bindSlideListener(
-    min: Int,
-    max: Int,
-    step: Int?,
-    progress: Int?,
-    onProgressChangeListener: ActionListener
-) {
-    val nnStep = step ?: 1
-    val realProgress = progress?.let { (it - min) / nnStep } ?: 0
-    val realMax = (max - min) / nnStep
-    val realMin = min / nnStep
-
-    setMax(realMax)
-    this.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-        override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-        override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
-        override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-            onProgressChangeListener.onAction((progress + realMin) * nnStep)
-        }
-    })
-    setProgress(realProgress)
+    selectedIndex?.let { setSelection(it) }
 }
 
 @BindingAdapter("items")
 fun RecyclerView.bindItems(items: List<String>) {
     (adapter as DetectionAdapter).setItems(items)
+}
+
+@BindingAdapter("classifications")
+fun RecyclerView.bindClassificationItems(items: List<ClassificationResultView>?) {
+    items?.let { (adapter as ClassificationAdapter).setItems(items) }
 }
 
 interface ActionListener {

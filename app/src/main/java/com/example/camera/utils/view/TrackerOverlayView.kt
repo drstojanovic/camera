@@ -6,8 +6,8 @@ import android.util.AttributeSet
 import android.util.Size
 import android.widget.FrameLayout
 import com.example.camera.R
-import com.example.camera.detection.Recognition
-import com.example.camera.presentation.main.TrackingBox
+import com.example.camera.presentation.detection.TrackingBox
+import com.example.camera.processing.detection.Recognition
 import com.example.camera.utils.ImageUtils
 import com.example.camera.utils.spToPx
 import com.example.camera.utils.withColor
@@ -78,8 +78,8 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
             )
     }
 
-    fun setData(list: List<Recognition>) {
-        if (!this::modelOutputToCanvasMatrix.isInitialized) return
+    fun setData(list: List<Recognition>?) {
+        if (list == null || !this::modelOutputToCanvasMatrix.isInitialized) return
 
         boxes = list.mapIndexed { index, recognition ->
             val mappedLocation = RectF(recognition.location)
@@ -87,9 +87,9 @@ class TrackerOverlayView(context: Context, attributeSet: AttributeSet?) : FrameL
 
             TrackingBox(
                 location = mappedLocation,
+                color = availableColors[index],
                 confidence = recognition.confidence,
-                title = recognition.title,
-                color = availableColors[index]
+                title = recognition.title
             )
         }
 

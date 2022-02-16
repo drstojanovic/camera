@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">Traffic Assistant</string>
-    <string name="cancel">Cancel</string>
-    <string name="save">Save</string>
     <string name="close">Close</string>
 
     <string name="transition_name_logo">Logo</string>
+    <string name="transition_name_logo_image">Logo image</string>
+    <string name="transition_name_card_container">Card</string>
 
     <string name="setup_start_detection">Start detection</string>
     <string name="setup_image_resolution">Image resolution:</string>
@@ -32,5 +32,16 @@
     <string name="detection_error">Error</string>
     <string name="detection_error_unable_to_connect">Failed to connect to remote server.\nPlease check your settings and try again.</string>
     <string name="detection_error_bad_connection">Detection too slow! Check your internet signal.</string>
+
+    <string name="mode_chooser_classification">Car Brand Classification</string>
+    <string name="mode_chooser_detection">Traffic Object Detection</string>
+    <string name="mode_description">Please choose how you would like to use the app.</string>
+    <string name="mode_description_classification">Detect cars and find their brands among over 100 most popular ones.</string>
+    <string name="mode_description_detection">Able to detect 5 types of object in traffic:\nCar, Truck, Bus, Biker and Pedestrian</string>
+    <string name="mode_proceed">Continue</string>
+
+    <string name="classification_setup_detection_threshold">Detection confidence threshold:</string>
+    <string name="classification_setup_classification_threshold">Classification confidence threshold:</string>
+    <string name="classification_error_no_cars_detected">No cars detected</string>
 
 </resources>

@@ -6,7 +6,7 @@
 
         <variable
             name="settings"
-            type="com.example.camera.presentation.main.info.SettingsInfo" />
+            type="com.example.camera.presentation.detection.info.SettingsInfo" />
 
     </data>
 
@@ -22,7 +22,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:value="@{settings.resolution}" />
+            app:value="@{settings.resolution}"
+            app:visibility="@{true}" />
 
         <include
             android:id="@+id/partial_max_detections"
@@ -32,17 +33,30 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/partial_resolution"
-            app:value="@{settings.maxDetections}" />
+            app:value="@{settings.maxDetections}"
+            app:visibility="@{true}" />
 
         <include
-            android:id="@+id/partial_confidence_threshold"
+            android:id="@+id/partial_detection_confidence_threshold"
             style="@style/SettingsInfoLabel"
             layout="@layout/partial_setting_info"
-            app:label="@{@string/setup_confidence_threshold}"
+            app:label="@{@string/classification_setup_detection_threshold}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/partial_max_detections"
-            app:value="@{settings.confidenceThreshold}" />
+            app:value="@{settings.detectionConfidenceThreshold}"
+            app:visibility="@{true}" />
+
+        <include
+            android:id="@+id/partial_classification_confidence_threshold"
+            style="@style/SettingsInfoLabel"
+            layout="@layout/partial_setting_info"
+            app:label="@{@string/classification_setup_classification_threshold}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/partial_detection_confidence_threshold"
+            app:value="@{settings.classificationConfidenceThreshold}"
+            app:visibility="@{settings.showClassificationThreshold}" />
 
         <include
             android:id="@+id/partial_image_quality"
@@ -51,8 +65,9 @@
             app:label="@{@string/setup_image_quality}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/partial_confidence_threshold"
-            app:value="@{settings.imageQuality}" />
+            app:layout_constraintTop_toBottomOf="@id/partial_classification_confidence_threshold"
+            app:value="@{settings.imageQuality}"
+            app:visibility="@{true}" />
 
         <include
             android:id="@+id/partial_inference_type"
@@ -62,19 +77,31 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/partial_image_quality"
-            app:value="@{settings.inferenceType}" />
+            app:value="@{settings.inferenceType}"
+            app:visibility="@{true}" />
+
+        <include
+            android:id="@+id/partial_server_address"
+            style="@style/SettingsInfoLabel"
+            layout="@layout/partial_setting_info"
+            app:label="@{@string/setup_server_address}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/partial_inference_type"
+            app:value="@{settings.serverAddress}"
+            app:visibility="@{settings.showAddress}" />
 
         <Button
             android:id="@+id/btn_close"
-            android:background="@drawable/bg_button_primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_half"
+            android:background="@drawable/bg_button_primary"
             android:text="@string/close"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/partial_inference_type" />
+            app:layout_constraintTop_toBottomOf="@id/partial_server_address" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

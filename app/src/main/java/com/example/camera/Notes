@@ -71,3 +71,6 @@ CODE IMPROVEMENTS:
     - how to dynamically inject ImageProcessor?
 - TrackerOverlayView/cornerSize, why depends on width and height?
 
+Classification screen:
+- create data layer and organize architecture better
+- no-cars exception freezes last bbox

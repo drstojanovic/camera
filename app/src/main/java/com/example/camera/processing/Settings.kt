@@ -11,7 +11,8 @@ data class Settings(
     var threadCount: Int?,
     var localInference: Boolean,
     var maxDetections: Int,
-    var confidenceThreshold: Int,
+    var detectionThreshold: Int,
+    var classificationThreshold: Int,
     var imageQuality: Int,
     var imageWidth: Int,
     var imageHeight: Int
@@ -23,5 +24,5 @@ data class Settings(
         get() = Size(imageWidth, imageHeight)
 
     fun toQuery(): String =
-        "maxDetections=$maxDetections&confidenceThreshold=$confidenceThreshold"
+        "maxDetections=$maxDetections&detectionThreshold=$detectionThreshold&classificationThreshold=$classificationThreshold"
 }

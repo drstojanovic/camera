@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="data"
+            type="com.example.camera.presentation.classification.ClassificationResultView" />
+
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_detections"
+        style="@style/CardView.Detections"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/margin_small">
+
+            <TextView
+                android:id="@+id/txt_primary_result_confidence"
+                style="@style/ClassificationConfidenceBubble"
+                android:background="@drawable/shape_classification_confidence_primary"
+                android:backgroundTint="@{data.color}"
+                android:text="@{data.resultPrimary.confidenceString}"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="@id/txt_result_main"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/txt_result_main"
+                app:visibility="@{data.resultPrimary != null}"
+                tools:backgroundTint="@color/colorBoxRed"
+                tools:text="76.3%" />
+
+            <TextView
+                android:id="@+id/txt_result_main"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:text="@{data.resultPrimary.title}"
+                android:textColor="@{data.color}"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/txt_primary_result_confidence"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Audi S4 Sedan 2012"
+                tools:textColor="@color/colorBoxRed" />
+
+            <TextView
+                android:id="@+id/txt_secondary_result_confidence"
+                style="@style/ClassificationConfidenceBubble"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/shape_classification_confidence_other"
+                android:backgroundTint="@{data.color}"
+                android:text="@{data.resultSecondary.confidenceString}"
+                android:textColor="@{data.color}"
+                app:layout_constraintBottom_toBottomOf="@id/txt_result_second"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/txt_result_second"
+                app:visibility="@{data.resultSecondary != null}"
+                tools:backgroundTint="@color/colorBoxRed"
+                tools:text="76.3%" />
+
+            <TextView
+                android:id="@+id/txt_result_second"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginTop="4dp"
+                android:alpha="0.7"
+                android:text="@{data.resultSecondary.title}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/txt_secondary_result_confidence"
+                app:layout_constraintTop_toBottomOf="@id/txt_result_main"
+                app:visibility="@{data.resultSecondary != null}"
+                tools:text="Bentley Continental GT Coupe 2012" />
+
+            <TextView
+                android:id="@+id/txt_tertiary_result_confidence"
+                style="@style/ClassificationConfidenceBubble"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/shape_classification_confidence_other"
+                android:backgroundTint="@{data.color}"
+                android:text="@{data.resultTertiary.confidenceString}"
+                android:textColor="@{data.color}"
+                app:layout_constraintBottom_toBottomOf="@id/txt_result_third"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/txt_result_third"
+                app:visibility="@{data.resultTertiary != null}"
+                tools:backgroundTint="@color/colorBoxRed"
+                tools:text="76.3%" />
+
+            <TextView
+                android:id="@+id/txt_result_third"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginTop="4dp"
+                android:alpha="0.7"
+                android:text="@{data.resultTertiary.title}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/txt_tertiary_result_confidence"
+                app:layout_constraintTop_toBottomOf="@id/txt_result_second"
+                app:visibility="@{data.resultTertiary != null}"
+                tools:text="BMW 6 Series Convertible 2007" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>
