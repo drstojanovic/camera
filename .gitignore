@@ -2,7 +2,6 @@
 app/src/main/assets/
 *.tflite
 
-
 # Built application files
 *.apk
 *.aar
